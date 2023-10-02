@@ -4,6 +4,5 @@ import { NextApiRequest } from "next";
 
 
 export async function GET() {
-console.log('runnignadklfj');
   return NextResponse.json({ message: "Folder created with ID: "  })
 }
