@@ -1,30 +1,12 @@
 import { NextResponse } from "next/server";
-import {drive, auth} from '@googleapis/drive'
-
+import { listFiles } from "@/lib/gdrive";
 
 export async function GET() {
+  const list: any = await listFiles(process.env.SHARED_FOLDER_ID_DRIVE);
 
-  const ab = new auth.GoogleAuth({
-    keyFile: "./credentials.json",
-    scopes: "https://www.googleapis.com/auth/drive",
+  return NextResponse.json({
+    status: "200",
+    message: "success",
+    files: list.files,
   });
-
-  const driveClient = drive({ version: "v3", auth: ab })
-
-
-  //create folder
-  // const folderMetadata = {
-  //   name: "fdakjsfsajfl",
-  //   mimeType: "application/vnd.google-apps.folder"
-  // }
-
-  // const folder = await driveClient.files.create({
-  //   requestBody: folderMetadata,
-  //   fields: "id"
-  // })
-
-  const lis = await driveClient.files.list({
-  })
-
-  return NextResponse.json({ message: lis.data })
 }
