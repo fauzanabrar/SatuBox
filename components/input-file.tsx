@@ -8,33 +8,14 @@ export function InputFile() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileUpload: any = event.target.files ? event.target.files[0] : null;
-    if (fileUpload) {
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(fileUpload);
-    reader.onload = () => {
-      const newFile: any = {
-        name: fileUpload.name,
-        type: fileUpload.type,
-        size: fileUpload.size,
-        content: reader.result,
-      };
-      console.log(newFile);
-      setFile(newFile);
-    };
-    //   reader.onerror = () => {
-    //     console.error(reader.error);
-    //   };
-
-    }
-    // setFile(fileUpload);
+    setFile(fileUpload);
   };
 
   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (file) {
       const formData = new FormData();
-      formData.append("file", JSON.stringify(file));
-      formData.append("content", file.content);
+      formData.append("file", file);
       
       try {
         const response = await fetch("http://localhost:3000/api/drive/upload", {

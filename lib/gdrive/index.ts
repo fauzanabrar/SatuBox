@@ -67,13 +67,12 @@ export async function listFiles(folderId?: string) {
       error: error.message
     };
   }
-
 }
 
 export async function uploadFile(
   name: string,
   mimeType: string,
-  content: string,
+  content: Buffer,
   parent?: string[]
 ) {
   const driveClient = await getDriveClient();
@@ -85,7 +84,7 @@ export async function uploadFile(
 
   const media = {
     mimeType,
-    body: content,
+    body: await toReadableStream(content),
   };
 
   const file = await driveClient.files.create({
@@ -94,86 +93,6 @@ export async function uploadFile(
   });
   console.log(file.data);
   return file.data;
-}
-
-export async function uploadSingleFile(
-  fileRead: any,
-  parent?: string[]
-) {
-  const driveClient = await getDriveClient();
-
-  const fileMetadata = {
-    name: fileRead.name,
-    parents: parent,
-  };
-
-  const buffer = Buffer.from(fileRead)
-
-  const fileUrl = URL.createObjectURL(fileRead);
-
-  const media = {
-    mimeType: fileRead.type,
-    body: toReadableStream(buffer),
-  };
-
-  const file = await driveClient.files.create({
-    requestBody: fileMetadata,
-    media,
-  });
-  console.log(file.data);
-  return file.data;
-}
-export async function uploadBufferFile(
-  fileRead: any,
-  parent?: string[]
-) {
-  const driveClient = await getDriveClient();
-
-  const fileMetadata = {
-    name: fileRead.name,
-    parents: parent,
-  };
-
-  const media = {
-    mimeType: fileRead.type,
-    body: new ReadableStream({
-      start(controller) {
-        const array = new Uint8Array(fileRead.content);
-        controller.enqueue(array);
-        controller.close();
-      }
-    }),
-  };
-
-  const file = await driveClient.files.create({
-    requestBody: fileMetadata,
-    media,
-  });
-  console.log(file.data);
-  return file.data;
-}
-
-function arrayBufferToWritableStream(buffer: ArrayBuffer): WritableStream<Uint8Array> {
-  const stream = new WritableStream({
-    write(chunk) {
-      // Do something with the chunk
-    }
-  });
-  const writer = stream.getWriter();
-  const array = new Uint8Array(buffer);
-  writer.write(array);
-  writer.close();
-  return stream;
-}
-
-function arrayBufferToReadableStream(buffer: ArrayBuffer): ReadableStream<Uint8Array> {
-  const array = new Uint8Array(buffer);
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(array);
-      controller.close();
-    }
-  });
 }
 
 export async function toReadableStream(file: any) {
