@@ -1,23 +1,26 @@
 "use client";
-import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { listenNowAlbums, madeForYouAlbums } from "@/data/albums";
+import { madeForYouAlbums } from "@/data/albums";
 import DashboardLayout from "@/layouts/DashboardLayouts";
 import Lists from "@/components/lists";
 import { InputFile } from "@/components/input-file";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import AddFolderDialog from "@/components/add-folder";
 
 export default function HomePage() {
   const [files, setFiles] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingList, setLoadingList] = useState(false);
 
   useEffect(() => {
+    setLoadingList(true);
     handleUpload();
-  }, []);
+    setLoadingList(false);
+  }, [loadingList]);
 
   const handleUpload = () => {
     console.log("fetching data");
@@ -40,19 +43,20 @@ export default function HomePage() {
             });
           }
         }
+        console.log("fetching berhasil");
         setFiles(newFiles);
       } catch (error) {
         console.log(error);
       }
-      setLoading(false)
+      setLoading(false);
     }
 
     getData2();
   };
 
   const handleAddFolder = () => {
-    
-  }
+    setLoadingList(true)
+  };
 
   return (
     <>
@@ -68,24 +72,7 @@ export default function HomePage() {
                   <TabsTrigger value="list">List</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto mr-4">
-                  <Button onClick={handleAddFolder}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-plus -ml-1 mr-1"
-                    >
-                      <path d="M5 12h14" />
-                      <path d="M12 5v14" />
-                    </svg>
-                    Add Folder
-                  </Button>
+                  <AddFolderDialog handleAddFolderSuccess={handleAddFolder} />
                 </div>
               </div>
               <TabsContent
@@ -113,7 +100,12 @@ export default function HomePage() {
                   )}
                 </div>
                 <Separator className="my-4" />
-                <Lists listItems={files} canScroll={true} type="grid" />
+                <Lists
+                  listItems={files}
+                  canScroll={true}
+                  type="grid"
+                  loading={loadingList}
+                />
               </TabsContent>
               <TabsContent
                 value="list"

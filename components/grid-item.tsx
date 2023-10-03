@@ -34,7 +34,7 @@ export function GridItem({
         <ContextMenuTrigger>
           <div className="overflow-hidden rounded-md">
             <Image
-              src={item.cover ? item.cover : './images/folder.svg'}
+              src={item.cover ? item.cover : "./images/folder.svg"}
               alt={item.name}
               width={width}
               height={height}
@@ -51,7 +51,9 @@ export function GridItem({
         </ContextMenuContent>
       </ContextMenu>
       <div className="space-y-1 text-sm flex align-center items-start justify-start h-12">
-        <h3 className="font-medium leading-none break-all px-1 py-1" >{item.name}</h3>
+        <h3 className="font-medium leading-none break-all px-2 py-1">
+          {item.name}
+        </h3>
       </div>
     </div>
   );

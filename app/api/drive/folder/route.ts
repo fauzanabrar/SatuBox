@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { listFiles } from "@/lib/gdrive";
+import { NextRequest, NextResponse } from "next/server";
+import { createFolder, listFiles } from "@/lib/gdrive";
 
 export async function GET() {
   const list: any = await listFiles(process.env.SHARED_FOLDER_ID_DRIVE);
@@ -11,8 +11,14 @@ export async function GET() {
   });
 }
 
-export async function POST() {
-  const list: any = await listFiles(process.env.SHARED_FOLDER_ID_DRIVE);
+export async function POST(request: NextRequest) {
+  const data = await request.formData();
+  
+  const folderName = data.get("name") as string;
+
+  const list: any = await createFolder(folderName, [
+    process.env.SHARED_FOLDER_ID_DRIVE as string,
+  ]);
 
   return NextResponse.json({
     status: "200",
