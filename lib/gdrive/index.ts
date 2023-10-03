@@ -195,7 +195,6 @@ export async function deleteFile(id: string) {
     fileId: id,
   });
 
-  console.log(file);
   return "success";
 }
 
