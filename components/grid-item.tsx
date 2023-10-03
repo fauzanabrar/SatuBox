@@ -31,7 +31,6 @@ export function GridItem({
   className,
   ...props
 }: GridItemProps) {
-
   const { refreshList } = useListStore();
 
   const image = (item: Item) => {
@@ -47,6 +46,7 @@ export function GridItem({
 
   const handleOpen = () => {
     console.log("open");
+    window.open(`https://drive.google.com/file/d/${item.id}/view`, "_blank");
   };
 
   const handleDelete = async () => {
@@ -83,6 +83,7 @@ export function GridItem({
                 "h-full w-full object-cover transition-all hover:scale-105",
                 aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
               )}
+              onClick={handleOpen}
             />
           </div>
         </ContextMenuTrigger>

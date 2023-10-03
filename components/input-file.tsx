@@ -13,8 +13,8 @@ export function InputFile({onUpload, setLoading}) {
 
   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true)
     if (file) {
+      setLoading(true)
       const formData = new FormData();
       formData.append("file", file);
 

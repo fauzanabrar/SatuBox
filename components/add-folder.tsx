@@ -17,23 +17,25 @@ export default function AddFolderDialog() {
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
-    const formData = new FormData();
-    formData.append("name", folderName);
+    if (folderName !== "" ) {
+      const formData = new FormData();
+      formData.append("name", folderName);
 
-    try {
-      setLoadingFolder(true);
-      const response = await fetch("http://localhost:3000/api/drive/folder", {
-        method: "POST",
-        body: formData,
-      });
-      if (response.ok) {
-        console.log("Add folder successfully");
-        refreshList();
-      } else {
-        console.error("Failed to add folder");
+      try {
+        setLoadingFolder(true);
+        const response = await fetch("http://localhost:3000/api/drive/folder", {
+          method: "POST",
+          body: formData,
+        });
+        if (response.ok) {
+          console.log("Add folder successfully");
+          refreshList();
+        } else {
+          console.error("Failed to add folder");
+        }
+      } catch (error) {
+        console.error("Failed to add folder", error);
       }
-    } catch (error) {
-      console.error("Failed to add folder", error);
     }
   };
 
