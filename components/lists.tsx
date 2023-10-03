@@ -42,12 +42,12 @@ export default function Lists({
             listItems?.map((item: any) => {
               if (type === "list") {
                 return (
-                  <ListItem key={item.name} item={item} className="w-full" />
+                  <ListItem key={item.id} item={item} className="w-full" />
                 );
               } else if (type === "grid") {
                 return (
                   <GridItem
-                    key={item.name}
+                    key={item.id}
                     item={item}
                     className="w-[150px] border-2 border-gray-200 rounded-md"
                     aspectRatio="square"

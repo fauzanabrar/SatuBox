@@ -7,7 +7,6 @@ import DashboardLayout from "@/layouts/DashboardLayouts";
 import Lists from "@/components/lists";
 import { InputFile } from "@/components/input-file";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import AddFolderDialog from "@/components/add-folder";
 import Loading from "@/components/loading";
 
@@ -31,13 +30,14 @@ export default function HomePage() {
         const newFiles = [];
         for (const item of data.files) {
           if (!item.mimeType.includes("image")) {
-            newFiles.push({ name: item.name, type: item.mimeType });
+            newFiles.push({ id: item.id,  name: item.name, type: item.mimeType });
           } else {
             const fetchImage = await fetch(
               `http://localhost:3000/api/drive/file/${item.id}`
             );
             const data = await fetchImage.json();
             newFiles.push({
+              id: item.id, 
               name: item.name,
               cover: `data:${item.mimeType};base64,${data.files}`,
               type: item.mimeType,

@@ -195,7 +195,8 @@ export async function deleteFile(id: string) {
     fileId: id,
   });
 
-  return file.data;
+  console.log(file);
+  return "success";
 }
 
 export async function updateFile(id: string, content: string) {
@@ -225,6 +226,14 @@ export async function copyFile(id: string, name: string) {
     fileId: id,
     requestBody: fileMetadata,
   });
+
+  return file.data;
+}
+
+export async function emptyTrash() {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.emptyTrash({});
 
   return file.data;
 }

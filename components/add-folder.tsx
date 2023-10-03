@@ -20,10 +20,9 @@ export default function AddFolderDialog({
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
-    
     const formData = new FormData();
     formData.append("name", folderName);
-    
+
     try {
       const response = await fetch("http://localhost:3000/api/drive/folder", {
         method: "POST",
