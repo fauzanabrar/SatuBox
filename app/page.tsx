@@ -9,58 +9,21 @@ import { InputFile } from "@/components/input-file";
 import { useEffect, useState } from "react";
 import AddFolderDialog from "@/components/add-folder";
 import Loading from "@/components/loading";
+import useListStore from "@/lib/zustand/store";
 
 export default function HomePage() {
-  const [files, setFiles] = useState<any>(null);
-  const [loadingFile, setLoadingFile] = useState(false);
-  const [loadingList, setLoadingList] = useState(false);
-  const [loadingFolder, setLoadingFolder] = useState(false);
+  const {
+    files,
+    loadingFile,
+    setLoadingFile,
+    loadingFolder,
+    loadingList,
+    refreshList,
+  } = useListStore();
 
   useEffect(() => {
     refreshList();
-  }, [loadingList]);
-
-  const refreshList = () => {
-    setLoadingList(true);
-    console.log("fetching data");
-    async function getData2() {
-      try {
-        const response = await fetch(`http://localhost:3000/api/drive/file`);
-        const data = await response.json();
-        const newFiles = [];
-        for (const item of data.files) {
-          if (!item.mimeType.includes("image")) {
-            newFiles.push({ id: item.id,  name: item.name, type: item.mimeType });
-          } else {
-            const fetchImage = await fetch(
-              `http://localhost:3000/api/drive/file/${item.id}`
-            );
-            const data = await fetchImage.json();
-            newFiles.push({
-              id: item.id, 
-              name: item.name,
-              cover: `data:${item.mimeType};base64,${data.files}`,
-              type: item.mimeType,
-            });
-          }
-        }
-        console.log("fetching berhasil");
-        setFiles(newFiles);
-      } catch (error) {
-        console.log(error);
-      }
-      setLoadingFile(false);
-      setLoadingFolder(false);
-    }
-
-    getData2();
-    setLoadingList(false);
-  };
-
-  const handleAddFolder = () => {
-    setLoadingFolder(true);
-    setLoadingList(true);
-  };
+  }, []);
 
   return (
     <>
@@ -78,7 +41,7 @@ export default function HomePage() {
                 <div className="ml-auto mr-4">
                   <div className="flex gap-2">
                     <Loading size={30} loading={loadingFolder} />
-                    <AddFolderDialog handleAddFolderSuccess={handleAddFolder} />
+                    <AddFolderDialog />
                   </div>
                 </div>
               </div>
@@ -122,7 +85,6 @@ export default function HomePage() {
                   </p>
                 </div>
                 <Separator className="my-4" />
-                <Lists listItems={madeForYouAlbums} canScroll={true} />
               </TabsContent>
             </Tabs>
           </div>

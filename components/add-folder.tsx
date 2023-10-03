@@ -9,14 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import useListStore from "@/lib/zustand/store";
 
-type ParamsType = {
-  handleAddFolderSuccess: any;
-};
+export default function AddFolderDialog() {
+  const { setLoadingFolder, refreshList } = useListStore();
 
-export default function AddFolderDialog({
-  handleAddFolderSuccess,
-}: ParamsType) {
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
@@ -24,13 +21,14 @@ export default function AddFolderDialog({
     formData.append("name", folderName);
 
     try {
+      setLoadingFolder(true);
       const response = await fetch("http://localhost:3000/api/drive/folder", {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
         console.log("Add folder successfully");
-        handleAddFolderSuccess(true);
+        refreshList();
       } else {
         console.error("Failed to add folder");
       }

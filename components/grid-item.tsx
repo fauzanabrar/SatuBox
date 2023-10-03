@@ -7,6 +7,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import useListStore from "@/lib/zustand/store";
 
 type Item = {
   id: string;
@@ -31,6 +32,8 @@ export function GridItem({
   ...props
 }: GridItemProps) {
 
+  const { refreshList } = useListStore();
+
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
     if (item.type.includes("folder")) return "./images/folder.svg";
@@ -38,30 +41,33 @@ export function GridItem({
   };
 
   const handleDetail = () => {
-    console.log('detail');
+    console.log("detail");
     console.log(item);
-  }
-  
+  };
+
   const handleOpen = () => {
-    console.log('open');
-  }
-  
+    console.log("open");
+  };
+
   const handleDelete = async () => {
-    console.log('delete');
+    console.log("delete");
     try {
-      const response = await fetch(`http://localhost:3000/api/drive/file/${item.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/drive/file/${item.id}`,
+        {
+          method: "DELETE",
+        }
+      );
       const data = await response.json();
       console.log(data);
-      if(data.status === 200) {
-        console.log('delete berhasil');
+      if (data.status === 200) {
+        console.log("delete berhasil");
+        refreshList();
       }
     } catch (error) {
       console.log(error);
     }
-  }
-
+  };
 
   return (
     <div className={cn("space-y-3", className)} {...props}>
@@ -81,9 +87,16 @@ export function GridItem({
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-40">
-          <ContextMenuItem  onClick={() => handleOpen()}>Open</ContextMenuItem>
-          <ContextMenuItem onClick={() => handleDetail()}>Detail</ContextMenuItem>
-          <ContextMenuItem className="text-red-600" onClick={() => handleDelete()}>Delete</ContextMenuItem>
+          <ContextMenuItem onClick={() => handleOpen()}>Open</ContextMenuItem>
+          <ContextMenuItem onClick={() => handleDetail()}>
+            Detail
+          </ContextMenuItem>
+          <ContextMenuItem
+            className="text-red-600"
+            onClick={() => handleDelete()}
+          >
+            Delete
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
       <div className="space-y-1 text-sm flex align-center items-start justify-start h-12">

@@ -2,17 +2,25 @@ import { create } from "zustand";
 
 type ListStore = {
   files: any[];
+  setFiles: (files: any) => void;
   loadingFolder: boolean;
+  setLoadingFolder: (bool: boolean) => void;
   loadingFile: boolean;
+  setLoadingFile: (bool: boolean) => void;
   loadingList: boolean;
+  setLoadingList: (bool: boolean) => void;
   refreshList: () => Promise<void>;
 };
 
 const useListStore = create<ListStore>((set) => ({
   files: [],
+  setFiles: (files: any) => set(() => ({files})),
   loadingFolder: false,
+  setLoadingFolder: (bool: boolean) => set(() => ({ loadingFolder: bool })),
   loadingFile: false,
+  setLoadingFile: (bool: boolean) => set(() => ({ loadingFile: bool })),
   loadingList: false,
+  setLoadingList: (bool: boolean) => set(() => ({ loadingList: bool })),
   refreshList: async () => {
     set({ loadingList: true });
     console.log("fetching data");
