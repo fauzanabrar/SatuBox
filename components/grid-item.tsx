@@ -11,6 +11,7 @@ import {
 type Item = {
   name: string;
   cover?: string;
+  type: string
 };
 
 interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -28,13 +29,20 @@ export function GridItem({
   className,
   ...props
 }: GridItemProps) {
+
+  const image = (item: Item) => {
+    if (item.type.includes("image")) return item.cover
+    if (item.type.includes("folder")) return "./images/folder.svg"
+    return "./images/file.svg"
+  }
+
   return (
     <div className={cn("space-y-3", className)} {...props}>
       <ContextMenu>
         <ContextMenuTrigger>
           <div className="overflow-hidden rounded-md">
             <Image
-              src={item.cover ? item.cover : "./images/folder.svg"}
+              src={(image(item) as string)}
               alt={item.name}
               width={width}
               height={height}

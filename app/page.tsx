@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -10,19 +9,20 @@ import { InputFile } from "@/components/input-file";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import AddFolderDialog from "@/components/add-folder";
+import Loading from "@/components/loading";
 
 export default function HomePage() {
   const [files, setFiles] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingFile, setLoadingFile] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
+  const [loadingFolder, setLoadingFolder] = useState(false);
 
   useEffect(() => {
-    setLoadingList(true);
-    handleUpload();
-    setLoadingList(false);
+    refreshList();
   }, [loadingList]);
 
-  const handleUpload = () => {
+  const refreshList = () => {
+    setLoadingList(true);
     console.log("fetching data");
     async function getData2() {
       try {
@@ -31,7 +31,7 @@ export default function HomePage() {
         const newFiles = [];
         for (const item of data.files) {
           if (!item.mimeType.includes("image")) {
-            newFiles.push({ name: item.name });
+            newFiles.push({ name: item.name, type: item.mimeType });
           } else {
             const fetchImage = await fetch(
               `http://localhost:3000/api/drive/file/${item.id}`
@@ -40,6 +40,7 @@ export default function HomePage() {
             newFiles.push({
               name: item.name,
               cover: `data:${item.mimeType};base64,${data.files}`,
+              type: item.mimeType,
             });
           }
         }
@@ -48,14 +49,17 @@ export default function HomePage() {
       } catch (error) {
         console.log(error);
       }
-      setLoading(false);
+      setLoadingFile(false);
+      setLoadingFolder(false);
     }
 
     getData2();
+    setLoadingList(false);
   };
 
   const handleAddFolder = () => {
-    setLoadingList(true)
+    setLoadingFolder(true);
+    setLoadingList(true);
   };
 
   return (
@@ -72,7 +76,10 @@ export default function HomePage() {
                   <TabsTrigger value="list">List</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto mr-4">
-                  <AddFolderDialog handleAddFolderSuccess={handleAddFolder} />
+                  <div className="flex gap-2">
+                    <Loading size={30} loading={loadingFolder} />
+                    <AddFolderDialog handleAddFolderSuccess={handleAddFolder} />
+                  </div>
                 </div>
               </div>
               <TabsContent
@@ -88,16 +95,11 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="flex align-middle gap-2">
-                  <InputFile onUpload={handleUpload} setLoading={setLoading} />
-                  {loading && (
-                    <Image
-                      src="./images/loading.svg"
-                      alt="loading"
-                      width={30}
-                      height={30}
-                      className="animate-spin"
-                    />
-                  )}
+                  <InputFile
+                    onUpload={refreshList}
+                    setLoading={setLoadingFile}
+                  />
+                  <Loading loading={loadingFile} size={30} />
                 </div>
                 <Separator className="my-4" />
                 <Lists

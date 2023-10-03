@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import {
   DialogHeader,
@@ -10,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 
 type ParamsType = {
   handleAddFolderSuccess: any;
@@ -19,15 +17,13 @@ type ParamsType = {
 export default function AddFolderDialog({
   handleAddFolderSuccess,
 }: ParamsType) {
-  const [loading, setLoading] = useState(false);
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
-    setLoading(true);
-
+    
     const formData = new FormData();
     formData.append("name", folderName);
-
+    
     try {
       const response = await fetch("http://localhost:3000/api/drive/folder", {
         method: "POST",
@@ -35,15 +31,13 @@ export default function AddFolderDialog({
       });
       if (response.ok) {
         console.log("Add folder successfully");
-        handleAddFolderSuccess();
+        handleAddFolderSuccess(true);
       } else {
         console.error("Failed to add folder");
       }
     } catch (error) {
       console.error("Failed to add folder", error);
     }
-    
-    setLoading(false);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,34 +48,23 @@ export default function AddFolderDialog({
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant={"ghost"}>
-            {loading && (
-              <Image
-                src="./images/loading.svg"
-                width={30}
-                height={30}
-                alt="loading"
-                className="animate-spin"
-              />
-            )}
-            <Button>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="white"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-plus -ml-1 mr-1"
-              >
-                <path d="M5 12h14" />
-                <path d="M12 5v14" />
-              </svg>
-              Add Folder
-            </Button>
+          <Button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="white"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-plus -ml-1 mr-1"
+            >
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+            Add Folder
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -99,7 +82,7 @@ export default function AddFolderDialog({
             </div>
           </div>
           <DialogFooter>
-            <DialogTrigger>
+            <DialogTrigger asChild>
               <Button type="submit" onClick={handleAddFolder}>
                 Add Folder
               </Button>
