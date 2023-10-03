@@ -1,7 +1,6 @@
 import { drive, auth } from "@googleapis/drive";
 import { Readable } from "stream";
-import fs, { readFileSync } from 'fs';
-import { Buffer, File } from "buffer";
+import { Buffer } from "buffer";
 
 let dClient: ReturnType<typeof drive> | undefined;
 
@@ -44,27 +43,29 @@ interface File {
 }
 
 export async function listFiles(folderId?: string) {
-
   try {
     const driveClient = await getDriveClient();
-  
+
     const list = await driveClient.files.list({
-      q: folderId ? `'${folderId}' in parents` : "trashed = false",
+      q: folderId
+        ? `'${folderId}' in parents AND trashed = false`
+        : "trashed = false",
       fields: "files(id, mimeType, name)",
     });
 
-    console.log('adakah? ',list.data.files);
-
-    if (!list.data.files  || list.data.files.length === 0 || !list.data.files === undefined) {
+    if (
+      !list.data.files ||
+      list.data.files.length === 0 ||
+      !list.data.files === undefined
+    ) {
       return [];
     }
 
     return list.data.files;
-
   } catch (error: any) {
     console.log(error);
     return {
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -112,6 +113,68 @@ export async function getFile(id: string) {
   });
 
   return file.data;
+}
+
+export async function getFileContent(id: string) {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get(
+    {
+      fileId: id,
+      alt: "media",
+    },
+    { responseType: "stream" }
+  );
+
+  return new Promise((resolve, reject) => {
+    let buf: any = [];
+    file.data
+      .on("data", (d) => {
+        buf.push(d);
+      })
+      .on("end", () => {
+        let img = Buffer.concat(buf).toString("base64");
+        resolve(img);
+      });
+  });
+}
+
+export async function getAllFilesAndFolder(parentId: string): Promise<any> {
+  const driveClient = await getDriveClient();
+
+  const list = await driveClient.files.list({
+    q: `'${parentId}' in parents`,
+    fields: "files(id, mimeType, name)",
+  });
+
+  if (!list.data.files || list.data.files.length === 0) {
+    return [];
+  }
+
+  const files = list.data.files;
+
+  const result = await Promise.all(
+    files.map(async (file) => {
+      if (file.mimeType === "application/vnd.google-apps.folder") {
+        const children = await getAllFilesAndFolder(file.id!);
+
+        return {
+          id: file.id,
+          name: file.name,
+          mimeType: file.mimeType,
+          children,
+        };
+      }
+
+      return {
+        id: file.id,
+        name: file.name,
+        mimeType: file.mimeType,
+      };
+    })
+  );
+
+  return result;
 }
 
 export async function downloadFile(id: string) {

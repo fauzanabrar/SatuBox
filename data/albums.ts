@@ -1,15 +1,13 @@
 export interface Album {
   name: string
   artist: string
-  cover: string
+  cover?: string
 }
 
 export const listenNowAlbums: Album[] = [
   {
     name: "React Rendezvous",
     artist: "Ethan Byte",
-    cover:
-      "https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=300&dpr=2&q=80",
   },
   {
     name: "Async Awakenings",

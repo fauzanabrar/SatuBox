@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
 
-export function InputFile() {
+export function InputFile({onUpload, setLoading}) {
   const [file, setFile] = React.useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,6 +13,7 @@ export function InputFile() {
 
   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true)
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -23,6 +24,7 @@ export function InputFile() {
           body: formData,
         });
         if (response.ok) {
+          onUpload()
           console.log("File uploaded successfully");
         } else {
           console.error("Failed to upload file");
@@ -33,23 +35,6 @@ export function InputFile() {
     }
   };
 
-  const handleGetFile = async () => {
-    const id = "1rqcRIZ_fqWOncpsqcwtY6H0Jz0DjdJ49";
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/drive/file/${id}`
-      );
-      const data = await response.json();
-      console.log(data);
-      if (response.ok) {
-        console.log("File uploaded successfully");
-      } else {
-        console.error("Failed to upload file");
-      }
-    } catch (error) {
-      console.error("Failed to upload file", error);
-    }
-  };
 
   return (
     <>
@@ -59,7 +44,6 @@ export function InputFile() {
           <Button>Upload</Button>
         </div>
       </form>
-      <Button onClick={handleGetFile}>GetFile</Button>
     </>
   );
 }

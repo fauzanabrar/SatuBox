@@ -7,6 +7,16 @@ export async function GET() {
   return NextResponse.json({
     status: "200",
     message: "success",
-    files: list.files,
+    files: list,
+  });
+}
+
+export async function POST() {
+  const list: any = await listFiles(process.env.SHARED_FOLDER_ID_DRIVE);
+
+  return NextResponse.json({
+    status: "200",
+    message: "success",
+    files: list,
   });
 }

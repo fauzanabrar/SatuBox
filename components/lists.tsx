@@ -11,9 +11,11 @@ export default function Lists({
   listItems: any;
   canScroll?: boolean;
   type?: "list" | "grid";
-}) {
+  }) {
+  console.log('gundul ',listItems);
   return (
     <div className="relative">
+      {!listItems && "heheh"}
       <ScrollArea className={cn(canScroll ? "h-80" : "h-auto")}>
         <div className="flex flex-wrap gap-2">
           {listItems?.map((item: any) => {
@@ -26,10 +28,10 @@ export default function Lists({
                 <GridItem
                   key={item.name}
                   item={item}
-                  className="w-[150px]"
+                  className="w-[150px] border-2 border-gray-200 rounded-md"
                   aspectRatio="square"
                   width={150}
-                  height={150}
+                  height={200}
                 />
               );
             }

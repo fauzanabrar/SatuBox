@@ -10,8 +10,7 @@ import {
 
 type Item = {
   name: string;
-  artist: string;
-  cover: string;
+  cover?: string;
 };
 
 interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -35,12 +34,12 @@ export function GridItem({
         <ContextMenuTrigger>
           <div className="overflow-hidden rounded-md">
             <Image
-              src={item.cover}
+              src={item.cover ? item.cover : './images/folder.svg'}
               alt={item.name}
               width={width}
               height={height}
               className={cn(
-                "h-auto w-auto object-cover transition-all hover:scale-105",
+                "h-full w-full object-cover transition-all hover:scale-105",
                 aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
               )}
             />
@@ -48,13 +47,11 @@ export function GridItem({
         </ContextMenuTrigger>
         <ContextMenuContent className="w-40">
           <ContextMenuItem>Open</ContextMenuItem>
-          <ContextMenuItem>Edit</ContextMenuItem>
           <ContextMenuItem className="text-red-600">Delete</ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <div className="space-y-1 text-sm">
-        <h3 className="font-medium leading-none">{item.name}</h3>
-        <p className="text-xs text-muted-foreground">{item.artist}</p>
+      <div className="space-y-1 text-sm flex align-center items-start justify-start h-12">
+        <h3 className="font-medium leading-none break-all px-1 py-1" >{item.name}</h3>
       </div>
     </div>
   );
