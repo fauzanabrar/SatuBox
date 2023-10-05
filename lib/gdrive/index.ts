@@ -236,3 +236,20 @@ export async function emptyTrash() {
 
   return file.data;
 }
+
+export async function renameFile(id: string, name: string) {
+  const driveClient = await getDriveClient();
+
+  const fileMetadata = {
+    name,
+  };
+
+  const file = await driveClient.files.update({
+    fileId: id,
+    requestBody: fileMetadata,
+  });
+
+  return file.data;
+}
+  
+

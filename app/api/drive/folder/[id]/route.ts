@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { listFiles } from "@/lib/gdrive";
-import { NextApiRequest } from "next";
 
 type ParamsType = {
   params: {
@@ -8,7 +7,7 @@ type ParamsType = {
   };
 };
 
-export async function GET(request: NextApiRequest, { params }: ParamsType) {
+export async function GET(request: NextRequest, { params }: ParamsType) {
 
   const files: any = await listFiles(params.id);
 

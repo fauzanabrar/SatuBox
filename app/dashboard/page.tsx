@@ -7,12 +7,9 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { AlbumArtwork } from "@/components/album-artwork";
 import { Menu } from "@/components/menu";
-import { PodcastEmptyPlaceholder } from "@/components/podcast-empty-placeholder";
 import { Sidebar } from "@/components/sidebar";
 import { listenNowAlbums, madeForYouAlbums } from "@/data/albums";
-import { playlists } from "@/data/playlists";
 
 export const metadata: Metadata = {
   title: "Music App",
@@ -43,7 +40,7 @@ export default function MusicPage() {
         <div className="border-t">
           <div className="bg-background">
             <div className="grid lg:grid-cols-5">
-              <Sidebar playlists={playlists} className="hidden lg:block" />
+              <Sidebar className="hidden lg:block" />
               <div className="col-span-3 lg:col-span-4 lg:border-l">
                 <div className="h-full px-4 py-6 lg:px-8">
                   <Tabs defaultValue="music" className="h-full space-y-6">
@@ -83,14 +80,7 @@ export default function MusicPage() {
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
                             {listenNowAlbums.map((album) => (
-                              <AlbumArtwork
-                                key={album.name}
-                                album={album}
-                                className="w-[250px]"
-                                aspectRatio="portrait"
-                                width={250}
-                                height={330}
-                              />
+                              ''
                             ))}
                           </div>
                           <ScrollBar orientation="horizontal" />
@@ -109,14 +99,7 @@ export default function MusicPage() {
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
                             {madeForYouAlbums.map((album) => (
-                              <AlbumArtwork
-                                key={album.name}
-                                album={album}
-                                className="w-[150px]"
-                                aspectRatio="square"
-                                width={150}
-                                height={150}
-                              />
+                              ''
                             ))}
                           </div>
                           <ScrollBar orientation="horizontal" />
@@ -138,7 +121,6 @@ export default function MusicPage() {
                         </div>
                       </div>
                       <Separator className="my-4" />
-                      <PodcastEmptyPlaceholder />
                     </TabsContent>
                   </Tabs>
                 </div>

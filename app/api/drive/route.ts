@@ -1,10 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import {drive} from "@googleapis/drive"
-import { NextApiRequest } from "next";
+import { NextResponse } from "next/server";
 
 
 export async function GET() {
-
-  
   return NextResponse.json({ message: "Folder created with ID: "  })
 }

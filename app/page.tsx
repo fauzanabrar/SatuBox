@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import AddFolderDialog from "@/components/add-folder";
 import Loading from "@/components/loading";
 import useListStore from "@/lib/zustand/store";
+import Image from "next/image";
 
 export default function HomePage() {
   const {
@@ -19,7 +20,14 @@ export default function HomePage() {
     loadingFolder,
     loadingList,
     refreshList,
-  } = useListStore();
+  } = useListStore((store) => ({
+    files: store.files,
+    loadingFile: store.loadingFile,
+    setLoadingFile: store.setLoadingFile,
+    loadingFolder: store.loadingFolder,
+    loadingList: store.loadingList,
+    refreshList: store.refreshList,
+  }));
 
   useEffect(() => {
     refreshList();
@@ -30,6 +38,14 @@ export default function HomePage() {
       <DashboardLayout>
         <div className="col-span-3 lg:col-span-4 lg:border-l">
           <div className="h-full px-4 py-6 lg:px-8">
+            {/* Image */}
+            {/* <Image src={'https://drive.google.com/uc?export=view&id=14knCAAMPY1Jej6pnXBSnflGgQf2DRACY'} width={200} height={200} alt="tes" /> */}
+            {/* Thumbnail of image */}
+            {/* <Image src={'https://drive.google.com/thumbnail?id=14knCAAMPY1Jej6pnXBSnflGgQf2DRACY'} width={200} height={200} alt="tes" /> */}
+            {/* Thumbnail of video */}
+            {/* <Image src={'https://drive.google.com/thumbnail?id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX'} width={200} height={200} alt="tes" /> */}
+            {/* Video but got hydration error */}
+            {/* <video src="https://drive.google.com/uc?export=view&id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX" controls></video> */}
             <Tabs defaultValue="upload" className="h-full space-y-6">
               <div className=" flex items-center">
                 <TabsList>

@@ -12,7 +12,10 @@ import { Button } from "@/components/ui/button";
 import useListStore from "@/lib/zustand/store";
 
 export default function AddFolderDialog() {
-  const { setLoadingFolder, refreshList } = useListStore();
+  const { setLoadingFolder, refreshList } = useListStore(store => ({
+    setLoadingFolder: store.setLoadingFolder,
+    refreshList: store.refreshList
+    }));
 
   const [folderName, setFolderName] = useState("");
 

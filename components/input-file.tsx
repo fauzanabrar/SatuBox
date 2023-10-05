@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
 
-export function InputFile({onUpload, setLoading}) {
+interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {
+  onUpload: () => void;
+  setLoading: (loading: boolean) => void;
+}
+
+export function InputFile({onUpload, setLoading}: InputFileProps) {
   const [file, setFile] = React.useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

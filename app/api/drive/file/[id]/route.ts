@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
-import { deleteFile, getFileContent } from "@/lib/gdrive";
-import { NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
+import { deleteFile, getFileContent, renameFile } from "@/lib/gdrive";
 
-type ParamsType = {
+interface ParamsType {
   params: {
     id: string;
+    name?: string;
   };
-};
+}
 
-export async function GET(request: NextApiRequest, { params }: ParamsType) {
+export async function GET(request: NextRequest, { params }: ParamsType) {
   const files: string = (await getFileContent(params.id)) as string;
 
   return NextResponse.json({
@@ -16,8 +16,20 @@ export async function GET(request: NextApiRequest, { params }: ParamsType) {
     files,
   });
 }
+export async function PUT(request: NextRequest, { params }: ParamsType) {
+  const formData = await request.formData();
+  const newName = formData.get("name") as string;
 
-export async function DELETE(request: NextApiRequest, { params }: ParamsType) {
+  const files = await renameFile(params.id, newName);
+
+  return NextResponse.json({
+    status: 200,
+    message: "success rename file",
+    files,
+  });
+}
+
+export async function DELETE(request: NextRequest, { params }: ParamsType) {
   const response: any = await deleteFile(params.id);
 
   return NextResponse.json({

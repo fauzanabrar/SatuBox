@@ -6,7 +6,7 @@ type ParamsType = {
   size: number;
 };
 
-export default function loading({ loading, size }: ParamsType) {
+export default function Loading({ loading, size }: ParamsType) {
   return (
     <>
       {loading && (
