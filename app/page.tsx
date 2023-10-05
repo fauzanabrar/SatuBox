@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import AddFolderDialog from "@/components/add-folder";
 import Loading from "@/components/loading";
 import useListStore from "@/lib/zustand/store";
-import Image from "next/image";
 
 export default function HomePage() {
   const {

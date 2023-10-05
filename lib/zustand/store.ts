@@ -25,7 +25,7 @@ const useListStore = create<ListStore>((set) => ({
     set({ loadingList: true });
     console.log("fetching data");
     try {
-      const response = await fetch(`http://localhost:3000/api/drive/file`);
+      const response = await fetch(`http://localhost:3000/api/drive/file`, { cache: 'no-store'});
       const data = await response.json();
       const newFiles = [];
       for (const item of data.files) {
@@ -46,6 +46,7 @@ const useListStore = create<ListStore>((set) => ({
       }
       set({ files: newFiles });
       console.log("fetching berhasil");
+      console.log(newFiles);
     } catch (error) {
       console.error(error);
     } finally {

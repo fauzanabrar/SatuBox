@@ -1,3 +1,4 @@
+"use client"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ListItem from "./list-item";
 import { cn } from "@/lib/utils";
