@@ -1,9 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-}
 
-module.exports = {
+const { config } = require("dotenv");
+
+config();
+
+const nextConfig = {
   images: {
-      domains: ['images.unsplash.com']
-  }
-}
+    domains: ["images.unsplash.com", "drive.google.com"],
+  },
+};
+
+module.exports = nextConfig;

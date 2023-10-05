@@ -1,5 +1,4 @@
-import { Metadata } from "next";
-import { Button } from "@/components/ui/button";
+"use client";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -7,18 +6,45 @@ import { madeForYouAlbums } from "@/data/albums";
 import DashboardLayout from "@/layouts/DashboardLayouts";
 import Lists from "@/components/lists";
 import { InputFile } from "@/components/input-file";
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Dashboard",
-};
+import { useEffect, useState } from "react";
+import AddFolderDialog from "@/components/add-folder";
+import Loading from "@/components/loading";
+import useListStore from "@/lib/zustand/store";
 
 export default function HomePage() {
+  const {
+    files,
+    loadingFile,
+    setLoadingFile,
+    loadingFolder,
+    loadingList,
+    refreshList,
+  } = useListStore((store) => ({
+    files: store.files,
+    loadingFile: store.loadingFile,
+    setLoadingFile: store.setLoadingFile,
+    loadingFolder: store.loadingFolder,
+    loadingList: store.loadingList,
+    refreshList: store.refreshList,
+  }));
+
+  useEffect(() => {
+    refreshList();
+  }, []);
+
   return (
     <>
       <DashboardLayout>
         <div className="col-span-3 lg:col-span-4 lg:border-l">
           <div className="h-full px-4 py-6 lg:px-8">
+            {/* Image */}
+            {/* <Image src={'https://drive.google.com/uc?export=view&id=14knCAAMPY1Jej6pnXBSnflGgQf2DRACY'} width={200} height={200} alt="tes" /> */}
+            {/* Thumbnail of image */}
+            {/* <Image src={'https://drive.google.com/thumbnail?id=14knCAAMPY1Jej6pnXBSnflGgQf2DRACY'} width={200} height={200} alt="tes" /> */}
+            {/* Thumbnail of video */}
+            {/* <Image src={'https://drive.google.com/thumbnail?id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX'} width={200} height={200} alt="tes" /> */}
+            {/* Video but got hydration error */}
+            {/* <video src="https://drive.google.com/uc?export=view&id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX" controls></video> */}
             <Tabs defaultValue="upload" className="h-full space-y-6">
               <div className=" flex items-center">
                 <TabsList>
@@ -28,24 +54,10 @@ export default function HomePage() {
                   <TabsTrigger value="list">List</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto mr-4">
-                  <Button>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-plus -ml-1 mr-1"
-                    >
-                      <path d="M5 12h14" />
-                      <path d="M12 5v14" />
-                    </svg>
-                    Upload File
-                  </Button>
+                  <div className="flex gap-2">
+                    <Loading size={30} loading={loadingFolder} />
+                    <AddFolderDialog />
+                  </div>
                 </div>
               </div>
               <TabsContent
@@ -60,22 +72,19 @@ export default function HomePage() {
                     list that can be scrolled horizontally
                   </p>
                 </div>
-                <InputFile />
-                <Separator className="my-4" />
-                <Lists listItems={madeForYouAlbums} canScroll={true} />
-                <div className="mt-6 space-y-1">
-                  <h2 className="text-2xl font-semibold tracking-tight">
-                    Grid List
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Grid list horizontally.
-                  </p>
+                <div className="flex align-middle gap-2">
+                  <InputFile
+                    onUpload={refreshList}
+                    setLoading={setLoadingFile}
+                  />
+                  <Loading loading={loadingFile} size={30} />
                 </div>
                 <Separator className="my-4" />
                 <Lists
-                  listItems={madeForYouAlbums}
+                  listItems={files}
                   canScroll={true}
                   type="grid"
+                  loading={loadingList}
                 />
               </TabsContent>
               <TabsContent
@@ -91,7 +100,6 @@ export default function HomePage() {
                   </p>
                 </div>
                 <Separator className="my-4" />
-                <Lists listItems={madeForYouAlbums} canScroll={true} />
               </TabsContent>
             </Tabs>
           </div>
