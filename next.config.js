@@ -7,6 +7,7 @@ config();
 const nextConfig = {
   images: {
     domains: ["images.unsplash.com", "drive.google.com"],
+    minimumCacheTTL: 600,
   },
 };
 

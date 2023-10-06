@@ -251,5 +251,58 @@ export async function renameFile(id: string, name: string) {
 
   return file.data;
 }
-  
 
+export async function deleteAllFiles(folderId?: string): Promise<any> {
+  try {
+    const driveClient = await getDriveClient();
+
+    const list = await driveClient.files.list({
+      q: folderId
+        ? `'${folderId}' in parents AND trashed = false`
+        : "trashed = false",
+      fields: "files(id, mimeType, name)",
+    });
+
+    if (
+      !list.data.files ||
+      list.data.files.length === 0 ||
+      !list.data.files === undefined
+    ) {
+      return [];
+    }
+
+    const files = list.data.files;
+
+    const result = await Promise.all(
+      files.map(async (file: any) => {
+        // if (file.mimeType === "application/vnd.google-apps.folder") {
+        //   const children = await deleteAllFiles(file.id!);
+
+        //   return {
+        //     id: file.id,
+        //     name: file.name,
+        //     mimeType: file.mimeType,
+        //     children,
+        //   };
+        // }
+
+        const response = await driveClient.files.delete({
+          fileId: file.id,
+        });
+
+        return {
+          id: file.id,
+          name: file.name,
+          mimeType: file.mimeType,
+        };
+      })
+    );
+
+    return result;
+  } catch (error: any) {
+    console.log(error);
+    return {
+      error: error.message,
+    };
+  }
+}
