@@ -70,7 +70,6 @@ export default function DashboardPage() {
               </div>
               <div className="flex align-middle gap-2">
                 <InputFile />
-                <Loading loading={loadingFile} size={30} />
               </div>
               <Separator className="my-4" />
               <Lists
