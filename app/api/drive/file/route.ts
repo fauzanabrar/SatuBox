@@ -21,14 +21,14 @@ export async function DELETE(request: NextRequest, { params }: ParamsType) {
   // const list: any = await deleteAllFiles();
   
   return NextResponse.json({
-    status: 'Not Implemented et',
+    status: 'Not Implemented yet',
   })
 
-  return NextResponse.json({
-    status: "200",
-    message: "success",
-    files: list,
-  });
+  // return NextResponse.json({
+  //   status: "200",
+  //   message: "success",
+  //   files: list,
+  // });
 }
 
 export const dynamic = 'force-dynamic';

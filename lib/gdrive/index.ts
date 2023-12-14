@@ -4,12 +4,14 @@ import { Buffer } from "buffer";
 
 let dClient: ReturnType<typeof drive> | undefined;
 
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT as string);
+
 export async function getDriveClient() {
   if (!dClient) {
     dClient = drive({
       version: "v3",
       auth: new auth.GoogleAuth({
-        keyFile: "./credentials.json",
+        credentials,
         scopes: "https://www.googleapis.com/auth/drive",
       }),
     });
@@ -92,7 +94,6 @@ export async function uploadFile(
     requestBody: fileMetadata,
     media,
   });
-  console.log(file.data);
   return file.data;
 }
 
