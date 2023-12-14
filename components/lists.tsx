@@ -41,7 +41,7 @@ export default function Lists({
 
   return (
     <div className="relative">
-      <ScrollArea className={cn(canScroll ? "h-80" : "h-auto")}>
+      <ScrollArea className={cn(canScroll ? "h-80" : "h-full")}>
         <div className="flex flex-wrap gap-2">
           {loading ? (
             <Image

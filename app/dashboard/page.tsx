@@ -13,15 +13,11 @@ export default function DashboardPage() {
   const {
     files,
     loadingFile,
-    setLoadingFile,
-    loadingFolder,
     loadingList,
     refreshList,
   } = useListStore((store) => ({
     files: store.files,
     loadingFile: store.loadingFile,
-    setLoadingFile: store.setLoadingFile,
-    loadingFolder: store.loadingFolder,
     loadingList: store.loadingList,
     refreshList: store.refreshList,
   }));
@@ -53,7 +49,6 @@ export default function DashboardPage() {
               </TabsList>
               <div className="ml-auto mr-4">
                 <div className="flex gap-2">
-                  {/* <Loading size={30} loading={loadingFolder} /> */}
                   <AddFolderDialog />
                 </div>
               </div>

@@ -11,10 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import useListStore from "@/lib/zustand/store";
+import Loading from "./loading";
 
 export default function AddFolderDialog() {
-  const { setLoadingFolder, refreshList } = useListStore((store) => ({
-    setLoadingFolder: store.setLoadingFolder,
+  const [loadingFolder, setLoadingFolder] = useState(false);
+  const { refreshList } = useListStore((store) => ({
     refreshList: store.refreshList,
   }));
 
@@ -39,6 +40,8 @@ export default function AddFolderDialog() {
         }
       } catch (error) {
         console.error("Failed to add folder", error);
+      } finally {
+        setLoadingFolder(false);
       }
     }
   };
@@ -51,24 +54,27 @@ export default function AddFolderDialog() {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <Button>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="white"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-plus -ml-1 mr-1"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
-            Add Folder
-          </Button>
+          <div className="flex gap-5">
+            <Loading size={30} loading={loadingFolder} />
+            <Button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="white"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-plus -ml-1 mr-1"
+              >
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+              </svg>
+              Add Folder
+            </Button>
+          </div>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
