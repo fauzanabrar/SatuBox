@@ -3,13 +3,12 @@ import AddFolderDialog from "@/components/add-folder";
 import { InputFile } from "@/components/input-file";
 import Lists from "@/components/lists";
 import Loading from "@/components/loading";
-import DashboardLayout from "@/layouts/DashboardLayouts";
 import useListStore from "@/lib/zustand/store";
 import { Separator } from "@radix-ui/react-separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { useEffect } from "react";
 
-export default function MusicPage() {
+export default function DashboardPage() {
   const {
     files,
     loadingFile,
@@ -32,7 +31,6 @@ export default function MusicPage() {
 
   return (
     <>
-      <DashboardLayout>
         <div className="col-span-3 lg:col-span-4 lg:border-l">
           <div className="h-full px-4 py-6 lg:px-8">
             {/* Image */}
@@ -102,7 +100,6 @@ export default function MusicPage() {
             </Tabs>
           </div>
         </div>
-      </DashboardLayout>
     </>
   );
 }
