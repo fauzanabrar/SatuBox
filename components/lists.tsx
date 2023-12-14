@@ -22,6 +22,22 @@ export default function Lists({
 }: ListsProps) {
 
   
+  // const {
+  //   files,
+  //   loadingFile,
+  //   setLoadingFile,
+  //   loadingFolder,
+  //   loadingList,
+  //   refreshList,
+  // } = useListStore((store) => ({
+  //   files: store.files,
+  //   loadingFile: store.loadingFile,
+  //   setLoadingFile: store.setLoadingFile,
+  //   loadingFolder: store.loadingFolder,
+  //   loadingList: store.loadingList,
+  //   refreshList: store.refreshList,
+  // }));
+  
 
   return (
     <div className="relative">

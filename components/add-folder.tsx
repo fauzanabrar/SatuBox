@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import {
   DialogHeader,
@@ -12,15 +13,15 @@ import { Button } from "@/components/ui/button";
 import useListStore from "@/lib/zustand/store";
 
 export default function AddFolderDialog() {
-  const { setLoadingFolder, refreshList } = useListStore(store => ({
+  const { setLoadingFolder, refreshList } = useListStore((store) => ({
     setLoadingFolder: store.setLoadingFolder,
-    refreshList: store.refreshList
-    }));
+    refreshList: store.refreshList,
+  }));
 
   const [folderName, setFolderName] = useState("");
 
   const handleAddFolder = async () => {
-    if (folderName !== "" ) {
+    if (folderName !== "") {
       const formData = new FormData();
       formData.append("name", folderName);
 

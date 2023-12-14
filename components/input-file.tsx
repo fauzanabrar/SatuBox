@@ -39,6 +39,8 @@ export function InputFile({}: InputFileProps) {
         }
       } catch (error) {
         console.error("Failed to upload file", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
