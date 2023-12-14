@@ -5,18 +5,24 @@ import { cn } from "@/lib/utils";
 import { GridItem } from "./grid-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import useListStore from "@/lib/zustand/store";
+
+interface ListsProps {
+  listItems?: any;
+  loading?: boolean;
+  canScroll?: boolean;
+  type?: "list" | "grid";
+}
 
 export default function Lists({
   listItems,
   loading,
   canScroll = false,
   type = "list",
-}: {
-  listItems: any;
-  loading: boolean;
-  canScroll?: boolean;
-  type?: "list" | "grid";
-}) {
+}: ListsProps) {
+
+  
+
   return (
     <div className="relative">
       <ScrollArea className={cn(canScroll ? "h-80" : "h-auto")}>
