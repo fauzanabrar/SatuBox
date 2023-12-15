@@ -15,7 +15,7 @@ export default function DashboardView() {
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const { data } = useSWRImmutable("/api/drive/file?media=true", fetcher, {
+  const { data } = useSWRImmutable("/api/drive/file?media=true&pageSize=10", fetcher, {
     revalidateOnMount: true,
   });
 
