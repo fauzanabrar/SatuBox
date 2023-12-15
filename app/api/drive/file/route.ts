@@ -141,7 +141,7 @@ async function getMedia(list: any) {
       newFiles.push({
         id: item.id,
         name: item.name,
-        cover: `data:${item.mimeType};base64,${image.files}`,
+        cover: `data:${item.mimeType};base64,${image}`,
         type: item.mimeType,
       });
     }
