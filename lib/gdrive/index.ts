@@ -37,13 +37,6 @@ export async function createFolder(name: string, parent?: string[]) {
   return folder.data;
 }
 
-interface File {
-  id: string;
-  name: string;
-  mimeType: string;
-  children?: File[];
-}
-
 export async function listFiles(folderId?: string) {
   try {
     const driveClient = await getDriveClient();
@@ -64,6 +57,41 @@ export async function listFiles(folderId?: string) {
     }
 
     return list.data.files;
+  } catch (error: any) {
+    console.log(error);
+    return {
+      error: error.message,
+    };
+  }
+}
+export async function listFilesWithToken(
+  folderId?: string,
+  pageSize: number = 10,
+  pageToken?: string
+) {
+  try {
+    const driveClient = await getDriveClient();
+    console.log('page token', pageToken)
+    const list = await driveClient.files.list({
+      q: folderId
+        ? `'${folderId}' in parents AND trashed = false`
+        : "trashed = false",
+      pageSize: pageSize,
+      pageToken: pageToken,
+    });
+
+    if (
+      !list.data.files ||
+      list.data.files.length === 0 ||
+      !list.data.files === undefined
+    ) {
+      return [];
+    }
+    console.log('nextPageTOken', list.data.nextPageToken)
+    return {
+      files: list.data.files,
+      nextPageToken: list.data.nextPageToken,
+    };
   } catch (error: any) {
     console.log(error);
     return {
