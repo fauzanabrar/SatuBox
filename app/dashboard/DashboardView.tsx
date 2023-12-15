@@ -15,9 +15,13 @@ export default function DashboardView() {
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const { data } = useSWRImmutable("/api/drive/file?media=true&pageSize=10", fetcher, {
-    revalidateOnMount: true,
-  });
+  const { data } = useSWRImmutable(
+    "/api/drive/file?media=true&pageSize=10",
+    fetcher,
+    {
+      revalidateOnMount: true,
+    }
+  );
 
   useEffect(() => {
     setLoadingList(true);
@@ -37,18 +41,16 @@ export default function DashboardView() {
       {/* <Image src={'https://drive.google.com/thumbnail?id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX'} width={200} height={200} alt="tes" /> */}
       {/* Video but got hydration error */}
       {/* <video src="https://drive.google.com/uc?export=view&id=1t2QYviFna-sPGXa1S_BPge5VuYacvcNX" controls></video> */}
-      <div className=" flex items-center">
+      {/* <div className=" flex items-center">
         <div className="ml-auto mr-4">
-          <div className="flex gap-2">
-            <AddFolderDialog />
-          </div>
+          <div className="flex gap-2"></div>
         </div>
-      </div>
-      <div className="mt-6 space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight">Lists</h2>
-        <p className="text-sm text-muted-foreground">
-          list that can be scrolled horizontally
-        </p>
+      </div> */}
+      <div className="mt-4 space-y-1">
+        <div className="flex justify-between">
+          <h2 className="text-2xl font-semibold tracking-tight">Upload File</h2>
+          <AddFolderDialog />
+        </div>
       </div>
       <div className="flex align-middle gap-2">
         <InputFile />

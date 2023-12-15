@@ -1,8 +1,8 @@
-import useListStore from "@/lib/zustand/useListStore";
 import DashboardView from "./DashboardView";
-import { getFiles } from "./drive";
-import useStore from "@/lib/zustand/useStore";
-import { useBearStore } from "@/lib/zustand/useBearStore";
+
+export const metadata = {
+  title: 'Dashboard'
+}
 
 export default async function DashboardPage() {
 

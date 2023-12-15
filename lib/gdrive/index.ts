@@ -71,7 +71,6 @@ export async function listFilesWithToken(
 ) {
   try {
     const driveClient = await getDriveClient();
-    console.log('page token', pageToken)
     const list = await driveClient.files.list({
       q: folderId
         ? `'${folderId}' in parents AND trashed = false`
@@ -87,7 +86,6 @@ export async function listFilesWithToken(
     ) {
       return [];
     }
-    console.log('nextPageTOken', list.data.nextPageToken)
     return {
       files: list.data.files,
       nextPageToken: list.data.nextPageToken,
