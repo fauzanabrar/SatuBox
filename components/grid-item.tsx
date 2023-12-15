@@ -8,7 +8,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import useListStore from "@/lib/zustand/store";
+import useListStore from "@/lib/zustand/useListStore";
 import {
   Dialog,
   DialogContent,
@@ -58,7 +58,6 @@ export function GridItem({
     if (item.type.includes("folder")) return "./images/folder.svg";
     return "./images/file.svg";
   };
-
 
   const handleDetail = () => {
     console.log("detail");
@@ -164,7 +163,7 @@ export function GridItem({
               height={height}
               className={cn(
                 "h-full w-full object-cover transition-all hover:scale-105",
-                aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square",
+                aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
               )}
               onClick={handleOpen}
             />

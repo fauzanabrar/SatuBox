@@ -1,43 +1,34 @@
-"use client"
+"use client";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ListItem from "./list-item";
 import { cn } from "@/lib/utils";
 import { GridItem } from "./grid-item";
-import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import useListStore from "@/lib/zustand/store";
+import useListStore from "@/lib/zustand/useListStore";
 
 interface ListsProps {
-  listItems?: any;
-  loading?: boolean;
+  items: any;
   canScroll?: boolean;
   type?: "list" | "grid";
 }
 
 export default function Lists({
-  listItems,
-  loading,
+  items,
   canScroll = false,
   type = "list",
 }: ListsProps) {
+  const {
+    loadingList: loading,
+    setFiles,
+    refreshList,
+  } = useListStore((store) => ({
+    setFiles: store.setFiles,
+    loadingList: store.loadingList,
+    refreshList: store.refreshList,
+  }));
 
-  
-  // const {
-  //   files,
-  //   loadingFile,
-  //   setLoadingFile,
-  //   loadingFolder,
-  //   loadingList,
-  //   refreshList,
-  // } = useListStore((store) => ({
-  //   files: store.files,
-  //   loadingFile: store.loadingFile,
-  //   setLoadingFile: store.setLoadingFile,
-  //   loadingFolder: store.loadingFolder,
-  //   loadingList: store.loadingList,
-  //   refreshList: store.refreshList,
-  // }));
-  
+  // setFiles(items)
+  const listItems = items;
 
   return (
     <div className="relative">

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useListStore from "@/lib/zustand/store";
+import useListStore from "@/lib/zustand/useListStore";
 import React from "react";
 import Loading from "./loading";
 
