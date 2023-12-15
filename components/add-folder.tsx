@@ -15,8 +15,7 @@ import Loading from "./loading";
 
 export default function AddFolderDialog() {
   const [loadingFolder, setLoadingFolder] = useState(false);
-  const { revalidateList, refreshList } = useListStore((store) => ({
-    revalidateList: store.revalidateList,
+  const { refreshList } = useListStore((store) => ({
     refreshList: store.refreshList,
   }));
 
@@ -35,7 +34,6 @@ export default function AddFolderDialog() {
         });
         if (response.ok) {
           console.log("Add folder successfully");
-          revalidateList();
           refreshList();
         } else {
           console.error("Failed to add folder");
