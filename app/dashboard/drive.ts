@@ -1,3 +1,5 @@
+import useSWR from 'swr'
+
 async function getData() {
   const response = await fetch(`http://localhost:3000/api/drive/file`, {
     next: { tags: ["list-file"] },
@@ -32,4 +34,12 @@ export async function getFiles() {
     }
   }
   return newFiles;
+}
+
+
+export async function swrGetFiles() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const swrFiles: any = await useSWR(`files`, getFiles)
+ 
+  return swrFiles
 }

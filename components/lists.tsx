@@ -7,28 +7,20 @@ import Image from "next/image";
 import useListStore from "@/lib/zustand/useListStore";
 
 interface ListsProps {
-  items: any;
   canScroll?: boolean;
   type?: "list" | "grid";
 }
 
 export default function Lists({
-  items,
   canScroll = false,
   type = "list",
 }: ListsProps) {
-  const {
-    loadingList: loading,
-    setFiles,
-    refreshList,
-  } = useListStore((store) => ({
-    setFiles: store.setFiles,
+  const { loadingList: loading, files } = useListStore((store) => ({
+    files: store.files,
     loadingList: store.loadingList,
-    refreshList: store.refreshList,
   }));
 
-  // setFiles(items)
-  const listItems = items;
+  const listItems = files;
 
   return (
     <div className="relative">

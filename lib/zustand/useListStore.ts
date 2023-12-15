@@ -13,7 +13,7 @@ type ListStore = {
 const useListStore = create<ListStore>((set) => ({
   files: [],
   setFiles: (files: any) => set(() => ({ files })),
-  loadingList: false,
+  loadingList: true,
   setLoadingList: (bool: boolean) => set(() => ({ loadingList: bool })),
   refreshList: async () => {
     set({ loadingList: true });
@@ -45,7 +45,7 @@ async function refreshData() {
   await fetch("http://localhost:3000/api/drive/refresh", {
     method: "POST",
     headers: {
-      'content-type': 'application/json'
+      "content-type": "application/json",
     },
     body: JSON.stringify(body),
   });
