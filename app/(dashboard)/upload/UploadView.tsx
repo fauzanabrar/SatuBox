@@ -7,7 +7,7 @@ import { Separator } from "@radix-ui/react-menubar";
 import React, { useEffect } from "react";
 import useSWRImmutable from "swr/immutable";
 
-export default function DashboardView() {
+export default function UploadView() {
   const { setFiles, setLoadingList }: any = useListStore((store: any) => ({
     setFiles: store.setFiles,
     setLoadingList: store.setLoadingList,

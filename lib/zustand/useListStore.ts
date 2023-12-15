@@ -1,4 +1,4 @@
-import { getFiles } from "@/app/dashboard/drive";
+import { getFiles } from "@/app/(dashboard)/drive";
 import { create } from "zustand";
 
 type ListStore = {
@@ -24,7 +24,7 @@ const useListStore = create<ListStore>((set) => ({
     } finally {
       set({ loadingList: false });
     }
-  }
+  },
 }));
 
 export default useListStore;

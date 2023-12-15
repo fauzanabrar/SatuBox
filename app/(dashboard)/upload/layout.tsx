@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/sidebar";
 
 import { ReactNode } from "react";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default function UploadLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="hidden md:block">
@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="border-t">
           <div className="bg-background">
             <div className="grid lg:grid-cols-5">
-              <Sidebar className="hidden lg:block" />
+              <Sidebar activePath={"upload"} className="hidden lg:block" />
               {children}
             </div>
           </div>
