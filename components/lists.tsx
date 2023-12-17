@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { GridItem } from "./grid-item";
 import Image from "next/image";
 import useListStore from "@/lib/zustand/useListStore";
+import { useMemo } from "react";
 
 interface ListsProps {
   canScroll?: boolean;
@@ -20,7 +21,9 @@ export default function Lists({
     loadingList: store.loadingList,
   }));
 
-  const listItems = files;
+  const memoizedList = useMemo(() => files, [files]);
+
+  const listItems = memoizedList;
 
   return (
     <div className="relative">
