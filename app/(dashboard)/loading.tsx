@@ -5,7 +5,7 @@ import React from "react";
 
 export default function LoadingDashboard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="hidden md:block">
+    <>
       <Menu />
       <div className="border-t">
         <div className="bg-background">
@@ -17,6 +17,6 @@ export default function LoadingDashboard({ children }: { children: React.ReactNo
           </div>
         </div>
       </div>
-    </div>
+      </>
   );
-}
+}``

@@ -6,7 +6,6 @@ import { ReactNode } from "react";
 export default function ListLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <div className="hidden md:block">
         <Menu />
         <div className="border-t">
           <div className="bg-background">
@@ -14,7 +13,6 @@ export default function ListLayout({ children }: { children: ReactNode }) {
               <Sidebar activePath={"user"} className="hidden lg:block" />
               {children}
             </div>
-          </div>
         </div>
       </div>
     </>
