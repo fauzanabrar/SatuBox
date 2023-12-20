@@ -1,3 +1,4 @@
+import Breadcumbs from "@/components/breadcumbs";
 import DashboardView from "../upload/UploadView";
 
 export const metadata = {
@@ -7,12 +8,9 @@ export const metadata = {
 export default async function ListPage() {
   return (
     <>
-      <div className="col-span-3 lg:col-span-4 lg:border-l">
-        <div className="h-full px-4 py-6 lg:px-8">
-          {/* <DashboardView /> */}
-          list
-        </div>
-      </div>
+      {/* <DashboardView /> */}
+      <Breadcumbs />
+      list
     </>
   );
 }
