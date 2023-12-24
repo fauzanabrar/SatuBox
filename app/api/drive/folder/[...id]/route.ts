@@ -9,22 +9,20 @@ type ParamsType = {
 
 export async function GET(request: NextRequest, { params }: ParamsType) {
 
-  console.log(params.id);
+  // console.log(params.id);
 
-  // TODO Create lib drive to get listFiles in the last id folder or use below
-  
-  // const files: any = await listFiles(params.id);
+  const files: any = await listFiles(params.id.at(-1));
 
-  // if (files.error) {
-  //   return NextResponse.json({
-  //   status: "500",
-  //   message: "error",
-  //   error: files.error,
-  // });}
+  if (files.error) {
+    return NextResponse.json({
+    status: "500",
+    message: "error",
+    error: files.error,
+  });}
 
   return NextResponse.json({
     status: "200",
     message: "success",
-    // files,
+    files,
   });
 }
