@@ -1,16 +1,17 @@
-import Breadcumbs from "@/components/breadcumbs";
-import DashboardView from "../upload/UploadView";
+import DashboardView from "./UploadView";
 
 export const metadata = {
   title: "Dashboard",
 };
 
-export default async function ListPage() {
+export default async function UploadPage() {
   return (
     <>
-      {/* <DashboardView /> */}
-      <Breadcumbs />
-      list
+      <div className="col-span-3 lg:col-span-4 lg:border-l">
+        <div className="h-full px-4 py-6 lg:px-8">
+          <DashboardView />
+        </div>
+      </div>
     </>
   );
 }

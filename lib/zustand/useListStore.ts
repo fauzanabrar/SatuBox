@@ -1,30 +1,45 @@
 import { getFiles } from "@/app/(dashboard)/drive";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-type ListStore = {
+export type ListStore = {
   files: any[];
   setFiles: (files: any) => void;
   loadingList: boolean;
   setLoadingList: (bool: boolean) => void;
   refreshList: () => Promise<void>;
+  allFiles: any[];
+  setAllFiles: (files: any) => void;
 };
 
-const useListStore = create<ListStore>((set) => ({
-  files: [],
-  setFiles: (files: any) => set(() => ({ files })),
-  loadingList: true,
-  setLoadingList: (bool: boolean) => set(() => ({ loadingList: bool })),
-  refreshList: async () => {
-    set({ loadingList: true });
-    try {
-      const files = await getFiles();
-      set({ files });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      set({ loadingList: false });
+const useListStore = create(
+  persist(
+    (set) => ({
+      files: [],
+      allFiles: [],
+      setAllFiles: (files: any) =>
+        set((state: ListStore) => {
+          return { allFiles: [...state.allFiles, ...files] };
+        }),
+      setFiles: (files: any) => set(() => ({ files })),
+      loadingList: true,
+      setLoadingList: (bool: boolean) => set(() => ({ loadingList: bool })),
+      refreshList: async () => {
+        set({ loadingList: true });
+        try {
+          const files = await getFiles();
+          set({ files });
+        } catch (error) {
+          console.error(error);
+        } finally {
+          set({ loadingList: false });
+        }
+      },
+    }),
+    {
+      name: "liststore", // unique name
     }
-  },
-}));
+  )
+);
 
 export default useListStore;

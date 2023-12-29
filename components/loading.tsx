@@ -11,7 +11,7 @@ export default function Loading({ loading, size }: ParamsType) {
     <>
       {loading && (
         <Image
-          src="./images/loading.svg"
+          src="/images/loading.svg"
           alt="loading"
           width={size}
           height={size}

@@ -10,7 +10,7 @@ interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
 export function InputFile({}: InputFileProps) {
   const [file, setFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { refreshList } = useListStore((store) => ({
+  const { refreshList } = useListStore((store: any) => ({
     refreshList: store.refreshList,
   }));
 
@@ -49,7 +49,7 @@ export function InputFile({}: InputFileProps) {
     <>
       <div className="flex gap-5">
         <form onSubmit={(event) => handleFileSubmit(event)}>
-          <div className="flex w-full max-w-sm items-center space-x-2 my-4">
+          <div className="flex w-full max-w-sm items-center space-x-2 my-2">
             <Input type="file" onChange={handleFileChange} />
             <Button>Upload</Button>
           </div>

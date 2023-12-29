@@ -5,3 +5,4 @@ export async function getFiles() {
   const files = await data.json();
   return files.files;
 }
+

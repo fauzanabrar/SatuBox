@@ -166,6 +166,44 @@ export async function getFileContent(id: string) {
   });
 }
 
+export async function getFolderName(id: string) {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get({
+    fileId: id,
+    fields: "id, name, mimeType",
+  });
+
+  return file.data;
+}
+
+export async function getAllParentsFolder(id: string): Promise<any> {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get({
+    fileId: id,
+    fields: "id, name, mimeType, parents",
+  });
+
+  if (!file.data.parents || file.data.parents.length === 0) {
+    return [];
+  }
+
+  const parents = file.data.parents;
+  const result = await Promise.all(
+    parents.map(async (parent: any) => {
+      const children = await getAllParentsFolder(parent);
+      return {
+        id: parent,
+        name: file.data.name,
+        children,
+      };
+    })
+  );
+
+  return result;
+}
+
 export async function getAllFilesAndFolder(parentId: string): Promise<any> {
   const driveClient = await getDriveClient();
 

@@ -21,6 +21,7 @@ import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import Loading from "./loading";
+import { usePathname, useRouter } from "next/navigation";
 
 type Item = {
   id: string;
@@ -44,8 +45,13 @@ export function GridItem({
   className,
   ...props
 }: GridItemProps) {
-  const { refreshList } = useListStore((store) => ({
+
+  const router = useRouter();
+  const pathnames = usePathname();
+
+  const { refreshList, setLoadingList } = useListStore((store:any) => ({
     refreshList: store.refreshList,
+    setLoadingList: store.setLoadingList,
   }));
 
   const [newName, setNewName] = useState("");
@@ -54,9 +60,9 @@ export function GridItem({
 
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
-    if (item.type.includes("video")) return "./images/play.svg";
-    if (item.type.includes("folder")) return "./images/folder.svg";
-    return "./images/file.svg";
+    if (item.type.includes("video")) return "/images/play.svg";
+    if (item.type.includes("folder")) return "/images/folder.svg";
+    return "/images/file.svg";
   };
 
   const handleDetail = () => {
@@ -94,6 +100,11 @@ export function GridItem({
     console.log("open");
     window.open(`https://drive.google.com/file/d/${item.id}/view`, "_blank");
   };
+
+  const handleOpenFolder = () => {
+    setLoadingList(true);
+    router.push(`${pathnames}/${item.id}`)
+  }
 
   const handleDelete = async () => {
     console.log("delete");
@@ -165,7 +176,13 @@ export function GridItem({
                 "h-full w-full object-cover transition-all hover:scale-105",
                 aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
               )}
-              onClick={handleOpen}
+              onClick={() => {
+                if (image(item) === "/images/folder.svg") {
+                  handleOpenFolder()
+                } else {
+                  handleOpen()
+                }
+              }}
             />
           </div>
         </ContextMenuTrigger>

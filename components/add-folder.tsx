@@ -15,7 +15,7 @@ import Loading from "./loading";
 
 export default function AddFolderDialog() {
   const [loadingFolder, setLoadingFolder] = useState(false);
-  const { refreshList } = useListStore((store) => ({
+  const { refreshList } = useListStore((store: any) => ({
     refreshList: store.refreshList,
   }));
 

@@ -40,12 +40,6 @@ export function Sidebar({ className, activePath }: SidebarProps) {
             Menu
           </h2>
           <div className="space-y-1">
-            <Link href={"/upload"}>
-              <Button variant={activePath === "upload" ? "secondary" : "ghost"} className="w-full justify-start">
-                <UploadIcon className="mr-2 h-4 w-4" />
-                Upload
-              </Button>
-            </Link>
             <Link href={"/list"}>
               <Button variant={activePath === "list" ? "secondary" : "ghost"} className="w-full justify-start">
                 <TokensIcon className="mr-2 h-4 w-4" />

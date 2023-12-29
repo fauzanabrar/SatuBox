@@ -4,29 +4,33 @@ import { InputFile } from "@/components/input-file";
 import Lists from "@/components/lists";
 import useListStore from "@/lib/zustand/useListStore";
 import { Separator } from "@radix-ui/react-menubar";
+import { usePathname } from "next/navigation";
 import React, { useEffect } from "react";
 import useSWRImmutable from "swr/immutable";
 
-export default function UploadView() {
-  const { setFiles, setLoadingList }: any = useListStore((store: any) => ({
-    setFiles: store.setFiles,
-    setLoadingList: store.setLoadingList,
-  }));
+export default function ListViewId() {
+  const { setFiles, setLoadingList, setAllFiles }: any = useListStore(
+    (store: any) => ({
+      setFiles: store.setFiles,
+      setLoadingList: store.setLoadingList,
+      setAllFiles: store.setAllFiles,
+    })
+  );
+
+  const pathname = usePathname();
+  const folderId = pathname.split("/").pop();
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const { data } = useSWRImmutable(
-    "/api/drive/file?media=true&pageSize=10",
-    fetcher,
-    {
-      revalidateOnMount: true,
-    }
-  );
+  const { data } = useSWRImmutable("/api/drive/folder/" + folderId, fetcher, {
+    revalidateOnMount: true,
+  });
 
   useEffect(() => {
     setLoadingList(true);
     if (data?.files) {
       setFiles(data?.files);
+      setAllFiles(data?.files);
       setLoadingList(false);
     }
   }, [data]);

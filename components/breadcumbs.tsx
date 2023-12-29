@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "./ui/card";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 
 export default function Breadcumbs() {
   const router = useRouter();
@@ -10,10 +11,14 @@ export default function Breadcumbs() {
   const pathname = usePathname();
   const pathnames = pathname.split("/");
 
+  const { allFiles } = useListStore((store: any) => ({
+    allFiles: store.allFiles,
+  }));
+
   return (
     <div className="my-2">
-      <Card className="w-fit py-2 px-4 h-14 flex justify-start items-center">
-        {pathnames.map((item, index) => {
+      <Card className="w-fit py-1 px-2 h-fit flex justify-start items-center mb-4">
+        {pathnames.map(async (item, index) => {
           if (item === "") return null;
 
           let link = pathnames.slice(0, index + 1).join("/");
@@ -23,6 +28,12 @@ export default function Breadcumbs() {
           if (item === "list") {
             item = "root";
             link = "/list";
+          }
+          if (item.length === 33) {
+            let itemName = allFiles?.find(
+              (file: any) => file.id === item
+            )?.name;
+            item = itemName? itemName : item;
           }
 
           if (isLastItem) {
@@ -36,7 +47,7 @@ export default function Breadcumbs() {
           return (
             <span key={index}>
               <Button
-                className="w-fit"
+                className="w-fit h-1"
                 variant={"ghost"}
                 onClick={() => {
                   router.push(link);

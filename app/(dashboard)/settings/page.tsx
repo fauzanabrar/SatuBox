@@ -1,10 +1,9 @@
-import DashboardView from "../upload/UploadView";
-
 export const metadata = {
   title: "Dashboard",
 };
 
 export default async function ListPage() {
+
   return (
     <>
       <div className="col-span-3 lg:col-span-4 lg:border-l">
