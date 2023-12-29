@@ -6,7 +6,6 @@ import { GridItem } from "./grid-item";
 import Image from "next/image";
 import useListStore from "@/lib/zustand/useListStore";
 import { useMemo } from "react";
-import { usePathname } from "next/navigation";
 import Breadcumbs from "./breadcumbs";
 
 interface ListsProps {

@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { Card } from "./ui/card";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import useListStore, { ListStore } from "@/lib/zustand/useListStore";
+import useListStore from "@/lib/zustand/useListStore";
 
 export default function Breadcumbs() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function Breadcumbs() {
             let itemName = allFiles?.find(
               (file: any) => file.id === item
             )?.name;
-            item = itemName? itemName : item;
+            item = itemName ? itemName : item;
           }
 
           if (isLastItem) {

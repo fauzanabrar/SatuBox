@@ -8,6 +8,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+
 import useListStore from "@/lib/zustand/useListStore";
 import {
   Dialog,
@@ -45,11 +46,10 @@ export function GridItem({
   className,
   ...props
 }: GridItemProps) {
-
   const router = useRouter();
   const pathnames = usePathname();
 
-  const { refreshList, setLoadingList } = useListStore((store:any) => ({
+  const { refreshList, setLoadingList } = useListStore((store: any) => ({
     refreshList: store.refreshList,
     setLoadingList: store.setLoadingList,
   }));
@@ -103,8 +103,8 @@ export function GridItem({
 
   const handleOpenFolder = () => {
     setLoadingList(true);
-    router.push(`${pathnames}/${item.id}`)
-  }
+    router.push(`${pathnames}/${item.id}`);
+  };
 
   const handleDelete = async () => {
     console.log("delete");
@@ -178,9 +178,9 @@ export function GridItem({
               )}
               onClick={() => {
                 if (image(item) === "/images/folder.svg") {
-                  handleOpenFolder()
+                  handleOpenFolder();
                 } else {
-                  handleOpen()
+                  handleOpen();
                 }
               }}
             />

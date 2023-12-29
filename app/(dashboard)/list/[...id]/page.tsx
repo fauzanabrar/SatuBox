@@ -1,10 +1,10 @@
 import ListViewId from "./ListViewId";
 
 export const metadata = {
-  title: "Dashboard",
+  title: "List",
 };
 
-export default async function UploadPage() {
+export default async function ListIdPage() {
   return (
     <>
       <div className="col-span-3 lg:col-span-4 lg:border-l">

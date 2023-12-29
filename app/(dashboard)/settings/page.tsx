@@ -1,8 +1,8 @@
 export const metadata = {
-  title: "Dashboard",
+  title: "Settings",
 };
 
-export default async function ListPage() {
+export default async function SettingsPage() {
 
   return (
     <>

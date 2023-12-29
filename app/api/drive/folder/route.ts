@@ -15,9 +15,11 @@ export async function POST(request: NextRequest) {
   const data = await request.formData();
   
   const folderName = data.get("name") as string;
+  const folderId = data.get("id") as string;
+  console.log(folderId);
 
   const list: any = await createFolder(folderName, [
-    process.env.SHARED_FOLDER_ID_DRIVE as string,
+    folderId ? folderId : process.env.SHARED_FOLDER_ID_DRIVE as string,
   ]);
 
   return NextResponse.json({
@@ -26,3 +28,5 @@ export async function POST(request: NextRequest) {
     files: list,
   });
 }
+
+export const dynamic = "force-dynamic";

@@ -44,3 +44,5 @@ async function getMedia(list: any) {
   }
   return newFiles;
 }
+
+export const dynamic = "force-dynamic";

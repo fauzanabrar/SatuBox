@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { TokensIcon, UploadIcon } from "@radix-ui/react-icons";
+import { TokensIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import Icon from "./lucide/icon";
 

@@ -38,3 +38,5 @@ export async function DELETE(request: NextRequest, { params }: ParamsType) {
     response,
   });
 }
+
+export const dynamic = "force-dynamic";

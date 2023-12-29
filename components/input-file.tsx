@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import useListStore from "@/lib/zustand/useListStore";
 import React from "react";
 import Loading from "./loading";
+import { usePathname, useRouter } from "next/navigation";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
 
@@ -13,6 +14,17 @@ export function InputFile({}: InputFileProps) {
   const { refreshList } = useListStore((store: any) => ({
     refreshList: store.refreshList,
   }));
+
+  const pathnames = usePathname();
+  const lastPath = pathnames.split("/").pop();
+
+  let folderId = ""
+
+  if (lastPath !== "list" && lastPath) {
+    folderId = lastPath
+  }
+
+  const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileUpload: any = event.target.files ? event.target.files[0] : null;
@@ -26,13 +38,15 @@ export function InputFile({}: InputFileProps) {
       const formData = new FormData();
       formData.append("file", file);
 
+      formData.append("id", folderId);
+
       try {
         const response = await fetch("http://localhost:3000/api/drive/upload", {
           method: "POST",
           body: formData,
         });
         if (response.ok) {
-          refreshList();
+          refreshList(folderId);
           console.log("File uploaded successfully");
         } else {
           console.error("Failed to upload file");

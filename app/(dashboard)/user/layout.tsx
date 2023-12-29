@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/sidebar";
 
 import { ReactNode } from "react";
 
-export default function ListLayout({ children }: { children: ReactNode }) {
+export default function UserLayout({ children }: { children: ReactNode }) {
   return (
     <>
         <Menu />

@@ -1,9 +1,9 @@
 
 export const metadata = {
-  title: "Dashboard",
+  title: "User",
 };
 
-export default async function ListPage() {
+export default async function UserPage() {
   return (
     <>
       <div className="col-span-3 lg:col-span-4 lg:border-l">

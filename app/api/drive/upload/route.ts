@@ -5,6 +5,7 @@ export async function POST(request: NextRequest) {
   const data = await request.formData();
 
   const file: File | null = data.get("file") as File;
+  const folderId = data.get("id") as string;
 
   if (!file) {
     return NextResponse.json({ status: "400", message: "file not found" });
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
   const buffer = Buffer.from(bytes);
 
   const response: any = await uploadFile(file.name, file.type, buffer, [
-    process.env.SHARED_FOLDER_ID_DRIVE,
+    folderId ? folderId : process.env.SHARED_FOLDER_ID_DRIVE,
   ] as string[]);
 
   return NextResponse.json({
@@ -23,3 +24,5 @@ export async function POST(request: NextRequest) {
     files: response,
   });
 }
+
+export const dynamic = "force-dynamic";

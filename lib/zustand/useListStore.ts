@@ -24,10 +24,10 @@ const useListStore = create(
       setFiles: (files: any) => set(() => ({ files })),
       loadingList: true,
       setLoadingList: (bool: boolean) => set(() => ({ loadingList: bool })),
-      refreshList: async () => {
+      refreshList: async (folderId:string) => {
         set({ loadingList: true });
         try {
-          const files = await getFiles();
+          const files = await getFiles(folderId);
           set({ files });
         } catch (error) {
           console.error(error);
