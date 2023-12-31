@@ -99,6 +99,14 @@ export async function GET(request: NextRequest, { params }: ParamsType) {
 
   const list: any = await listFiles(process.env.SHARED_FOLDER_ID_DRIVE);
 
+  if (list.length < 1) {
+    return NextResponse.json({
+      status: "500",
+      message: "failed",
+      files: []
+    });
+  }
+
   if (media === "true") {
     const newFiles: any = await getMedia(list);
     return NextResponse.json({
@@ -131,7 +139,7 @@ export async function DELETE(request: NextRequest, { params }: ParamsType) {
 
 export const dynamic = "force-dynamic";
 
-async function getMedia(list: any) {
+async function getMedia(list: any[]) {
   const newFiles: any = [];
   for (const item of list) {
     if (!item.mimeType.includes("image")) {

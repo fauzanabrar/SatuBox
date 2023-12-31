@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
   
   const folderName = data.get("name") as string;
   const folderId = data.get("id") as string;
-  console.log(folderId);
 
   const list: any = await createFolder(folderName, [
     folderId ? folderId : process.env.SHARED_FOLDER_ID_DRIVE as string,

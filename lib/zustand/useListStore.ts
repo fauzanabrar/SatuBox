@@ -31,6 +31,7 @@ const useListStore = create(
           set({ files });
         } catch (error) {
           console.error(error);
+          set({ loadingList: false });
         } finally {
           set({ loadingList: false });
         }

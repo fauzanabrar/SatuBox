@@ -8,15 +8,17 @@ import React, { useEffect } from "react";
 import useSWRImmutable from "swr/immutable";
 
 export default function ListView() {
-  const { setFiles, setLoadingList, setAllFiles }: any = useListStore((store: any) => ({
-    setFiles: store.setFiles,
-    setAllFiles: store.setAllFiles,
-    setLoadingList: store.setLoadingList,
-  }));
+  const { setFiles, setLoadingList, setAllFiles }: any = useListStore(
+    (store: any) => ({
+      setFiles: store.setFiles,
+      setAllFiles: store.setAllFiles,
+      setLoadingList: store.setLoadingList,
+    })
+  );
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const { data } = useSWRImmutable(
+  const { data, isLoading } = useSWRImmutable(
     "/api/drive/file?media=true&pageSize=10",
     fetcher,
     {
@@ -58,7 +60,7 @@ export default function ListView() {
         <InputFile />
       </div>
       <Separator className="my-4" />
-      
+
       <Lists canScroll={true} type="grid" />
     </div>
   );

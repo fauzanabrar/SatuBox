@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import {  getFolderName } from "@/lib/gdrive";
 
 export async function GET(request: NextRequest) {
-  console.log("called");
   const id = request.nextUrl.searchParams.get("id") as string;
 
   const file: any = await getFolderName(id);
