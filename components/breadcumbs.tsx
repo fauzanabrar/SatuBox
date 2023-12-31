@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "./ui/card";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
@@ -18,7 +18,7 @@ export default function Breadcumbs() {
   return (
     <div className="my-2">
       <Card className="w-fit py-1 px-2 h-fit flex justify-start items-center mb-4">
-        {pathnames.map(async (item, index) => {
+        {pathnames.map((item, index) => {
           if (item === "") return null;
 
           let link = pathnames.slice(0, index + 1).join("/");

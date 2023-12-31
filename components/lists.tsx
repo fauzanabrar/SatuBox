@@ -29,7 +29,7 @@ export default function Lists({
   return (
     <div className="relative">
       <Breadcumbs />
-      <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
+      {/* <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
         <div className="flex flex-wrap gap-2">
           {loading ? (
             <Image
@@ -71,7 +71,7 @@ export default function Lists({
           )}
         </div>
         <ScrollBar orientation="vertical" />
-      </ScrollArea>
+      </ScrollArea> */}
     </div>
   );
 }

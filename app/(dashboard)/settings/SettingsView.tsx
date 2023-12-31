@@ -1,11 +1,17 @@
 "use client"
-import { User } from 'next-auth';
-import { useSession } from 'next-auth/react';
 import React from 'react'
 
-export default function SettingsView() {
-  const { data: sessionUser }: any = useSession() ;
+export default function SettingsView({userSession}: {userSession: any}) {
   return (
-    <div>SettingsView</div>
+    <div>
+      settings
+          <div className="flex-row py-4 gap-4">
+            <div>{userSession?.user?.name}</div>
+            <div>{userSession?.user?.email}</div>
+            <div>{userSession?.user?.role}</div>
+            <div>{userSession?.user?.id}</div>
+            <div>{userSession?.user?.image}</div>
+          </div>
+    </div>
   )
 }

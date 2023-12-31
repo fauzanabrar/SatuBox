@@ -60,7 +60,6 @@ export default function ListView() {
         <InputFile />
       </div>
       <Separator className="my-4" />
-
       <Lists canScroll={true} type="grid" />
     </div>
   );
