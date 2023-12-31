@@ -10,14 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import useListStore from "@/lib/zustand/useListStore";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import Loading from "./loading";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function AddFolderDialog() {
   const [loadingFolder, setLoadingFolder] = useState(false);
-  const { refreshList } = useListStore((store: any) => ({
+  const { refreshList, setIsChanged } = useListStore((store: ListStore) => ({
     refreshList: store.refreshList,
+    setIsChanged: store.setIsChanged,
   }));
 
   const [folderName, setFolderName] = useState("");
@@ -46,6 +47,7 @@ export default function AddFolderDialog() {
         });
         if (response.ok) {
           console.log("Add folder successfully");
+          setIsChanged(true)
           refreshList(folderId);
         } else {
           console.error("Failed to add folder");

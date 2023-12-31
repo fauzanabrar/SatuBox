@@ -5,33 +5,50 @@ import Lists from "@/components/lists";
 import useListStore from "@/lib/zustand/useListStore";
 import { Separator } from "@radix-ui/react-menubar";
 import React, { useEffect } from "react";
+import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
 
 export default function ListView() {
-  const { setFiles, setLoadingList, setAllFiles }: any = useListStore(
-    (store: any) => ({
-      setFiles: store.setFiles,
-      setAllFiles: store.setAllFiles,
-      setLoadingList: store.setLoadingList,
-    })
-  );
+  const {
+    setFiles,
+    setLoadingList,
+    setAllFiles,
+    files,
+    setIsChanged,
+    isChanged,
+  }: any = useListStore((store: any) => ({
+    files: store.files,
+    setFiles: store.setFiles,
+    setAllFiles: store.setAllFiles,
+    setLoadingList: store.setLoadingList,
+    isChanged: store.isChanged,
+    setIsChanged: store.setIsChanged,
+  }));
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  const { data, isLoading } = useSWRImmutable(
-    "/api/drive/file?media=true&pageSize=10",
-    fetcher,
-    {
-      revalidateOnMount: true,
-    }
-  );
+  const apiUrl = "/api/drive/file?media=true&pageSize=10";
+  const { data, isLoading } = useSWRImmutable(apiUrl, fetcher, {
+    revalidateOnMount: true,
+  });
 
   useEffect(() => {
-    setLoadingList(true);
-    if (data?.files) {
-      setFiles(data?.files);
-      setAllFiles(data?.files);
+    useListStore.persist.rehydrate();
+    if (!isChanged) {
       setLoadingList(false);
+      if (!isLoading) {
+        setFiles(data?.files);
+        setAllFiles(data?.files);
+      }
+    } else {
+      setLoadingList(true);
+      if (data?.files) {
+        setFiles(data?.files);
+        setAllFiles(data?.files);
+        setIsChanged(false);
+        setLoadingList(false);
+      }
+      mutate(apiUrl);
     }
   }, [data]);
 

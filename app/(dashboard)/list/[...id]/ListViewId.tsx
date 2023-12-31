@@ -2,35 +2,44 @@
 import AddFolderDialog from "@/components/add-folder";
 import { InputFile } from "@/components/input-file";
 import Lists from "@/components/lists";
-import useListStore from "@/lib/zustand/useListStore";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import { Separator } from "@radix-ui/react-menubar";
 import { usePathname } from "next/navigation";
 import React, { useEffect } from "react";
+import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
 
 export default function ListViewId() {
-  const { setFiles, setLoadingList, setAllFiles }: any = useListStore(
-    (store: any) => ({
+  const { setFiles, setLoadingList, setAllFiles, setIsChanged, isChanged } =
+    useListStore((store: ListStore) => ({
       setFiles: store.setFiles,
       setLoadingList: store.setLoadingList,
       setAllFiles: store.setAllFiles,
-    })
-  );
+      isChanged: store.isChanged,
+      setIsChanged: store.setIsChanged,
+    }));
 
   const pathname = usePathname();
   const folderId = pathname.split("/").pop();
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-  const { data } = useSWRImmutable("/api/drive/folder/" + folderId, fetcher, {
+  const apiUrl = "/api/drive/folder/" + folderId;
+  const { data } = useSWRImmutable(apiUrl, fetcher, {
     revalidateOnMount: true,
   });
 
   useEffect(() => {
-    setLoadingList(true);
-    if (data?.files) {
-      setFiles(data?.files);
-      setAllFiles(data?.files);
+    if (isChanged) {
+      useListStore.persist.rehydrate();
+      setLoadingList(true);
+      if (data?.files) {
+        setFiles(data?.files);
+        setAllFiles(data?.files);
+        setIsChanged(false);
+        setLoadingList(false);
+      }
+      mutate(apiUrl);
+    } else {
       setLoadingList(false);
     }
   }, [data]);

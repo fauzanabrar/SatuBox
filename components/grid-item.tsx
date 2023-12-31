@@ -9,7 +9,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import useListStore from "@/lib/zustand/useListStore";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import {
   Dialog,
   DialogContent,
@@ -49,10 +49,21 @@ export function GridItem({
   const router = useRouter();
   const pathnames = usePathname();
 
-  const { refreshList, setLoadingList } = useListStore((store: any) => ({
-    refreshList: store.refreshList,
-    setLoadingList: store.setLoadingList,
-  }));
+  const lastPath = pathnames.split("/").pop();
+
+  let folderId = "";
+
+  if (lastPath !== "list" && lastPath) {
+    folderId = lastPath;
+  }
+
+  const { refreshList, setLoadingList, setIsChanged, changeAllFilesWithId } =
+    useListStore((store: ListStore) => ({
+      refreshList: store.refreshList,
+      setLoadingList: store.setLoadingList,
+      setIsChanged: store.setIsChanged,
+      changeAllFilesWithId: store.changeAllFilesWithId,
+    }));
 
   const [newName, setNewName] = useState("");
   const [isRename, setIsRename] = useState(false);
@@ -72,6 +83,7 @@ export function GridItem({
 
   const handleRename = async () => {
     console.log("rename");
+    setLoadingList(true);
     setLoadingRename(true);
     const formData = new FormData();
     formData.append("name", newName);
@@ -84,15 +96,17 @@ export function GridItem({
         }
       );
       const data = await response.json();
-      console.log(data);
       if (data.status === 200) {
         console.log("rename berhasil");
-        refreshList();
-        setLoadingRename(false);
-        setIsRename(false);
+        changeAllFilesWithId(item.id);
+        setIsChanged(true);
+        refreshList(folderId);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoadingRename(false);
+      setIsRename(false);
     }
   };
 
@@ -103,11 +117,13 @@ export function GridItem({
 
   const handleOpenFolder = () => {
     setLoadingList(true);
+    setIsChanged(true);
     router.push(`${pathnames}/${item.id}`);
   };
 
   const handleDelete = async () => {
     console.log("delete");
+    setLoadingList(true);
     try {
       const response = await fetch(
         `http://localhost:3000/api/drive/file/${item.id}`,
@@ -119,7 +135,9 @@ export function GridItem({
       console.log(data);
       if (data.status === 200) {
         console.log("delete berhasil");
-        refreshList();
+        changeAllFilesWithId(item.id);
+        setIsChanged(true);
+        refreshList(folderId);
       }
     } catch (error) {
       console.log(error);
@@ -153,7 +171,10 @@ export function GridItem({
             <DialogTrigger asChild>
               <div className="flex gap-2">
                 {loadingRename && <Loading loading={loadingRename} size={30} />}
-                <Button type="submit" onClick={handleRename}>
+                <Button type="submit" onClick={(e) => {
+                  e.preventDefault()
+                  handleRename()
+                }}>
                   Submit
                 </Button>
               </div>

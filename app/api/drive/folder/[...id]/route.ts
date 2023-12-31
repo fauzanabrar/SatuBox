@@ -9,6 +9,12 @@ type ParamsType = {
 
 export async function GET(request: NextRequest, { params }: ParamsType) {
  
+  if (!params.id) return NextResponse.json({
+    status: "500",
+    message: "error",
+    error: "no params",
+  });
+
   const listFile: any = await listFiles(params.id.at(-1));
   
   const files = await getMedia(listFile)

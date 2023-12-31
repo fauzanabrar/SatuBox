@@ -1,30 +1,29 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useListStore from "@/lib/zustand/useListStore";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import React from "react";
 import Loading from "./loading";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
 
 export function InputFile({}: InputFileProps) {
   const [file, setFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { refreshList } = useListStore((store: any) => ({
+  const { refreshList, setIsChanged } = useListStore((store: ListStore) => ({
     refreshList: store.refreshList,
+    setIsChanged: store.setIsChanged,
   }));
 
   const pathnames = usePathname();
   const lastPath = pathnames.split("/").pop();
 
-  let folderId = ""
+  let folderId = "";
 
   if (lastPath !== "list" && lastPath) {
-    folderId = lastPath
+    folderId = lastPath;
   }
-
-  const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileUpload: any = event.target.files ? event.target.files[0] : null;
@@ -46,6 +45,7 @@ export function InputFile({}: InputFileProps) {
           body: formData,
         });
         if (response.ok) {
+          setIsChanged(true);
           refreshList(folderId);
           console.log("File uploaded successfully");
         } else {

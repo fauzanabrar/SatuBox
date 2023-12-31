@@ -4,7 +4,7 @@ import ListItem from "./list-item";
 import { cn } from "@/lib/utils";
 import { GridItem } from "./grid-item";
 import Image from "next/image";
-import useListStore from "@/lib/zustand/useListStore";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import { useMemo } from "react";
 import Breadcumbs from "./breadcumbs";
 
@@ -17,7 +17,7 @@ export default function Lists({
   canScroll = false,
   type = "list",
 }: ListsProps) {
-  const { loadingList: loading, files } = useListStore((store: any) => ({
+  const { loadingList: loading, files } = useListStore((store: ListStore) => ({
     files: store.files,
     loadingList: store.loadingList,
   }));
@@ -29,7 +29,7 @@ export default function Lists({
   return (
     <div className="relative">
       <Breadcumbs />
-      {/* <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
+      <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
         <div className="flex flex-wrap gap-2">
           {loading ? (
             <Image
@@ -38,6 +38,7 @@ export default function Lists({
               height={100}
               alt="loading"
               className="animate-spin m-auto py-8"
+              loading="lazy"
             />
           ) : !listItems ? (
             <Image
@@ -71,7 +72,7 @@ export default function Lists({
           )}
         </div>
         <ScrollBar orientation="vertical" />
-      </ScrollArea> */}
+      </ScrollArea>
     </div>
   );
 }
