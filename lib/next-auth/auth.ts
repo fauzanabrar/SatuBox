@@ -1,6 +1,7 @@
 import { User } from "@/types/userTypes";
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { getUserByEmail } from "@/lib/firebase/db";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -8,7 +9,7 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "username" },
+        email: { label: "email", type: "text", placeholder: "email" },
         password: {
           label: "Password",
           type: "password",
@@ -16,17 +17,27 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        const user: User = {
-          id: "1",
-          name: "J Smith",
-          email: "admin@gmail.com",
-          role: "admin",
-        };
-        if (user) {
+        // const user: User = {
+        //   id: "1",
+        //   name: "J Smith",
+        //   email: "admin@gmail.com",
+        //   role: "admin",
+        // };
+
+        // check credentials to db
+        const user: any = await getUserByEmail(credentials?.email as string);
+
+        if (user.password === credentials?.password) {
           return user;
         } else {
           return null;
         }
+
+        // if (user) {
+        //   return user;
+        // } else {
+        //   return null;
+        // }
       },
     }),
   ],
