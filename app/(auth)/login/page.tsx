@@ -1,7 +1,6 @@
 import {Metadata} from "next"
 import Link from "next/link"
 
-import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import * as React from "react";
 import LoginForm from "@/app/(auth)/login/LoginForm";

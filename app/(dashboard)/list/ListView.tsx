@@ -13,11 +13,9 @@ export default function ListView() {
     setFiles,
     setLoadingList,
     setAllFiles,
-    files,
     setIsChanged,
     isChanged,
   }: any = useListStore((store: any) => ({
-    files: store.files,
     setFiles: store.setFiles,
     setAllFiles: store.setAllFiles,
     setLoadingList: store.setLoadingList,
@@ -50,7 +48,7 @@ export default function ListView() {
       }
       mutate(apiUrl);
     }
-  }, [data]);
+  }, [data, isChanged]);
 
   return (
     <div>
