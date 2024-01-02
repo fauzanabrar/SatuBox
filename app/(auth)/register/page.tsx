@@ -8,7 +8,7 @@ import Link from "next/link";
 
 type Props = {};
 
-export default function Page(props: Props) {
+export default function Page() {
   return (
     <div className="container flex justify-center items-center h-screen w-screen">
       <Card className="w-2/7">

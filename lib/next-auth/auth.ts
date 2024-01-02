@@ -1,4 +1,3 @@
-import { User } from "@/types/userTypes";
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getUserByEmail } from "@/lib/firebase/db";
