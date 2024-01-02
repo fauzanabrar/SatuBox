@@ -15,9 +15,11 @@ export default function Breadcumbs() {
     allFiles: store.allFiles,
   }));
 
+  useEffect(() => {}, [allFiles]);
+
   return (
-    <div className="my-2">
-      <Card className="w-fit py-1 px-2 h-fit flex justify-start items-center mb-4">
+    <div className="my-2 h-auto flex items-center">
+      <Card className="w-fit py-1 px-2 h-auto flex justify-start items-center">
         {pathnames.map((item, index) => {
           if (item === "") return null;
 

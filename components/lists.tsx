@@ -7,6 +7,7 @@ import Image from "next/image";
 import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import { useMemo } from "react";
 import Breadcumbs from "./breadcumbs";
+import RefreshButton from "./refresh-button";
 
 interface ListsProps {
   canScroll?: boolean;
@@ -28,7 +29,11 @@ export default function Lists({
 
   return (
     <div className="relative">
-      <Breadcumbs />
+      
+      <div className="flex justify-between w-auto items-center">
+        <Breadcumbs />
+        <RefreshButton />
+      </div>
       <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
         <div className="flex flex-wrap gap-2">
           {loading ? (

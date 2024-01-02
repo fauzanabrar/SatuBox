@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { TokensIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
-import Icon from "./lucide/icon";
+import { LucideSettings, LucideUser } from "lucide-react";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   activePath: string;
@@ -19,7 +19,7 @@ export function Sidebar({ className, activePath }: SidebarProps) {
           <div className="space-y-1">
             <Link href={"/user"}>
               <Button variant={activePath === "user" ? "secondary" : "ghost"} className="w-full justify-start">
-                <Icon name="user" className="mr-2 h-4 w-4" />
+                <LucideUser className="mr-2 h-4 w-4" />
                 User
               </Button>
             </Link>
@@ -31,7 +31,7 @@ export function Sidebar({ className, activePath }: SidebarProps) {
             </Link>
             <Link href={"/settings"}>
               <Button variant={activePath === "settings" ? "secondary" : "ghost"} className="w-full justify-start">
-                <Icon name="settings" className="mr-2 h-4 w-4" />
+                <LucideSettings className="mr-2 h-4 w-4" />
                 Settings
               </Button>
             </Link>
@@ -48,7 +48,7 @@ export function Sidebar({ className, activePath }: SidebarProps) {
             </Link>
             <Link href={"/settings"}>
               <Button variant={activePath === "settings" ? "secondary" : "ghost"} className="w-full justify-start">
-                <Icon name="settings" className="mr-2 h-4 w-4" />
+                <LucideSettings className="mr-2 h-4 w-4" />
                 Settings
               </Button>
             </Link>

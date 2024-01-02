@@ -9,7 +9,7 @@ const nextConfig = {
     domains: ["images.unsplash.com", "drive.google.com"],
     minimumCacheTTL: 600,
   },
-  transpilePackages: ['lucide-react'] 
+  transpilePackages: ["lucide-react"],
 };
 
 module.exports = nextConfig;

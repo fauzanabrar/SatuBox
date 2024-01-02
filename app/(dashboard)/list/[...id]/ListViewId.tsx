@@ -10,14 +10,21 @@ import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
 
 export default function ListViewId() {
-  const { setFiles, setLoadingList, setAllFiles, setIsChanged, isChanged } =
-    useListStore((store: ListStore) => ({
-      setFiles: store.setFiles,
-      setLoadingList: store.setLoadingList,
-      setAllFiles: store.setAllFiles,
-      isChanged: store.isChanged,
-      setIsChanged: store.setIsChanged,
-    }));
+  const {
+    setFiles,
+    setLoadingList,
+    setAllFiles,
+    setIsChanged,
+    isChanged,
+    files,
+  } = useListStore((store: ListStore) => ({
+    setFiles: store.setFiles,
+    setLoadingList: store.setLoadingList,
+    setAllFiles: store.setAllFiles,
+    isChanged: store.isChanged,
+    setIsChanged: store.setIsChanged,
+    files: store.files,
+  }));
 
   const pathname = usePathname();
   const folderId = pathname.split("/").pop();
@@ -29,7 +36,7 @@ export default function ListViewId() {
   });
 
   useEffect(() => {
-    if (isChanged) {
+    if (isChanged || pathname) {
       useListStore.persist.rehydrate();
       setLoadingList(true);
       if (data?.files) {
@@ -42,7 +49,7 @@ export default function ListViewId() {
     } else {
       setLoadingList(false);
     }
-  }, [data]);
+  }, [data, pathname, isChanged]);
 
   return (
     <div>
