@@ -146,11 +146,59 @@ export function GridItem({
 
   return (
     <div className={cn("space-y-3", className)} {...props}>
-      <Dialog
-        open={isRename}
-        onOpenChange={setIsRename}
-        aria-labelledby="rename-dialog-title"
-      >
+      <Dialog open={isRename} onOpenChange={setIsRename}>
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <div className="overflow-hidden rounded-md">
+              <Image
+                src={image(item) as string}
+                alt={item.name}
+                width={width}
+                height={height}
+                className={cn(
+                  "h-full w-full object-cover transition-all hover:scale-105",
+                  aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
+                )}
+                onClick={() => {
+                  if (image(item) === "/images/folder.svg") {
+                    handleOpenFolder();
+                  } else {
+                    handleOpen();
+                  }
+                }}
+              />
+
+              <div className="space-y-1 text-sm flex align-center items-start justify-start h-fit py-4">
+                <h3 className="font-medium leading-none break-all px-2">
+                  {item.name}
+                </h3>
+              </div>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-40">
+            <ContextMenuItem onClick={() => handleOpen()}>Open</ContextMenuItem>
+            <DialogTrigger asChild>
+              <ContextMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setNewName(item.name);
+                  setIsRename(true);
+                }}
+              >
+                <span>Rename</span>
+              </ContextMenuItem>
+            </DialogTrigger>
+            <ContextMenuItem onClick={() => handleDetail()}>
+              Detail
+            </ContextMenuItem>
+            <ContextMenuItem
+              className="text-red-600"
+              onClick={() => handleDelete()}
+            >
+              Delete
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>New Name</DialogTitle>
@@ -169,70 +217,30 @@ export function GridItem({
           </div>
           <DialogFooter>
             <DialogTrigger asChild>
-              <div className="flex gap-2">
+              <div className="flex gap-2 sm:flex-col sm:gap-4">
                 {loadingRename && <Loading loading={loadingRename} size={30} />}
-                <Button type="submit" onClick={(e) => {
-                  e.preventDefault()
-                  handleRename()
-                }}>
+                <Button
+                  className=""
+                  type="submit"
+                  onClick={(e) => {
+                    handleRename();
+                  }}
+                >
                   Submit
                 </Button>
               </div>
             </DialogTrigger>
-            <Button variant={"outline"} onClick={() => setIsRename(false)}>
+            <Button
+              variant={"outline"}
+              onClick={(e) => {
+                setIsRename(false);
+              }}
+            >
               Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <div className="overflow-hidden rounded-md">
-            <Image
-              src={image(item) as string}
-              alt={item.name}
-              width={width}
-              height={height}
-              className={cn(
-                "h-full w-full object-cover transition-all hover:scale-105",
-                aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
-              )}
-              onClick={() => {
-                if (image(item) === "/images/folder.svg") {
-                  handleOpenFolder();
-                } else {
-                  handleOpen();
-                }
-              }}
-            />
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="w-40">
-          <ContextMenuItem onClick={() => handleOpen()}>Open</ContextMenuItem>
-          <ContextMenuItem
-            onClick={() => {
-              setNewName(item.name);
-              setIsRename(true);
-            }}
-          >
-            Rename
-          </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleDetail()}>
-            Detail
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="text-red-600"
-            onClick={() => handleDelete()}
-          >
-            Delete
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-      <div className="space-y-1 text-sm flex align-center items-start justify-start h-12">
-        <h3 className="font-medium leading-none break-all px-2 py-1">
-          {item.name}
-        </h3>
-      </div>
     </div>
   );
 }
