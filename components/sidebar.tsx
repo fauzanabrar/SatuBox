@@ -23,12 +23,6 @@ export function Sidebar({ className, activePath }: SidebarProps) {
                 User
               </Button>
             </Link>
-            <Link href={"/list"}>
-              <Button variant={activePath === "list" ? "secondary" : "ghost"} className="w-full justify-start">
-                <TokensIcon className="mr-2 h-4 w-4" />
-                List
-              </Button>
-            </Link>
             <Link href={"/settings"}>
               <Button variant={activePath === "settings" ? "secondary" : "ghost"} className="w-full justify-start">
                 <LucideSettings className="mr-2 h-4 w-4" />
