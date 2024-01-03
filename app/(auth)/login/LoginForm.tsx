@@ -55,7 +55,7 @@ function LoginForm() {
 
   return (
     <div>
-      <form className="grid gap-4" onSubmit={onSubmit}>
+      <form method="POSt" className="grid gap-4" onSubmit={onSubmit}>
         {error && (
           <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">{error}</p>
         )}
