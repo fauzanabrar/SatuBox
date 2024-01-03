@@ -16,7 +16,7 @@ export default function RegisterPage() {
             Enter your email below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent>
           <RegisterForm/>
         </CardContent>
         <CardFooter>

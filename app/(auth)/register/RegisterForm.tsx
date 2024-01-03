@@ -1,11 +1,17 @@
 "use client"
 import React, {ChangeEvent, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {signIn} from "next-auth/react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
+import {createUser} from "@/lib/firebase/db";
 
+
+export interface RegisterUser {
+  name: string;
+  email: string;
+  password: string;
+}
 
 function RegisterForm() {
   const router = useRouter();
@@ -13,6 +19,7 @@ function RegisterForm() {
   const [formValues, setFormValues] = useState({
     email: "",
     password: "",
+    name: "",
   });
 
   const [error, setError] = useState("");
@@ -24,26 +31,22 @@ function RegisterForm() {
     e.preventDefault();
     try {
       setLoading(true);
-      setFormValues({email: "", password: ""});
       console.log(formValues)
-      // const res = await signIn("credentials", {
-      //   redirect: false,
-      //   email: formValues.email,
-      //   password: formValues.password,
-      //   callbackUrl,
-      // });
+
+      const user: RegisterUser = {
+        email: formValues.email,
+        password: formValues.password,
+        name: formValues.name,
+      }
+
+      await createUser(user)
 
       setLoading(false);
-
-      //   console.log(res);
-      //   if (!res?.error) {
-      //     router.push(callbackUrl);
-      //   } else {
-      //     setError("Invalid email or password");
-      //   }
+      setFormValues({email: "", password: "", name: ""});
     } catch (error: any) {
       setLoading(false);
-      setError(error);
+      console.log(error.message);
+      setError(error.message);
     }
   };
 
@@ -52,13 +55,17 @@ function RegisterForm() {
     setFormValues({...formValues, [name]: value});
   };
 
-
   return (
     <div>
       <form className="grid gap-4" onSubmit={onSubmit}>
         {error && (
           <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">{error}</p>
         )}
+        <div className="grid gap-2">
+          <Label htmlFor="name">Name</Label>
+          <Input id="name" type="text" name="name" placeholder="John Doe" onChange={handleChange}
+                 value={formValues.name}/>
+        </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange}

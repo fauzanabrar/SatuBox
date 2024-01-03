@@ -1,6 +1,7 @@
-import { NextAuthOptions } from "next-auth";
+import {NextAuthOptions} from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getUserByEmail } from "@/lib/firebase/db";
+import {FireStoreUser, getUserByEmail} from "@/lib/firebase/db";
+import {compare} from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -8,7 +9,7 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        email: { label: "email", type: "text", placeholder: "email" },
+        email: {label: "email", type: "text", placeholder: "email"},
         password: {
           label: "Password",
           type: "password",
@@ -16,27 +17,22 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        // const user: User = {
-        //   id: "1",
-        //   name: "J Smith",
-        //   email: "admin@gmail.com",
-        //   role: "admin",
-        // };
-
         // check credentials to db
-        const user: any = await getUserByEmail(credentials?.email as string);
-
-        if (user.password === credentials?.password) {
-          return user;
-        } else {
+        try {
+          const user: FireStoreUser = await getUserByEmail(credentials?.email as string);
+          const comparedPassword = await compare(credentials?.password as string, user.password);
+          if (comparedPassword) {
+            return {
+              id: user.email,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            };
+          }
           return null;
+        } catch (e) {
+          return null
         }
-
-        // if (user) {
-        //   return user;
-        // } else {
-        //   return null;
-        // }
       },
     }),
   ],
@@ -44,14 +40,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user, account, profile, isNewUser }: any) {
+    async jwt({token, user, account, profile, isNewUser}: any) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token, user }: any) {
+    async session({session, token, user}: any) {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
