@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@googleapis/drive": "^8.3.1",
@@ -59,11 +60,13 @@
     "zustand": "^4.4.2"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^14.0.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
+    "cross-env": "^7.0.3",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",

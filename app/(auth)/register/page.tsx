@@ -4,8 +4,6 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import Link from "next/link";
 import RegisterForm from "@/app/(auth)/register/RegisterForm";
 
-type Props = {};
-
 export default function RegisterPage() {
   return (
     <div className="container flex justify-center items-center h-screen w-screen">
