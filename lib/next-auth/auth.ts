@@ -56,9 +56,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
-    verifyRequest: "/auth/verify-request",
-    newUser: "/auth/new-user",
+    signIn: "/login",
+    error: "/error",
+    verifyRequest: "/verify-request",
+    newUser: "/new-user",
   }
 };
