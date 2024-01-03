@@ -1,14 +1,12 @@
 // @flow
 import * as React from 'react';
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
-import {Button} from "@/components/ui/button";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
 import Link from "next/link";
+import RegisterForm from "@/app/(auth)/register/RegisterForm";
 
 type Props = {};
 
-export default function Page() {
+export default function RegisterPage() {
   return (
     <div className="container flex justify-center items-center h-screen w-screen">
       <Card className="w-2/7">
@@ -19,22 +17,12 @@ export default function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="email@example.com"/>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password"/>
-          </div>
+          <RegisterForm/>
         </CardContent>
         <CardFooter>
-          <div className="flex-1">
-            <Button className="w-full">Create account</Button>
-            <CardDescription className="mt-4">
-              Already have an account? <Link href="/login" className="font-bold text-card-foreground">Login</Link>
-            </CardDescription>
-          </div>
+          <CardDescription>
+            Already have an account? <Link href="/login" className="font-bold text-card-foreground">Login</Link>
+          </CardDescription>
         </CardFooter>
       </Card>
     </div>

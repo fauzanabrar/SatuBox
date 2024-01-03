@@ -1,13 +1,13 @@
 "use client"
 import React, {ChangeEvent, useState} from 'react';
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
 import {useRouter, useSearchParams} from 'next/navigation';
 import {signIn} from "next-auth/react";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 
 
-function LoginForm() {
+function RegisterForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -25,22 +25,22 @@ function LoginForm() {
     try {
       setLoading(true);
       setFormValues({email: "", password: ""});
-
-      const res = await signIn("credentials", {
-        redirect: false,
-        email: formValues.email,
-        password: formValues.password,
-        callbackUrl,
-      });
+      console.log(formValues)
+      // const res = await signIn("credentials", {
+      //   redirect: false,
+      //   email: formValues.email,
+      //   password: formValues.password,
+      //   callbackUrl,
+      // });
 
       setLoading(false);
 
-      console.log(res);
-      if (!res?.error) {
-        router.push(callbackUrl);
-      } else {
-        setError("Invalid email or password");
-      }
+      //   console.log(res);
+      //   if (!res?.error) {
+      //     router.push(callbackUrl);
+      //   } else {
+      //     setError("Invalid email or password");
+      //   }
     } catch (error: any) {
       setLoading(false);
       setError(error);
@@ -61,18 +61,19 @@ function LoginForm() {
         )}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange} value={formValues.email}/>
+          <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange}
+                 value={formValues.email}/>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
           <Input id="password" name="password" type="password" onChange={handleChange} value={formValues.password}/>
         </div>
         <Button className="w-full" disabled={loading}>
-          {loading ? "Loading..." : "Login"}
+          {loading ? "Loading..." : "Register"}
         </Button>
       </form>
     </div>
   );
 }
 
-export default LoginForm;
+export default RegisterForm;
