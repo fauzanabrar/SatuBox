@@ -3,6 +3,7 @@ import * as React from 'react';
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import Link from "next/link";
 import RegisterForm from "@/app/(auth)/register/RegisterForm";
+import AlertRegisterSuccess from "@/app/(auth)/register/AlertRegisterSuccess";
 
 export default function RegisterPage() {
   return (

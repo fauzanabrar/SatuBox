@@ -1,21 +1,20 @@
 "use client";
 import { Menubar } from "@/components/ui/menubar";
-import { User } from "@/types/userTypes";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 export function Menu() {
   const { data: sessionUser } = useSession();
 
-  useEffect(() => {
-  }, [sessionUser])
-  
+  useEffect(() => {}, [sessionUser]);
+
   return (
     <Menubar className="justify-end rounded-none border-b border-none px-2 lg:px-4">
       {sessionUser ? (
         <>
-          <p>{ sessionUser.user?.name }</p>
+          <p>{sessionUser.user?.name}</p>
           <a
             href="#"
             className="px-2 py-1.5 text-sm font-semibold"
@@ -26,16 +25,12 @@ export function Menu() {
         </>
       ) : (
         <>
-          <a
-            href="#"
-            onClick={() => signIn()}
-            className="px-2 py-1.5 text-sm font-semibold"
-          >
+          <Link href="/login" className="px-2 py-1.5 text-sm font-semibold">
             Login
-          </a>
-          <a href="#" className="px-2 py-1.5 text-sm font-semibold">
+          </Link>
+          <Link href="/register" className="px-2 py-1.5 text-sm font-semibold">
             Register
-          </a>
+          </Link>
         </>
       )}
     </Menubar>
