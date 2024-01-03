@@ -5,6 +5,12 @@ import Link from "next/link";
 import RegisterForm from "@/app/(auth)/register/RegisterForm";
 import AlertRegisterSuccess from "@/app/(auth)/register/AlertRegisterSuccess";
 
+const metadata = {
+  title: "Register",
+  description: "Register page.",
+
+}
+
 export default function RegisterPage() {
   return (
     <div className="container flex justify-center items-center h-screen w-screen">

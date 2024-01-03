@@ -6,8 +6,8 @@ import * as React from "react";
 import LoginForm from "@/app/(auth)/login/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication forms built using the components.",
+  title: "Login",
+  description: "Login page.",
 }
 
 export default function AuthenticationPage() {
