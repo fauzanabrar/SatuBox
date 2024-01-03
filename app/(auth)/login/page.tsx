@@ -27,7 +27,7 @@ export default function AuthenticationPage() {
           <CardFooter>
             <div className="flex-1">
               <CardDescription className="mt-1">
-                Don't have an account? <Link href="/register" className="font-bold text-card-foreground">Register</Link>
+                {"Don't"} have an account? <Link href="/register" className="font-bold text-card-foreground">Register</Link>
               </CardDescription>
             </div>
           </CardFooter>
