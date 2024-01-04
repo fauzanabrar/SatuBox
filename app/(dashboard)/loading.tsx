@@ -12,11 +12,11 @@ export default function LoadingDashboard({ children }: { children: React.ReactNo
           <div className="grid lg:grid-cols-5">
             <Sidebar activePath={""} className="hidden lg:block" />
             <div className="col-span-4 flex justify-center items-center">
-              {/* <Loading loading={true} size={150} /> */}
+               <Loading loading={true} size={150} />
             </div>
           </div>
         </div>
       </div>
       </>
   );
-}``
+}

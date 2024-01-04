@@ -14,7 +14,6 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 export async function Sidebar({className, activePath}: SidebarProps) {
   const userSession: UserSession | null = await getServerSession(authOptions);
 
-
   return (
     <div className={cn("pb-12", className)}>
       <div className="space-y-4 py-4">
