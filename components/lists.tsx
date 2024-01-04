@@ -1,11 +1,11 @@
 "use client";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {ScrollArea, ScrollBar} from "@/components/ui/scroll-area";
 import ListItem from "./list-item";
-import { cn } from "@/lib/utils";
-import { GridItem } from "./grid-item";
+import {cn} from "@/lib/utils";
+import {GridItem} from "./grid-item";
 import Image from "next/image";
-import useListStore, { ListStore } from "@/lib/zustand/useListStore";
-import { useMemo } from "react";
+import useListStore, {ListStore} from "@/lib/zustand/useListStore";
+import {useMemo} from "react";
 import Breadcumbs from "./breadcumbs";
 import RefreshButton from "./refresh-button";
 
@@ -15,24 +15,22 @@ interface ListsProps {
 }
 
 export default function Lists({
-  canScroll = false,
-  type = "list",
-}: ListsProps) {
-  const { loadingList: loading, files } = useListStore((store: ListStore) => ({
+                                canScroll = false,
+                                type = "list",
+                              }: ListsProps) {
+  const {loadingList: loading, files} = useListStore((store: ListStore) => ({
     files: store.files,
     loadingList: store.loadingList,
   }));
 
-  const memoizedList = useMemo(() => files, [files]);
-
-  const listItems = memoizedList;
+  const listItems = useMemo(() => files, [files]);
 
   return (
     <div className="relative">
-      
+
       <div className="flex justify-between w-auto items-center">
-        <Breadcumbs />
-        <RefreshButton />
+        <Breadcumbs/>
+        <RefreshButton/>
       </div>
       <ScrollArea className={cn(canScroll ? "h-auto" : "h-full")}>
         <div className="flex flex-wrap gap-2">
@@ -59,7 +57,7 @@ export default function Lists({
             listItems?.map((item: any) => {
               if (type === "list") {
                 return (
-                  <ListItem key={item.id} item={item} className="w-full" />
+                  <ListItem key={item.id} item={item} className="w-full"/>
                 );
               } else if (type === "grid") {
                 return (
@@ -76,7 +74,7 @@ export default function Lists({
             })
           )}
         </div>
-        <ScrollBar orientation="vertical" />
+        <ScrollBar orientation="vertical"/>
       </ScrollArea>
     </div>
   );
