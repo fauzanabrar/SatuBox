@@ -3,7 +3,7 @@ import React, {ChangeEvent, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {createUser} from "@/lib/firebase/db";
+import {createUser} from "@/lib/firebase/db/user";
 import AlertRegisterSuccess from "@/app/(auth)/register/AlertRegisterSuccess";
 import {useToast} from "@/components/ui/use-toast";
 

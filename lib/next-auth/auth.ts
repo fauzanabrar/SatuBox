@@ -1,6 +1,6 @@
 import {NextAuthOptions} from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import {FireStoreUser, getUserByEmail} from "@/lib/firebase/db";
+import {FireStoreUser, getUserByEmail} from "@/lib/firebase/db/user";
 import {compare} from "bcryptjs";
 
 interface UserToken {

@@ -1,9 +1,9 @@
 import {getFirestore, collection, getDocs, addDoc} from 'firebase/firestore/lite';
-import {app} from './init';
+import {app, firestoreApp} from '../init';
 import {RegisterUser} from "@/app/(auth)/register/RegisterForm";
 import {hash} from "bcryptjs";
 
-const db = getFirestore(app);
+const usersCol = collection(firestoreApp, 'user');
 
 export interface FireStoreUser {
   email: string;
@@ -16,7 +16,6 @@ export interface FireStoreUser {
 
 // Get a list of all users from the database
 export async function getUsers() {
-  const usersCol = collection(db, 'user');
   const userSnapshot = await getDocs(usersCol);
   const userList = userSnapshot.docs.map(doc => doc.data());
   return userList as FireStoreUser[];
@@ -24,7 +23,6 @@ export async function getUsers() {
 
 // Find a user by their email
 export async function getUserByEmail(email: string) {
-  const usersCol = collection(db, 'user');
   const userSnapshot = await getDocs(usersCol);
   const userList = userSnapshot.docs.map(doc => doc.data());
   const user = userList.find(user => user.email === email);
@@ -33,9 +31,6 @@ export async function getUserByEmail(email: string) {
 
 // Create new User
 export async function createUser(user: RegisterUser) {
-
-  const usersCol = collection(db, 'user');
-
   const createdAt = new Date();
   const hashedPassword = await hash(user.password, 10);
 
