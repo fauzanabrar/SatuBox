@@ -3,6 +3,29 @@ import Credentials from "next-auth/providers/credentials";
 import {FireStoreUser, getUserByEmail} from "@/lib/firebase/db";
 import {compare} from "bcryptjs";
 
+interface UserToken {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  sub: string;
+  iat: number;
+  exp: number;
+  jti: string;
+}
+
+export interface UserSession {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+    role: string;
+  };
+  expires: string;
+
+}
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -40,19 +63,19 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({token, user, account, profile, isNewUser}: any) {
+    async jwt({token, user, account, profile, isNewUser}: any): Promise<any> {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
-      return token;
+      return token as UserToken;
     },
-    async session({session, token, user}: any) {
+    async session({session, token, user}: any): Promise<any> {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
       }
-      return session;
+      return session as UserSession;
     },
   },
   pages: {

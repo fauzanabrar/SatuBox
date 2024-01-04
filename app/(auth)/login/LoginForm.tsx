@@ -24,7 +24,6 @@ function LoginForm() {
     e.preventDefault();
     try {
       setLoading(true);
-      setFormValues({email: "", password: ""});
 
       const res = await signIn("credentials", {
         redirect: false,
@@ -37,6 +36,7 @@ function LoginForm() {
 
       console.log(res);
       if (!res?.error) {
+        setFormValues({email: "", password: ""});
         router.push(callbackUrl);
       } else {
         setError("Invalid email or password");
