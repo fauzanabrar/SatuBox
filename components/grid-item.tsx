@@ -247,8 +247,8 @@ export function GridItem({
                 <Button
                   className=""
                   type="submit"
-                  onClick={(e) => {
-                    handleRename();
+                  onClick={async () => {
+                    await handleRename();
                   }}
                 >
                   Submit
@@ -257,7 +257,7 @@ export function GridItem({
             </DialogTrigger>
             <Button
               variant={"outline"}
-              onClick={(e) => {
+              onClick={() => {
                 setIsRename(false);
               }}
             >
