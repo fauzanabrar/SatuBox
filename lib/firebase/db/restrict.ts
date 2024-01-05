@@ -40,7 +40,6 @@ export async function getRestrictsWithDocId() {
     restrict.id = doc.id;
     restrictsList.push(restrict as FireStoreRestrictWithDocId);
   });
-  console.log(restrictsList)
   return restrictsList as FireStoreRestrictWithDocId[];
 }
 
@@ -84,11 +83,12 @@ export async function getRestrictByFileIdWithDocId(fileId: string) {
 export async function addWhitelist(fileId: string, userId: string) {
   const restrict = await getRestrictByFileIdWithDocId(fileId)
 
-  const restrictDoc = doc(restrictsCol, restrict.id);
-
   if (!restrict) throw Error('Restrict file not found');
 
-  if(restrict.whitelist.includes(userId)) throw Error('User already has access to this file');
+  const restrictDoc = doc(restrictsCol, restrict.id);
+
+
+  if (restrict.whitelist.includes(userId)) throw Error('User already has access to this file');
 
   restrict.whitelist.push(userId);
 
@@ -102,10 +102,11 @@ export async function addWhitelist(fileId: string, userId: string) {
 // Delete a restrict by their id
 export async function deleteRestrict(fileId: string) {
   const restrict = await getRestrictByFileIdWithDocId(fileId)
-  console.log(restrict);
-  const restrictDoc = doc(restrictsCol, restrict.id);
 
   if (!restrict) throw Error('Restrict file not found');
+
+  const restrictDoc = doc(restrictsCol, restrict.id);
+
   try {
     await deleteDoc(restrictDoc);
     console.log('Document successfully deleted!')
