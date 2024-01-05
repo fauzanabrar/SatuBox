@@ -25,7 +25,7 @@ export default function RegisterPage() {
         </CardContent>
         <CardFooter>
           <CardDescription>
-            Already have an account? <Link href="/login" className="font-bold text-card-foreground">Login</Link>
+            Already have an account? <Link href={"/login"} className="font-bold text-card-foreground">Login</Link>
           </CardDescription>
         </CardFooter>
       </Card>
