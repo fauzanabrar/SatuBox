@@ -1,5 +1,5 @@
-import {getFirestore, collection, getDocs, addDoc} from 'firebase/firestore/lite';
-import {app, firestoreApp} from '../init';
+import {collection, getDocs, addDoc} from 'firebase/firestore/lite';
+import {firestoreApp} from '../init';
 import {RegisterUser} from "@/app/(auth)/register/RegisterForm";
 import {hash} from "bcryptjs";
 

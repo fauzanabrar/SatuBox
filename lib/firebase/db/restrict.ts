@@ -1,4 +1,4 @@
-import {getFirestore, collection, getDocs, addDoc} from 'firebase/firestore/lite';
+import { collection, getDocs, addDoc} from 'firebase/firestore/lite';
 import { firestoreApp} from '../init';
 
 const restrictsCol = collection(firestoreApp, 'restrict');
