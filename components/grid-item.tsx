@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -9,7 +9,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 
-import useListStore, { ListStore } from "@/lib/zustand/useListStore";
+import useListStore, {ListStore} from "@/lib/zustand/useListStore";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +18,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import {useState} from "react";
+import {Input} from "./ui/input";
+import {Button} from "./ui/button";
 import Loading from "./loading";
-import { usePathname, useRouter } from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
+import {LucideMoreVertical} from "lucide-react";
 
 type Item = {
   id: string;
@@ -39,13 +40,13 @@ interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function GridItem({
-  item,
-  aspectRatio = "portrait",
-  width,
-  height,
-  className,
-  ...props
-}: GridItemProps) {
+                           item,
+                           aspectRatio = "portrait",
+                           width,
+                           height,
+                           className,
+                           ...props
+                         }: GridItemProps) {
   const router = useRouter();
   const pathnames = usePathname();
 
@@ -57,7 +58,7 @@ export function GridItem({
     folderId = lastPath;
   }
 
-  const { refreshList, setLoadingList, setIsChanged, changeAllFilesWithId } =
+  const {refreshList, setLoadingList, setIsChanged, changeAllFilesWithId} =
     useListStore((store: ListStore) => ({
       refreshList: store.refreshList,
       setLoadingList: store.setLoadingList,
@@ -75,6 +76,7 @@ export function GridItem({
     if (item.type.includes("folder")) return "/images/folder.svg";
     return "/images/file.svg";
   };
+
 
   const handleDetail = () => {
     console.log("detail");
@@ -168,13 +170,36 @@ export function GridItem({
                 }}
               />
 
-              <div className="space-y-1 text-sm flex align-center items-start justify-start h-fit py-4">
-                <h3 className="font-medium leading-none break-all px-2">
-                  {item.name}
-                </h3>
-              </div>
+
             </div>
           </ContextMenuTrigger>
+          <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
+            <h3 className="font-medium leading-none break-all px-2">
+              {item.name}
+            </h3>
+            <div>
+              <ContextMenuTrigger
+                onMouseDown={(e) => {
+                  if (e.button === 0) { // 0 is the left mouse button
+                    e.preventDefault(); // prevent the default left click behavior
+                    e.target.dispatchEvent(new MouseEvent('contextmenu', { // dispatch a right click event
+                      bubbles: true,
+                      cancelable: false,
+                      view: window,
+                      button: 2, // 2 is the right mouse button
+                      buttons: 2,
+                      clientX: e.clientX,
+                      clientY: e.clientY,
+                    }));
+                  }
+                }}
+              >
+                <Button variant={"ghost"} className={"px-1"}>
+                  <LucideMoreVertical className={"w-5 h-5"}/>
+                </Button>
+              </ContextMenuTrigger>
+            </div>
+          </div>
           <ContextMenuContent className="w-40">
             <ContextMenuItem onClick={() => handleOpen()}>Open</ContextMenuItem>
             <DialogTrigger asChild>
@@ -218,7 +243,7 @@ export function GridItem({
           <DialogFooter>
             <DialogTrigger asChild>
               <div className="flex gap-2 sm:flex-col sm:gap-4">
-                {loadingRename && <Loading loading={loadingRename} size={30} />}
+                {loadingRename && <Loading loading={loadingRename} size={30}/>}
                 <Button
                   className=""
                   type="submit"
