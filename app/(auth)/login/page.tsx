@@ -1,9 +1,12 @@
 import {Metadata} from "next"
-import Link from "next/link"
-
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import * as React from "react";
 import LoginForm from "@/app/(auth)/login/LoginForm";
+import dynamic from "next/dynamic";
+
+const Link = dynamic(() => import('next/link'), {
+  ssr:false,
+})
 
 export const metadata: Metadata = {
   title: "Login",
@@ -27,7 +30,8 @@ export default function AuthenticationPage() {
           <CardFooter>
             <div className="flex-1">
               <CardDescription className="mt-1">
-                {"Don't"} have an account? <Link href="/register" className="font-bold text-card-foreground">Register</Link>
+                {"Don't"} have an account? <Link href="/register"
+                                                 className="font-bold text-card-foreground">Register</Link>
               </CardDescription>
             </div>
           </CardFooter>

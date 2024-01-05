@@ -1,12 +1,20 @@
 "use client";
-import AddFolderDialog from "@/components/add-folder";
-import {InputFile} from "@/components/input-file";
 import Lists from "@/components/lists";
 import useListStore from "@/lib/zustand/useListStore";
 import {Separator} from "@radix-ui/react-menubar";
 import React, {useEffect} from "react";
 import {mutate} from "swr";
 import useSWRImmutable from "swr/immutable";
+import dynamic from 'next/dynamic'
+
+const AddFolderDialog = dynamic(() => import("@/components/add-folder"), {
+  ssr: false,
+})
+
+const InputFile = dynamic(() => import("@/components/input-file"), {
+  ssr: false,
+})
+
 
 export default function ListView() {
   const {

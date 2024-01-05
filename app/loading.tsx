@@ -3,8 +3,10 @@ import Loading from "@/components/loading";
 
 function LoadingPage(props: any) {
   return (
-    <div><Loading loading={true} size={200}/></div>
+    <div className={"h-screen flex items-center justify-center"}>
+      <Loading loading={true} size={200}/>
+    </div>
   );
 }
 
-export default Loading;
+export default LoadingPage;

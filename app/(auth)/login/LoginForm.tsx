@@ -3,9 +3,7 @@ import React, {ChangeEvent, useState} from 'react';
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {useRouter, useSearchParams} from 'next/navigation';
-import {signIn} from "next-auth/react";
 import {Button} from "@/components/ui/button";
-
 
 function LoginForm() {
   const router = useRouter();
@@ -24,6 +22,8 @@ function LoginForm() {
     e.preventDefault();
     try {
       setLoading(true);
+
+      const {signIn} = await import("next-auth/react");
 
       const res = await signIn("credentials", {
         redirect: false,
@@ -61,7 +61,8 @@ function LoginForm() {
         )}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange} value={formValues.email}/>
+          <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange}
+                 value={formValues.email}/>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>

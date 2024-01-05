@@ -1,13 +1,20 @@
 "use client";
-import AddFolderDialog from "@/components/add-folder";
-import { InputFile } from "@/components/input-file";
 import Lists from "@/components/lists";
-import useListStore, { ListStore } from "@/lib/zustand/useListStore";
-import { Separator } from "@radix-ui/react-menubar";
-import { usePathname } from "next/navigation";
-import React, { useEffect } from "react";
-import { mutate } from "swr";
+import useListStore, {ListStore} from "@/lib/zustand/useListStore";
+import {Separator} from "@radix-ui/react-menubar";
+import {usePathname} from "next/navigation";
+import React, {useEffect} from "react";
+import {mutate} from "swr";
 import useSWRImmutable from "swr/immutable";
+import dynamic from 'next/dynamic'
+
+const AddFolderDialog = dynamic(() => import("@/components/add-folder"), {
+  ssr: false,
+})
+
+const InputFile = dynamic(() => import("@/components/input-file"), {
+  ssr: false,
+})
 
 export default function ListViewId() {
   const {
@@ -31,7 +38,7 @@ export default function ListViewId() {
 
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const apiUrl = "/api/drive/folder/" + folderId;
-  const { data } = useSWRImmutable(apiUrl, fetcher, {
+  const {data} = useSWRImmutable(apiUrl, fetcher, {
     revalidateOnMount: true,
   });
 
@@ -69,14 +76,14 @@ export default function ListViewId() {
       <div className="mt-4 space-y-1">
         <div className="flex justify-between">
           <h2 className="text-2xl font-semibold tracking-tight">Upload File</h2>
-          <AddFolderDialog />
+          <AddFolderDialog/>
         </div>
       </div>
       <div className="flex align-middle gap-2">
-        <InputFile />
+        <InputFile/>
       </div>
-      <Separator className="my-4" />
-      <Lists canScroll={true} type="grid" />
+      <Separator className="my-4"/>
+      <Lists canScroll={true} type="grid"/>
     </div>
   );
 }
