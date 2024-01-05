@@ -1,7 +1,6 @@
 import {collection, getDocs, addDoc} from 'firebase/firestore/lite';
 import {firestoreApp} from '../init';
 import {RegisterUser} from "@/app/(auth)/register/RegisterForm";
-import {hash} from "bcryptjs";
 
 const usersCol = collection(firestoreApp, 'user');
 
@@ -32,6 +31,7 @@ export async function getUserByEmail(email: string) {
 // Create new User
 export async function createUser(user: RegisterUser) {
   const createdAt = new Date();
+  const {hash} = (await import("bcryptjs"));
   const hashedPassword = await hash(user.password, 10);
 
   const userDoc: FireStoreUser = {
@@ -42,7 +42,6 @@ export async function createUser(user: RegisterUser) {
     createdAt: createdAt,
     updatedAt: createdAt
   }
-  console.log(userDoc)
 
   // Check if user already exists
   const userSnapshot = await getUserByEmail(user.email);

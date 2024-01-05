@@ -3,9 +3,13 @@ import React, {ChangeEvent, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {createUser} from "@/lib/firebase/db/user";
-import AlertRegisterSuccess from "@/app/(auth)/register/AlertRegisterSuccess";
 import {useToast} from "@/components/ui/use-toast";
+import dynamic from "next/dynamic";
+
+const AlertRegisterSuccess = dynamic(
+  () => import("@/app/(auth)/register/AlertRegisterSuccess"),
+  {ssr: false}
+);
 
 export interface RegisterUser {
   name: string;
@@ -23,8 +27,6 @@ function RegisterForm() {
 
   const {toast, toasts} = useToast()
 
-  console.log(toasts)
-
   const [error, setError] = useState("");
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -39,6 +41,7 @@ function RegisterForm() {
         name: formValues.name,
       };
 
+      const createUser = (await import("@/lib/firebase/db/user")).createUser;
       await createUser(user);
 
       toast({})

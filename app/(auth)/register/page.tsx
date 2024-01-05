@@ -1,14 +1,14 @@
-// @flow
 import * as React from 'react';
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
-import Link from "next/link";
+import dynamic from "next/dynamic";
 import RegisterForm from "@/app/(auth)/register/RegisterForm";
 
-const metadata = {
+export const metadata = {
   title: "Register",
   description: "Register page.",
-
 }
+
+const Link = dynamic(() => import("next/link"), {ssr: false});
 
 export default function RegisterPage() {
   return (
