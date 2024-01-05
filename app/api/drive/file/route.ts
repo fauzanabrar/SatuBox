@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {
-  deleteAllFiles,
-  getFileContent,
   listFiles,
   listFilesWithToken,
 } from "@/lib/gdrive";
+import {getMedia} from "@/app/api/drive/media";
 
 type ParamsType = {
   params: {
@@ -12,16 +11,10 @@ type ParamsType = {
   };
 };
 
-export async function GET(request: NextRequest, { params }: ParamsType) {
-  const media: string = (await request.nextUrl.searchParams.get(
-    "media"
-  )) as string;
-  const pageSize: string = (await request.nextUrl.searchParams.get(
-    "pageSize"
-  )) as string;
-  const pageToken: string = (await request.nextUrl.searchParams.get(
-    "pageToken"
-  )) as string;
+export async function GET(request: NextRequest, {params}: ParamsType) {
+  const media: string = request.nextUrl.searchParams.get("media") as string;
+  const pageSize: string = request.nextUrl.searchParams.get("pageSize") as string;
+  const pageToken: string = request.nextUrl.searchParams.get("pageToken") as string;
 
   if (pageSize && pageToken) {
     const list: any = await listFilesWithToken(
@@ -123,7 +116,7 @@ export async function GET(request: NextRequest, { params }: ParamsType) {
   });
 }
 
-export async function DELETE(request: NextRequest, { params }: ParamsType) {
+export async function DELETE(request: NextRequest, {params}: ParamsType) {
   // const list: any = await deleteAllFiles();
 
   return NextResponse.json({
@@ -139,20 +132,3 @@ export async function DELETE(request: NextRequest, { params }: ParamsType) {
 
 export const dynamic = "force-dynamic";
 
-async function getMedia(list: any[]) {
-  const newFiles: any = [];
-  for (const item of list) {
-    if (!item.mimeType.includes("image")) {
-      newFiles.push({ id: item.id, name: item.name, type: item.mimeType });
-    } else {
-      const image: any = await getFileContent(item.id);
-      newFiles.push({
-        id: item.id,
-        name: item.name,
-        cover: `data:${item.mimeType};base64,${image}`,
-        type: item.mimeType,
-      });
-    }
-  }
-  return newFiles;
-}
