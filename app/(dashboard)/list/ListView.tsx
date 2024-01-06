@@ -15,7 +15,6 @@ const InputFile = dynamic(() => import("@/components/input-file"), {
   ssr: false,
 })
 
-
 export default function ListView() {
   const {
     setFiles,

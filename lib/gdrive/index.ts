@@ -1,6 +1,6 @@
-import { drive, auth } from "@googleapis/drive";
-import { Readable } from "stream";
-import { Buffer } from "buffer";
+import {auth, drive} from "@googleapis/drive";
+import {Readable} from "stream";
+import {Buffer} from "buffer";
 
 let dClient: ReturnType<typeof drive> | undefined;
 
@@ -190,7 +190,7 @@ export async function getAllParentsFolder(id: string): Promise<any> {
   }
 
   const parents = file.data.parents;
-  const result = await Promise.all(
+  return await Promise.all(
     parents.map(async (parent: any) => {
       const children = await getAllParentsFolder(parent);
       return {
@@ -200,8 +200,6 @@ export async function getAllParentsFolder(id: string): Promise<any> {
       };
     })
   );
-
-  return result;
 }
 
 export async function getAllFilesAndFolder(parentId: string): Promise<any> {
@@ -218,7 +216,7 @@ export async function getAllFilesAndFolder(parentId: string): Promise<any> {
 
   const files = list.data.files;
 
-  const result = await Promise.all(
+  return await Promise.all(
     files.map(async (file) => {
       if (file.mimeType === "application/vnd.google-apps.folder") {
         const children = await getAllFilesAndFolder(file.id!);
@@ -238,8 +236,6 @@ export async function getAllFilesAndFolder(parentId: string): Promise<any> {
       };
     })
   );
-
-  return result;
 }
 
 export async function downloadFile(id: string) {
