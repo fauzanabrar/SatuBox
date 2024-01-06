@@ -15,9 +15,10 @@ type Props = {
   children: ReactNode
   onSelect: () => void
   onOpenChange: (open: boolean) => void
+  className?: string
 }
 
-export const DialogItem = ({ triggerChildren, children, onSelect, onOpenChange }: Props) => {
+export const DialogItem = ({ triggerChildren, children, onSelect, onOpenChange, className }: Props) => {
   return (
     <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -31,7 +32,7 @@ export const DialogItem = ({ triggerChildren, children, onSelect, onOpenChange }
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogPortal>
-        <DialogContent>
+        <DialogContent className={className}>
           {children}
         </DialogContent>
       </DialogPortal>
