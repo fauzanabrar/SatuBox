@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
 
-import {cn} from "@/lib/utils";
-import useListStore, {ListStore} from "@/lib/zustand/useListStore";
+import { cn } from "@/lib/utils";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import {
-  Dialog, DialogClose,
+  Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -12,17 +13,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import React, {useRef, useState} from "react";
-import {Input} from "./ui/input";
-import {Button} from "./ui/button";
+import React, { useRef, useState } from "react";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import Loading from "./loading";
-import {usePathname, useRouter} from "next/navigation";
-import {LucideMoreVertical, LucidePlus} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LucideMoreVertical, LucidePlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Select,
@@ -32,17 +33,19 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import {DialogItem} from "@/components/dialog-item";
-import {Label} from "@/components/ui/label";
-import {Separator} from "@/components/ui/separator";
+} from "@/components/ui/select";
+import { DialogItem } from "@/components/dialog-item";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import DialogItemRename from "@/components/dialog-item-rename";
+import DialogItemRestrict from "./dialog-item-restrict";
 
 type Item = {
   id: string;
   name: string;
   cover?: string;
   type: string;
-  restrict?: string;
+  restrict?: boolean;
   whitelist?: string[];
 };
 
@@ -54,13 +57,13 @@ interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function GridItem({
-                           item,
-                           aspectRatio = "portrait",
-                           width,
-                           height,
-                           className,
-                           ...props
-                         }: GridItemProps) {
+  item,
+  aspectRatio = "portrait",
+  width,
+  height,
+  className,
+  ...props
+}: GridItemProps) {
   const router = useRouter();
   const pathnames = usePathname();
 
@@ -72,7 +75,7 @@ export function GridItem({
     folderId = lastPath;
   }
 
-  const {refreshList, setLoadingList, setIsChanged, changeAllFilesWithId} =
+  const { refreshList, setLoadingList, setIsChanged, changeAllFilesWithId } =
     useListStore((store: ListStore) => ({
       refreshList: store.refreshList,
       setLoadingList: store.setLoadingList,
@@ -85,7 +88,9 @@ export function GridItem({
   const [loadingRename, setLoadingRename] = useState(false);
 
   const [inputEmail, setInputEmail] = useState("");
-  const [restrictSelected, setRestrictSelected] = useState(item.restrict ? item.restrict : false);
+  const [restrictSelected, setRestrictSelected] = useState(
+    item.restrict ? item.restrict : false
+  );
 
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
@@ -93,7 +98,6 @@ export function GridItem({
     if (item.type.includes("folder")) return "/images/folder.svg";
     return "/images/file.svg";
   };
-
 
   const handleDetail = () => {
     console.log("detail");
@@ -163,21 +167,21 @@ export function GridItem({
     }
   };
 
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [hasOpenDialog, setHasOpenDialog] = useState(false)
-  const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null)
-  const focusRef = useRef<null | HTMLButtonElement>(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasOpenDialog, setHasOpenDialog] = useState(false);
+  const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
+  const focusRef = useRef<null | HTMLButtonElement>(null);
 
   const handleDialogItemSelect = () => {
-    focusRef.current = dropdownTriggerRef.current
-  }
+    focusRef.current = dropdownTriggerRef.current;
+  };
 
   const handleDialogItemOpenChange = (open: boolean) => {
-    setHasOpenDialog(open)
+    setHasOpenDialog(open);
     if (!open) {
-      setDropdownOpen(false)
+      setDropdownOpen(false);
     }
-  }
+  };
 
   return (
     <div className={cn("space-y-3", className)} {...props}>
@@ -201,160 +205,52 @@ export function GridItem({
         />
       </div>
       <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-        <h3 className="font-medium text-wrap leading-none px-2">
-          {item.name}
-        </h3>
+        <h3 className="font-medium text-wrap leading-none px-2">{item.name}</h3>
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger>
-                <LucideMoreVertical className={"w-5 h-5"}/>
+              <LucideMoreVertical className={"w-5 h-5"} />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-40"
               align="start"
               hidden={hasOpenDialog}
-              onCloseAutoFocus={event => {
+              onCloseAutoFocus={(event) => {
                 if (focusRef.current) {
-                  focusRef.current.focus()
-                  focusRef.current = null
-                  event.preventDefault()
+                  focusRef.current.focus();
+                  focusRef.current = null;
+                  event.preventDefault();
                 }
               }}
             >
-              <DialogItem
-                className={"w-96"}
-                triggerChildren={
-                  <>
-                    <span>Rename</span>
-                  </>
-                }
-                onSelect={() => {
-                  setNewName(item.name)
-                  handleDialogItemSelect()
+              <DialogItemRename
+                handleDialogItemSelect={handleDialogItemSelect}
+                handleDialogItemOpenChange={handleDialogItemOpenChange}
+                newName={newName}
+                setNewName={setNewName}
+                loadingRename={loadingRename}
+                handleRename={handleRename}
+                setIsRename={setIsRename}
+                defaultName={item.name}
+              />
+              <DialogItemRestrict
+                handleDialogItemSelect={handleDialogItemSelect}
+                handleDialogItemOpenChange={handleDialogItemOpenChange}
+                inputEmail={inputEmail}
+                setInputEmail={setInputEmail}
+                restrictSelected={restrictSelected}
+                setRestrictSelected={setRestrictSelected}
+                handleAddWhitelist={() => {
+                  return Promise.resolve();
                 }}
-                onOpenChange={handleDialogItemOpenChange}
-              >
-                <DialogTitle>Rename this file</DialogTitle>
-                <div className="grid gap-4 py-1">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="name"
-                      placeholder="New File Name"
-                      onChange={(e) => {
-                        setNewName(e.target.value);
-                      }}
-                      value={newName}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogTrigger asChild>
-                    <div className="flex gap-2 sm:flex-col sm:gap-4">
-                      {loadingRename && <Loading loading={loadingRename} size={30}/>}
-                      <Button
-                        className=""
-                        type="submit"
-                        onClick={async () => {
-                          await handleRename();
-                        }}
-                      >
-                        Submit
-                      </Button>
-                    </div>
-                  </DialogTrigger>
-                  <DialogClose asChild={true}>
-                    <Button
-                      variant={"outline"}
-                      onClick={() => {
-                        setIsRename(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogItem>
-
-              <DialogItem
-                triggerChildren={
-                  <>
-                    <span>Restrict</span>
-                  </>
-                }
-                onSelect={handleDialogItemSelect}
-                onOpenChange={handleDialogItemOpenChange}
-                className={"w-96"}
-              >
-                <DialogTitle>Restrict This File</DialogTitle>
-                <div className="grid gap-4 py-1">
-                  <div className={'flex gap-4 items-center justify-between'}>
-                    <p className={'font-medium text-sm'}>Access</p>
-                    <Select onValueChange={(value) => {
-                      if(value === "Public") setRestrictSelected(false)
-                      else setRestrictSelected(true)
-                    }}>
-                      <SelectTrigger className={'w-24'}>
-                        <SelectValue placeholder={"Public"}/>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={"Public"} >Public</SelectItem>
-                        <SelectItem value={"Restrict"} >Restrict</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {restrictSelected && (
-                    <>
-                      <Separator/>
-                      <span className={'font-bold text-sm'}>Add whitelist</span>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="name"
-                          placeholder="example@gmail.com"
-                          onChange={(e) => {
-                            setInputEmail(e.target.value);
-                          }}
-                          value={newName}
-                        />
-                        <DialogTrigger asChild>
-                          <div className="flex gap-2 sm:flex-col sm:gap-4">
-                            {loadingRename && <Loading loading={loadingRename} size={30}/>}
-                            <Button
-                              variant={"outline"}
-                              className="px-2"
-                              type="submit"
-                              onClick={async () => {
-                                await handleRename();
-                              }}
-                            >
-                              <LucidePlus className={"w-4 mr-1"}/>
-                              Add
-                            </Button>
-                          </div>
-                        </DialogTrigger>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild={true}>
-                    <Button
-                      variant={"default"}
-                    >
-                      Done
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogItem>
-              <DropdownMenuItem
-                onClick={() => handleDelete()}
-              >
-                <span className={"text-destructive"}>Delete</span>
+              />
+              <DropdownMenuItem onClick={() => handleDelete()}>
+                <span className={"text-destructive"}> Delete</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
     </div>
-  )
-    ;
+  );
 }
