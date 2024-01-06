@@ -169,8 +169,6 @@ export function GridItem({
                   }
                 }}
               />
-
-
             </div>
           </ContextMenuTrigger>
           <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
