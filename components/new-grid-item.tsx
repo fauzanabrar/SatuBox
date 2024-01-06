@@ -283,11 +283,11 @@ export function GridItem({
                 }
                 onSelect={handleDialogItemSelect}
                 onOpenChange={handleDialogItemOpenChange}
-                className={"w-max"}
+                className={"w-96"}
               >
                 <DialogTitle>Restrict This File</DialogTitle>
                 <div className="grid gap-4 py-1">
-                  <div className={'flex gap-4 items-center justify-between mb-2'}>
+                  <div className={'flex gap-4 items-center justify-between'}>
                     <p className={'font-medium text-sm'}>Access</p>
                     <Select onValueChange={(value) => {
                       if(value === "Public") setRestrictSelected(false)
