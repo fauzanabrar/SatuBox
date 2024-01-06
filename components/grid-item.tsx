@@ -3,42 +3,19 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import useListStore, { ListStore } from "@/lib/zustand/useListStore";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
 import React, { useRef, useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import Loading from "./loading";
 import { usePathname, useRouter } from "next/navigation";
-import { LucideMoreVertical, LucidePlus } from "lucide-react";
+import { LucideMoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { DialogItem } from "@/components/dialog-item";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import DialogItemRename from "@/components/dialog-item-rename";
-import DialogItemRestrict from "./dialog-item-restrict";
+import dynamic from "next/dynamic";
+
+const DialogItemRename = dynamic(() => import("@/components/dialog-item-rename"), { ssr: false });
+const DialogItemRestrict = dynamic(() => import("@/components/dialog-item-restrict"), { ssr: false });
 
 type Item = {
   id: string;
@@ -75,6 +52,7 @@ export function GridItem({
     folderId = lastPath;
   }
 
+  // List store
   const { refreshList, setLoadingList, setIsChanged, changeAllFilesWithId } =
     useListStore((store: ListStore) => ({
       refreshList: store.refreshList,
@@ -83,25 +61,28 @@ export function GridItem({
       changeAllFilesWithId: store.changeAllFilesWithId,
     }));
 
+  // Rename
   const [newName, setNewName] = useState("");
   const [isRename, setIsRename] = useState(false);
   const [loadingRename, setLoadingRename] = useState(false);
 
+  // Restrict
   const [inputEmail, setInputEmail] = useState("");
   const [restrictSelected, setRestrictSelected] = useState(
     item.restrict ? item.restrict : false
   );
+
+  // Dropdown Dialog
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasOpenDialog, setHasOpenDialog] = useState(false);
+  const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
+  const focusRef = useRef<null | HTMLButtonElement>(null);
 
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
     if (item.type.includes("video")) return "/images/play.svg";
     if (item.type.includes("folder")) return "/images/folder.svg";
     return "/images/file.svg";
-  };
-
-  const handleDetail = () => {
-    console.log("detail");
-    console.log(item);
   };
 
   const handleRename = async () => {
@@ -166,11 +147,6 @@ export function GridItem({
       console.log(error);
     }
   };
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [hasOpenDialog, setHasOpenDialog] = useState(false);
-  const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
-  const focusRef = useRef<null | HTMLButtonElement>(null);
 
   const handleDialogItemSelect = () => {
     focusRef.current = dropdownTriggerRef.current;
