@@ -1,35 +1,52 @@
 "use client";
 import Image from "next/image";
 
-import {cn} from "@/lib/utils";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-
-import useListStore, {ListStore} from "@/lib/zustand/useListStore";
+import { cn } from "@/lib/utils";
+import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import {useState} from "react";
-import {Input} from "./ui/input";
-import {Button} from "./ui/button";
+import React, { useRef, useState } from "react";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import Loading from "./loading";
-import {usePathname, useRouter} from "next/navigation";
-import {LucideMoreVertical} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LucideMoreVertical, LucidePlus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DialogItem } from "@/components/dialog-item";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import DialogItemRename from "@/components/dialog-item-rename";
+import DialogItemRestrict from "./dialog-item-restrict";
 
 type Item = {
   id: string;
   name: string;
   cover?: string;
   type: string;
+  restrict?: boolean;
+  whitelist?: string[];
 };
 
 interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -40,13 +57,13 @@ interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function GridItem({
-                           item,
-                           aspectRatio = "portrait",
-                           width,
-                           height,
-                           className,
-                           ...props
-                         }: GridItemProps) {
+  item,
+  aspectRatio = "portrait",
+  width,
+  height,
+  className,
+  ...props
+}: GridItemProps) {
   const router = useRouter();
   const pathnames = usePathname();
 
@@ -58,7 +75,7 @@ export function GridItem({
     folderId = lastPath;
   }
 
-  const {refreshList, setLoadingList, setIsChanged, changeAllFilesWithId} =
+  const { refreshList, setLoadingList, setIsChanged, changeAllFilesWithId } =
     useListStore((store: ListStore) => ({
       refreshList: store.refreshList,
       setLoadingList: store.setLoadingList,
@@ -70,13 +87,17 @@ export function GridItem({
   const [isRename, setIsRename] = useState(false);
   const [loadingRename, setLoadingRename] = useState(false);
 
+  const [inputEmail, setInputEmail] = useState("");
+  const [restrictSelected, setRestrictSelected] = useState(
+    item.restrict ? item.restrict : false
+  );
+
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
     if (item.type.includes("video")) return "/images/play.svg";
     if (item.type.includes("folder")) return "/images/folder.svg";
     return "/images/file.svg";
   };
-
 
   const handleDetail = () => {
     console.log("detail");
@@ -146,124 +167,90 @@ export function GridItem({
     }
   };
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasOpenDialog, setHasOpenDialog] = useState(false);
+  const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
+  const focusRef = useRef<null | HTMLButtonElement>(null);
+
+  const handleDialogItemSelect = () => {
+    focusRef.current = dropdownTriggerRef.current;
+  };
+
+  const handleDialogItemOpenChange = (open: boolean) => {
+    setHasOpenDialog(open);
+    if (!open) {
+      setDropdownOpen(false);
+    }
+  };
+
   return (
     <div className={cn("space-y-3", className)} {...props}>
-      <Dialog open={isRename} onOpenChange={setIsRename}>
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <div className="overflow-hidden rounded-md">
-              <Image
-                src={image(item) as string}
-                alt={item.name}
-                width={width}
-                height={height}
-                className={cn(
-                  "h-full w-full object-cover transition-all hover:scale-105",
-                  aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
-                )}
-                onClick={() => {
-                  if (image(item) === "/images/folder.svg") {
-                    handleOpenFolder();
-                  } else {
-                    handleOpen();
-                  }
-                }}
-              />
-            </div>
-          </ContextMenuTrigger>
-          <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-            <h3 className="font-medium leading-none break-all px-2">
-              {item.name}
-            </h3>
-            <div>
-              <ContextMenuTrigger
-                onMouseDown={(e) => {
-                  if (e.button === 0) { // 0 is the left mouse button
-                    e.preventDefault(); // prevent the default left click behavior
-                    e.target.dispatchEvent(new MouseEvent('contextmenu', { // dispatch a right click event
-                      bubbles: true,
-                      cancelable: false,
-                      view: window,
-                      button: 2, // 2 is the right mouse button
-                      buttons: 2,
-                      clientX: e.clientX,
-                      clientY: e.clientY,
-                    }));
-                  }
-                }}
-              >
-                <Button variant={"ghost"} className={"px-1"}>
-                  <LucideMoreVertical className={"w-5 h-5"}/>
-                </Button>
-              </ContextMenuTrigger>
-            </div>
-          </div>
-          <ContextMenuContent className="w-40">
-            <ContextMenuItem onClick={() => handleOpen()}>Open</ContextMenuItem>
-            <DialogTrigger asChild>
-              <ContextMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setNewName(item.name);
-                  setIsRename(true);
-                }}
-              >
-                <span>Rename</span>
-              </ContextMenuItem>
-            </DialogTrigger>
-            <ContextMenuItem onClick={() => handleDetail()}>
-              Detail
-            </ContextMenuItem>
-            <ContextMenuItem
-              className="text-red-600"
-              onClick={() => handleDelete()}
-            >
-              Delete
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>New Name</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-1">
-            <div className="flex items-center gap-2">
-              <Input
-                id="name"
-                placeholder="New File Name"
-                onChange={(e) => {
-                  setNewName(e.target.value);
-                }}
-                value={newName}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <DialogTrigger asChild>
-              <div className="flex gap-2 sm:flex-col sm:gap-4">
-                {loadingRename && <Loading loading={loadingRename} size={30}/>}
-                <Button
-                  className=""
-                  type="submit"
-                  onClick={async () => {
-                    await handleRename();
-                  }}
-                >
-                  Submit
-                </Button>
-              </div>
-            </DialogTrigger>
-            <Button
-              variant={"outline"}
-              onClick={() => {
-                setIsRename(false);
+      <div className="overflow-hidden rounded-md">
+        <Image
+          src={image(item) as string}
+          alt={item.name}
+          width={width}
+          height={height}
+          className={cn(
+            "h-full w-full object-cover transition-all hover:scale-105",
+            aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
+          )}
+          onClick={() => {
+            if (image(item) === "/images/folder.svg") {
+              handleOpenFolder();
+            } else {
+              handleOpen();
+            }
+          }}
+        />
+      </div>
+      <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
+        <h3 className="font-medium text-wrap leading-none px-2">{item.name}</h3>
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <LucideMoreVertical className={"w-5 h-5"} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-40"
+              align="start"
+              hidden={hasOpenDialog}
+              onCloseAutoFocus={(event) => {
+                if (focusRef.current) {
+                  focusRef.current.focus();
+                  focusRef.current = null;
+                  event.preventDefault();
+                }
               }}
             >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <DialogItemRename
+                handleDialogItemSelect={handleDialogItemSelect}
+                handleDialogItemOpenChange={handleDialogItemOpenChange}
+                newName={newName}
+                setNewName={setNewName}
+                loadingRename={loadingRename}
+                handleRename={handleRename}
+                setIsRename={setIsRename}
+                defaultName={item.name}
+              />
+              <DialogItemRestrict
+                handleDialogItemSelect={handleDialogItemSelect}
+                handleDialogItemOpenChange={handleDialogItemOpenChange}
+                inputEmail={inputEmail}
+                setInputEmail={setInputEmail}
+                restrictSelected={restrictSelected}
+                setRestrictSelected={setRestrictSelected}
+                handleAddWhitelist={() => {
+                  return Promise.resolve();
+                }}
+              />
+              <DropdownMenuItem onClick={() => handleDelete()}>
+                <span className={"text-destructive"}> Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
     </div>
   );
 }
