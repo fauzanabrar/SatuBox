@@ -2,13 +2,6 @@
 import Image from "next/image";
 
 import {cn} from "@/lib/utils";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-
 import useListStore, {ListStore} from "@/lib/zustand/useListStore";
 import {
   Dialog, DialogClose,
@@ -19,25 +12,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {Input} from "./ui/input";
 import {Button} from "./ui/button";
 import Loading from "./loading";
 import {usePathname, useRouter} from "next/navigation";
-import {LucideMoreVertical} from "lucide-react";
+import {LucideMoreVertical, LucidePlus} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {DialogItem} from "@/components/dialog-item";
+import {Label} from "@/components/ui/label";
+import {Separator} from "@/components/ui/separator";
 
 type Item = {
   id: string;
   name: string;
   cover?: string;
   type: string;
+  restrict?: string;
+  whitelist?: string[];
 };
 
 interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -77,6 +83,9 @@ export function GridItem({
   const [newName, setNewName] = useState("");
   const [isRename, setIsRename] = useState(false);
   const [loadingRename, setLoadingRename] = useState(false);
+
+  const [inputEmail, setInputEmail] = useState("");
+  const [restrictSelected, setRestrictSelected] = useState(false);
 
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
@@ -165,7 +174,7 @@ export function GridItem({
 
   const handleDialogItemOpenChange = (open: boolean) => {
     setHasOpenDialog(open)
-    if (open === false) {
+    if (!open) {
       setDropdownOpen(false)
     }
   }
@@ -192,15 +201,13 @@ export function GridItem({
         />
       </div>
       <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-        <h3 className="font-medium text-wrap leading-none  px-2">
+        <h3 className="font-medium text-wrap leading-none px-2">
           {item.name}
         </h3>
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Button variant={"ghost"} className={"px-1"}>
                 <LucideMoreVertical className={"w-5 h-5"}/>
-              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-40"
@@ -215,6 +222,7 @@ export function GridItem({
               }}
             >
               <DialogItem
+                className={"w-96"}
                 triggerChildren={
                   <>
                     <span>Rename</span>
@@ -254,7 +262,7 @@ export function GridItem({
                       </Button>
                     </div>
                   </DialogTrigger>
-                  <DialogClose>
+                  <DialogClose asChild={true}>
                     <Button
                       variant={"outline"}
                       onClick={() => {
@@ -275,43 +283,64 @@ export function GridItem({
                 }
                 onSelect={handleDialogItemSelect}
                 onOpenChange={handleDialogItemOpenChange}
+                className={"w-max"}
               >
-                <DialogTitle>Restrict this File</DialogTitle>
+                <DialogTitle>Restrict This File</DialogTitle>
                 <div className="grid gap-4 py-1">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="name"
-                      placeholder="New File Name"
-                      onChange={(e) => {
-                        setNewName(e.target.value);
-                      }}
-                      value={newName}
-                    />
+                  <div className={'flex gap-4 items-center justify-between mb-2'}>
+                    <p className={'font-medium text-sm'}>Access</p>
+                    <Select onValueChange={(value) => {
+                      if(value === "Public") setRestrictSelected(false)
+                      else setRestrictSelected(true)
+                    }}>
+                      <SelectTrigger className={'w-24'}>
+                        <SelectValue placeholder={"Public"}/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={"Public"} >Public</SelectItem>
+                        <SelectItem value={"Restrict"} >Restrict</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+                  {restrictSelected && (
+                    <>
+                      <Separator/>
+                      <span className={'font-bold text-sm'}>Add whitelist</span>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="name"
+                          placeholder="example@gmail.com"
+                          onChange={(e) => {
+                            setInputEmail(e.target.value);
+                          }}
+                          value={newName}
+                        />
+                        <DialogTrigger asChild>
+                          <div className="flex gap-2 sm:flex-col sm:gap-4">
+                            {loadingRename && <Loading loading={loadingRename} size={30}/>}
+                            <Button
+                              variant={"outline"}
+                              className="px-2"
+                              type="submit"
+                              onClick={async () => {
+                                await handleRename();
+                              }}
+                            >
+                              <LucidePlus className={"w-4 mr-1"}/>
+                              Add
+                            </Button>
+                          </div>
+                        </DialogTrigger>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <DialogFooter>
-                  <DialogTrigger asChild>
-                    <div className="flex gap-2 sm:flex-col sm:gap-4">
-                      {loadingRename && <Loading loading={loadingRename} size={30}/>}
-                      <Button
-                        className=""
-                        type="submit"
-                        onClick={async () => {
-                          await handleRename();
-                        }}
-                      >
-                        Submit
-                      </Button>
-                    </div>
-                  </DialogTrigger>
-                  <DialogClose>
+                  <DialogClose asChild={true}>
                     <Button
-                      variant={"outline"}
-                      onClick={() => {
-                        setIsRename(false);
-                      }}
+                      variant={"default"}
                     >
-                      Cancel
+                      Done
                     </Button>
                   </DialogClose>
                 </DialogFooter>
@@ -326,5 +355,6 @@ export function GridItem({
         </div>
       </div>
     </div>
-  );
+  )
+    ;
 }
