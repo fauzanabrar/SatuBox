@@ -85,7 +85,7 @@ export function GridItem({
   const [loadingRename, setLoadingRename] = useState(false);
 
   const [inputEmail, setInputEmail] = useState("");
-  const [restrictSelected, setRestrictSelected] = useState(false);
+  const [restrictSelected, setRestrictSelected] = useState(item.restrict ? item.restrict : false);
 
   const image = (item: Item) => {
     if (item.type.includes("image")) return item.cover;
