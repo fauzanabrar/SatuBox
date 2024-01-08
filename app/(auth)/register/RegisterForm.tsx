@@ -33,7 +33,6 @@ function RegisterForm() {
     e.preventDefault();
     try {
       setLoading(true);
-      console.log(formValues);
 
       const user: RegisterUser = {
         email: formValues.email,
@@ -49,7 +48,6 @@ function RegisterForm() {
       setFormValues({email: "", password: "", name: ""});
     } catch (error: any) {
       setLoading(false);
-      console.log(error.message);
       setError(error.message);
     }
   };

@@ -34,7 +34,6 @@ function LoginForm() {
 
       setLoading(false);
 
-      console.log(res);
       if (!res?.error) {
         setFormValues({email: "", password: ""});
         router.push(callbackUrl);

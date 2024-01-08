@@ -136,7 +136,6 @@ export function GridItem({
         }
       );
       const data = await response.json();
-      console.log(data);
       if (data.status === 200) {
         console.log("delete berhasil");
         changeAllFilesWithId(item.id);
