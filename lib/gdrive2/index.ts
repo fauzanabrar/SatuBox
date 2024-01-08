@@ -52,8 +52,33 @@ export async function listFiles(folderId?: string): Promise<FileGD[]> {
   }
 }
 
+export async function getMedia(id: string): Promise<string> {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get(
+    {
+      fileId: id,
+      alt: "media",
+    },
+    { responseType: "stream" }
+  );
+
+  return new Promise((resolve, reject) => {
+    let buf: any = [];
+    file.data
+      .on("data", (d) => {
+        buf.push(d);
+      })
+      .on("end", () => {
+        let img = Buffer.concat(buf).toString("base64");
+        resolve(img);
+      });
+  });
+}
+
 const gdrive = {
   listFiles,
+  getMedia,
 };
 
 export default gdrive;

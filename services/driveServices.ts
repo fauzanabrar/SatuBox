@@ -1,25 +1,53 @@
 import { FileDrive } from "@/types/api/drive/file";
 import gdrive from "@/lib/gdrive2";
 
+const fileTypes: Record<string, string> = {
+  folder: "application/vnd.google-apps.folder",
+  image: "image/jpeg" || "image/png",
+};
+
 async function getListFiles(): Promise<FileDrive[]> {
-  const listFiles: FileDrive[] = [];
   try {
     const driveFiles = await gdrive.listFiles(
       process.env.SHARED_FOLDER_ID_DRIVE as string
     );
-    driveFiles.map((file: any) => {
-      listFiles.push({
-        id: file.id,
-        fileType: file.mimeType,
-        name: file.name,
-      });
-    });
+    const listFiles: Promise<FileDrive[]> = Promise.all(
+      driveFiles.map(async (file: any) => {
+        const newfile: FileDrive = {
+          id: file.id,
+          fileType: file.mimeType,
+          name: file.name,
+        };
+
+        // set the filetype
+        newfile.fileType =
+          Object.keys(fileTypes).find(
+            (fileType: any) => fileTypes[fileType] === file.mimeType
+          ) || "file";
+
+        // set the media
+        if (newfile.fileType === "image") {
+          newfile.media = (await gdrive.getMedia(newfile.id)) as string;
+        }
+
+        // set the restrict
+
+        return newfile;
+      })
+    );
+    return listFiles;
   } catch (error: any) {
     console.log(error);
     throw new Error(error);
   }
+}
 
-  return listFiles;
+async function createFile(file: any) {
+  
+}
+
+async function createFolder(folderName:string) {
+  
 }
 
 const driveServices = {
