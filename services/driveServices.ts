@@ -6,10 +6,10 @@ const fileTypes: Record<string, string> = {
   image: "image/jpeg" || "image/png",
 };
 
-async function getListFiles(): Promise<FileDrive[]> {
+async function getListFiles(folderId?: string): Promise<FileDrive[]> {
   try {
     const driveFiles = await gdrive.listFiles(
-      process.env.SHARED_FOLDER_ID_DRIVE as string
+      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string)
     );
     const listFiles: Promise<FileDrive[]> = Promise.all(
       driveFiles.map(async (file: any) => {
@@ -42,13 +42,9 @@ async function getListFiles(): Promise<FileDrive[]> {
   }
 }
 
-async function createFile(file: any) {
-  
-}
+async function createFile(file: any) {}
 
-async function createFolder(folderName:string) {
-  
-}
+async function createFolder(folderName: string) {}
 
 const driveServices = {
   getListFiles,
