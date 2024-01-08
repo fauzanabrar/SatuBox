@@ -74,9 +74,28 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
     const folder = await driveServices.addFolder(folderName, id);
 
     return NextResponse.json({
-      status: 200,
+      status: 201,
       message: "Success Create New Folder!",
       id: folder.id,
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      status: 500,
+      message: "error",
+      error: error.message,
+    });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: ParamsType) {
+  const id = params.id?.pop() as string;
+
+  try {
+    await driveServices.deleteFile(id);
+
+    return NextResponse.json({
+      status: 200,
+      message: "success delete folder",
     });
   } catch (error: any) {
     return NextResponse.json({

@@ -27,12 +27,11 @@ type FileGD = {
 };
 
 async function listFiles(folderId: string): Promise<FileGD[]> {
-  const cacheKey = `listFiles-${folderId}`
+  const cacheKey = `listFiles-${folderId}`;
   if (myCache.has(cacheKey)) {
     return myCache.get(cacheKey) as FileGD[];
   }
   try {
-
     const driveClient = await getDriveClient();
 
     const list = await driveClient.files.list({
@@ -58,7 +57,7 @@ async function listFiles(folderId: string): Promise<FileGD[]> {
 }
 
 async function getFolderName(id: string): Promise<string> {
-  const cacheKey = `getFolderName-${id}`
+  const cacheKey = `getFolderName-${id}`;
   if (myCache.has(cacheKey)) {
     return myCache.get(cacheKey) as string;
   }
@@ -73,7 +72,7 @@ async function getFolderName(id: string): Promise<string> {
 }
 
 async function getMedia(id: string): Promise<string> {
-  const cacheKey = `getMedia-${id}`
+  const cacheKey = `getMedia-${id}`;
   if (myCache.has(cacheKey)) {
     return myCache.get(cacheKey) as string;
   }
@@ -102,7 +101,7 @@ async function getMedia(id: string): Promise<string> {
 }
 
 async function createFolder(name: string, parent: string[]) {
-  const cacheKey = `listFiles-${parent[0]}`
+  const cacheKey = `listFiles-${parent[0]}`;
   myCache.del(cacheKey);
   const driveClient = await getDriveClient();
 
@@ -120,7 +119,11 @@ async function createFolder(name: string, parent: string[]) {
   return folder.data.id as string;
 }
 
-export async function getAllParentsFolder(folderId: string): Promise<any> {
+async function getAllParentsFolder(folderId: string): Promise<any> {
+  const cacheKey = `getAllParentsFolder-${folderId}`;
+  if (myCache.has(cacheKey)) {
+    return myCache.get(cacheKey) as any;
+  }
   const driveClient = await getDriveClient();
 
   const file = await driveClient.files.get({
@@ -135,17 +138,57 @@ export async function getAllParentsFolder(folderId: string): Promise<any> {
   const parents = {
     currentId: file.data.id,
     currentName: file.data.name,
-    id: file.data.parents[0]
+    id: file.data.parents[0],
   };
+  myCache.set(cacheKey, parents);
   return parents;
+}
+
+async function deleteFileOrFolder(id: string, parents: string[]) {
+  parents.forEach((parent) => {
+    const cacheKey = `listFiles-${parent}`;
+    myCache.del(cacheKey);
+  });
+  myCache.del(`getFile-${id}`);
+  myCache.del(`getFolderName-${id}`);
+  myCache.del(`getAllParentsFolder-${id}`);
+  myCache.del(`getMedia-${id}`);
+
+
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.delete({
+    fileId: id,
+  });
+
+  return file;
+}
+
+async function getFile(id: string) {
+  const cacheKey = `getFile-${id}`;
+  if (myCache.has(cacheKey)) {
+    return myCache.get(cacheKey) as any;
+  }
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get({
+    fileId: id,
+    fields: "id, name, mimeType",
+  });
+
+  myCache.set(cacheKey, file.data);
+
+  return file;
 }
 
 const gdrive = {
   listFiles,
   getMedia,
   getFolderName,
+  getFile,
   getAllParentsFolder,
   createFolder,
+  deleteFileOrFolder,
 };
 
 export default gdrive;

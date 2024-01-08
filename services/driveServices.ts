@@ -57,10 +57,12 @@ async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
     };
     if (parent.id && parent.id !== process.env.SHARED_FOLDER_ID_DRIVE) {
       const grandparents = await parentsFolder(parent.id);
-      const newGrandparents = [{
-        id: parent.id as string,
-        name: grandparents[0].name as string,
-      }]
+      const newGrandparents = [
+        {
+          id: parent.id as string,
+          name: grandparents[0].name as string,
+        },
+      ];
       return [newParent, ...grandparents];
     }
     return [newParent];
@@ -94,9 +96,39 @@ async function addFolder(
   }
 }
 
-async function deleteFile(id: string) {}
+async function checkId(id: string) {
+  try {
+    const file = await gdrive.getFile(id);
+    return file;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
 
-async function deleteFolder(id: string) {}
+async function deleteFile(id: string) {
+
+  // check the file first
+  const file = await checkId(id);
+
+  if (!file) {
+    throw new Error("file not found");
+  }
+
+  const parents = await gdrive.getAllParentsFolder(id);
+  const parentsId = parents.map((parent: any) => parent.id);
+  parentsId.push(id);
+  try {
+    const file = await gdrive.deleteFileOrFolder(id, parentsId);
+
+    return file;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
+
+async function renameFile(id: string, newName: string) {
+  
+}
 
 async function folderName(id: string) {
   try {
@@ -110,6 +142,8 @@ const driveServices = {
   list,
   addFolder,
   folderName,
+  parentsFolder,
+  deleteFile,
 };
 
 export default driveServices;
