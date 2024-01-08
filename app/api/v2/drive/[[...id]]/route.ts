@@ -87,6 +87,47 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
   }
 }
 
+/**
+ *
+ * @param request
+ * @param id?
+ * @body newName
+ */
+export async function PUT(request: NextResponse, { params }: ParamsType) {
+  const id = params.id?.pop() as string;
+  const { newName } = await request.json();
+
+  if (!newName) {
+    return NextResponse.json({
+      status: 400,
+      message: "Bad Request! New Name is required!",
+    });
+  }
+
+  try {
+    const file = await driveServices.renameFile(id, newName);
+
+    return NextResponse.json({
+      status: 200,
+      message: "success rename file",
+      file,
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      status: 500,
+      message: "error",
+      error: error.message,
+    });
+  }
+}
+
+/**
+ *
+ * @param request
+ * @param id?
+ *
+ * @returns
+ */
 export async function DELETE(request: NextRequest, { params }: ParamsType) {
   const id = params.id?.pop() as string;
 

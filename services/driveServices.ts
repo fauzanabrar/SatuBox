@@ -106,7 +106,6 @@ async function checkId(id: string) {
 }
 
 async function deleteFile(id: string) {
-
   // check the file first
   const file = await checkId(id);
 
@@ -114,7 +113,7 @@ async function deleteFile(id: string) {
     throw new Error("file not found");
   }
 
-  const parents = await gdrive.getAllParentsFolder(id);
+  const parents = await parentsFolder(id);
   const parentsId = parents.map((parent: any) => parent.id);
   parentsId.push(id);
   try {
@@ -127,7 +126,24 @@ async function deleteFile(id: string) {
 }
 
 async function renameFile(id: string, newName: string) {
-  
+  // check the file first
+  const file = await checkId(id);
+
+  if (!file) {
+    throw new Error("file not found");
+  }
+
+  const parents = await parentsFolder(id);
+  const parentsId = parents.map((parent: any) => parent.id);
+  parentsId.push(id);
+
+  try {
+    const file = await gdrive.renameFileOrFolder(id, newName, parentsId);
+
+    return file;
+  } catch (error: any) {
+    throw new Error(error);
+  }
 }
 
 async function folderName(id: string) {
@@ -143,6 +159,7 @@ const driveServices = {
   addFolder,
   folderName,
   parentsFolder,
+  renameFile,
   deleteFile,
 };
 
