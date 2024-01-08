@@ -25,7 +25,7 @@ type FileGD = {
   name: string;
 };
 
-export async function listFiles(folderId?: string): Promise<FileGD[]> {
+async function listFiles(folderId?: string): Promise<FileGD[]> {
   try {
     const driveClient = await getDriveClient();
 
@@ -51,7 +51,18 @@ export async function listFiles(folderId?: string): Promise<FileGD[]> {
   }
 }
 
-export async function getMedia(id: string): Promise<string> {
+async function getFolderName(id: string): Promise<string> {
+  const driveClient = await getDriveClient();
+
+  const file = await driveClient.files.get({
+    fileId: id,
+    fields: "name",
+  });
+
+  return file.data.name as string;
+}
+
+async function getMedia(id: string): Promise<string> {
   const driveClient = await getDriveClient();
 
   const file = await driveClient.files.get(
@@ -78,6 +89,7 @@ export async function getMedia(id: string): Promise<string> {
 const gdrive = {
   listFiles,
   getMedia,
+  getFolderName,
 };
 
 export default gdrive;
