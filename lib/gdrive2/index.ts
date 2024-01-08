@@ -1,6 +1,7 @@
 import { auth, drive } from "@googleapis/drive";
 import { Buffer } from "buffer";
 import myCache from "../node-cache";
+import { Readable } from "stream";
 
 let dClient: ReturnType<typeof drive> | undefined;
 
@@ -51,7 +52,6 @@ async function listFiles(folderId: string): Promise<FileGD[]> {
     myCache.set(cacheKey, list.data.files as FileGD[]);
     return list.data.files as FileGD[];
   } catch (error: any) {
-    console.log(error);
     throw new Error(error);
   }
 }
@@ -186,6 +186,42 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
   return file.data;
 }
 
+async function uploadFile(
+  name: string,
+  mimeType: string,
+  content: Buffer,
+  parent?: string[]
+) {
+  myCache.del(`listFiles-${parent}`);
+  myCache.del(`listFiles-${process.env.SHARED_FOLDER_ID_DRIVE}`);
+
+  const driveClient = await getDriveClient();
+
+  const fileMetadata = {
+    name,
+    parents: parent,
+  };
+
+  const media = {
+    mimeType,
+    body: await toReadableStream(content),
+  };
+
+  const file = await driveClient.files.create({
+    requestBody: fileMetadata,
+    media,
+  });
+  return file.data;
+}
+
+async function toReadableStream(file: any) {
+  const readable = new Readable();
+  readable.push(file);
+  readable.push(null);
+
+  return readable;
+}
+
 async function deleteFileOrFolder(id: string, parents: string[]) {
   parents.forEach((parent) => {
     const cacheKey = `listFiles-${parent}`;
@@ -212,6 +248,7 @@ const gdrive = {
   getFile,
   getAllParentsFolder,
   createFolder,
+  uploadFile,
   renameFileOrFolder,
   deleteFileOrFolder,
 };

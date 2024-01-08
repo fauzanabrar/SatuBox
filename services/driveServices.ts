@@ -37,7 +37,6 @@ async function list(folderId?: string): Promise<FileDrive[]> {
     );
     return listFiles;
   } catch (error: any) {
-    console.log(error);
     throw new Error(error);
   }
 }
@@ -71,7 +70,24 @@ async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
   }
 }
 
-async function addFile(file: any, folderId?: string) {}
+type FileUpload = {
+  name: string;
+  mimeType: string;
+  content: Buffer;
+};
+
+async function addFile(file: FileUpload, folderId?: string) {
+  const { name, mimeType, content } = file;
+
+  try {
+    const newFile = await gdrive.uploadFile(name, mimeType, content, [
+      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
+    ]);
+    return newFile;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
 
 type NewFolder = {
   id: string;
@@ -156,6 +172,7 @@ async function folderName(id: string) {
 
 const driveServices = {
   list,
+  addFile,
   addFolder,
   folderName,
   parentsFolder,
