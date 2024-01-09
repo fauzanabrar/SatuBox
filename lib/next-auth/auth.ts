@@ -1,7 +1,7 @@
-import {NextAuthOptions} from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import {FireStoreUser, getUserByEmail} from "@/lib/firebase/db/user";
-import {compare} from "bcryptjs";
+import { FireStoreUser, getUserByUsername } from "@/lib/firebase/db/user";
+import { compare } from "bcryptjs";
 
 interface UserToken {
   id: string;
@@ -23,7 +23,6 @@ export interface UserSession {
     role: string;
   };
   expires: string;
-
 }
 
 export const authOptions: NextAuthOptions = {
@@ -32,7 +31,7 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        email: {label: "email", type: "text", placeholder: "email"},
+        username: { label: "username", type: "text", placeholder: "username" },
         password: {
           label: "Password",
           type: "password",
@@ -42,19 +41,24 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         // check credentials to db
         try {
-          const user: FireStoreUser = await getUserByEmail(credentials?.email as string);
-          const comparedPassword = await compare(credentials?.password as string, user.password);
+          const user: FireStoreUser = await getUserByUsername(
+            credentials?.username as string
+          );
+          const comparedPassword = await compare(
+            credentials?.password as string,
+            user.password
+          );
           if (comparedPassword) {
             return {
-              id: user.email,
+              id: user.username,
               name: user.name,
-              email: user.email,
+              username: user.username,
               role: user.role,
             };
           }
           return null;
         } catch (e) {
-          return null
+          return null;
         }
       },
     }),
@@ -63,14 +67,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({token, user}: any): Promise<any> {
+    async jwt({ token, user }: any): Promise<any> {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
       return token as UserToken;
     },
-    async session({session, token}: any): Promise<any> {
+    async session({ session, token }: any): Promise<any> {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
@@ -83,5 +87,5 @@ export const authOptions: NextAuthOptions = {
     error: "/error",
     verifyRequest: "/verify-request",
     newUser: "/new-user",
-  }
+  },
 };

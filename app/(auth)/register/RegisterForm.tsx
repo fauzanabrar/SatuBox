@@ -1,31 +1,31 @@
 "use client";
-import React, {ChangeEvent, useState} from "react";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {useToast} from "@/components/ui/use-toast";
+import React, { ChangeEvent, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import dynamic from "next/dynamic";
 
 const AlertRegisterSuccess = dynamic(
   () => import("@/app/(auth)/register/AlertRegisterSuccess"),
-  {ssr: false}
+  { ssr: false }
 );
 
 export interface RegisterUser {
   name: string;
-  email: string;
+  username: string;
   password: string;
 }
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [formValues, setFormValues] = useState({
-    email: "",
+    username: "",
     password: "",
     name: "",
   });
 
-  const {toast, toasts} = useToast()
+  const { toast, toasts } = useToast();
 
   const [error, setError] = useState("");
 
@@ -35,7 +35,7 @@ function RegisterForm() {
       setLoading(true);
 
       const user: RegisterUser = {
-        email: formValues.email,
+        username: formValues.username,
         password: formValues.password,
         name: formValues.name,
       };
@@ -43,9 +43,9 @@ function RegisterForm() {
       const createUser = (await import("@/lib/firebase/db/user")).createUser;
       await createUser(user);
 
-      toast({})
+      toast({});
       setLoading(false);
-      setFormValues({email: "", password: "", name: ""});
+      setFormValues({ username: "", password: "", name: "" });
     } catch (error: any) {
       setLoading(false);
       setError(error.message);
@@ -53,15 +53,15 @@ function RegisterForm() {
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = event.target;
-    setFormValues({...formValues, [name]: value});
+    const { name, value } = event.target;
+    setFormValues({ ...formValues, [name]: value });
   };
 
   return (
     <div>
       {toasts[0]?.open && (
         <div className="absolute top-24 right-8 animate-in">
-          <AlertRegisterSuccess/>
+          <AlertRegisterSuccess />
         </div>
       )}
 
@@ -83,14 +83,14 @@ function RegisterForm() {
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="username">username</Label>
           <Input
-            id="email"
-            type="email"
-            name="email"
-            placeholder="email@example.com"
+            id="username"
+            type="text"
+            name="username"
+            placeholder="type your username"
             onChange={handleChange}
-            value={formValues.email}
+            value={formValues.username}
           />
         </div>
         <div className="grid gap-2">
