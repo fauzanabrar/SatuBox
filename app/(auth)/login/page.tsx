@@ -1,17 +1,20 @@
-import {Metadata} from "next"
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import { Metadata } from "next";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import * as React from "react";
 import LoginForm from "@/app/(auth)/login/LoginForm";
-import dynamic from "next/dynamic";
-
-const Link = dynamic(() => import('next/link'), {
-  ssr:false,
-})
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Login",
   description: "Login page.",
-}
+};
 
 export default function AuthenticationPage() {
   return (
@@ -25,18 +28,23 @@ export default function AuthenticationPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <LoginForm/>
+            <LoginForm />
           </CardContent>
           <CardFooter>
             <div className="flex-1">
               <CardDescription className="mt-1">
-                {"Don't"} have an account? <Link href="/register"
-                                                 className="font-bold text-card-foreground">Register</Link>
+                {"Don't"} have an account?{" "}
+                <Link
+                  href="/register"
+                  className="font-bold text-card-foreground"
+                >
+                  Register
+                </Link>
               </CardDescription>
             </div>
           </CardFooter>
         </Card>
       </div>
     </>
-  )
+  );
 }
