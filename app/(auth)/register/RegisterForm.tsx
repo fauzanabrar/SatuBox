@@ -83,7 +83,7 @@ function RegisterForm() {
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="username">username</Label>
+          <Label htmlFor="username">Username</Label>
           <Input
             id="username"
             type="text"

@@ -1,15 +1,15 @@
-"use client"
-import React, {ChangeEvent, useState} from 'react';
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {useRouter, useSearchParams} from 'next/navigation';
-import {Button} from "@/components/ui/button";
+"use client";
+import React, { ChangeEvent, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formValues, setFormValues] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -23,11 +23,11 @@ function LoginForm() {
     try {
       setLoading(true);
 
-      const {signIn} = await import("next-auth/react");
+      const { signIn } = await import("next-auth/react");
 
       const res = await signIn("credentials", {
         redirect: false,
-        email: formValues.email,
+        username: formValues.username,
         password: formValues.password,
         callbackUrl,
       });
@@ -35,10 +35,10 @@ function LoginForm() {
       setLoading(false);
 
       if (!res?.error) {
-        setFormValues({email: "", password: ""});
+        setFormValues({ username: "", password: "" });
         router.push(callbackUrl);
       } else {
-        setError("Invalid email or password");
+        setError("Invalid username or password");
       }
     } catch (error: any) {
       setLoading(false);
@@ -47,24 +47,38 @@ function LoginForm() {
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = event.target;
-    setFormValues({...formValues, [name]: value});
+    const { name, value } = event.target;
+    setFormValues({ ...formValues, [name]: value });
   };
 
   return (
     <div>
       <form method="POSt" className="grid gap-4" onSubmit={onSubmit}>
         {error && (
-          <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">{error}</p>
+          <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">
+            {error}
+          </p>
         )}
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" name="email" placeholder="email@example.com" onChange={handleChange}
-                 value={formValues.email}/>
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="username"
+            onChange={handleChange}
+            value={formValues.username}
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" name="password" type="password" onChange={handleChange} value={formValues.password}/>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            onChange={handleChange}
+            value={formValues.password}
+          />
         </div>
         <Button className="w-full" disabled={loading}>
           {loading ? "Loading..." : "Login"}
