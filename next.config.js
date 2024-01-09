@@ -10,7 +10,7 @@ config();
 
 const nextConfig = {
   images: {
-    domains: ["images.unsplash.com", "drive.google.com"],
+    domains: ["drive.google.com"],
     minimumCacheTTL: 600,
   },
   transpilePackages: ["lucide-react"],
