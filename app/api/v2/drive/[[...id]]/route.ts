@@ -146,7 +146,7 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
  * @param id?
  * @body newName
  */
-export async function PUT(request: NextResponse, { params }: ParamsType) {
+export async function PUT(request: NextRequest, { params }: ParamsType) {
   const id = params.id?.pop() as string;
   const { newName } = await request.json();
 
