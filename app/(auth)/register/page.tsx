@@ -1,14 +1,19 @@
-import * as React from 'react';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
-import dynamic from "next/dynamic";
+import * as React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import RegisterForm from "@/app/(auth)/register/RegisterForm";
+import Link from "next/link";
 
 export const metadata = {
   title: "Register",
   description: "Register page.",
-}
-
-const Link = dynamic(() => import("next/link"), {ssr: false});
+};
 
 export default function RegisterPage() {
   return (
@@ -21,14 +26,17 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RegisterForm/>
+          <RegisterForm />
         </CardContent>
         <CardFooter>
           <CardDescription>
-            Already have an account? <Link href={"/login"} className="font-bold text-card-foreground">Login</Link>
+            Already have an account?{" "}
+            <Link href={"/login"} className="font-bold text-card-foreground">
+              Login
+            </Link>
           </CardDescription>
         </CardFooter>
       </Card>
     </div>
   );
-};
+}
