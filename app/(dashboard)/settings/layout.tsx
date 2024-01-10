@@ -5,16 +5,16 @@ import { ReactNode } from "react";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-        <Menu />
-        <div className="border-t">
-          <div className="bg-background">
-            <div className="grid lg:grid-cols-5">
-              <Sidebar activePath={"settings"} className="hidden lg:block" />
-              {children}
-            </div>
+    <div className="h-screen flex flex-col">
+      <Menu />
+      <div className="border-t h-full">
+        <div className="bg-background h-full">
+          <div className="grid lg:grid-cols-5 h-full">
+            <Sidebar activePath={"settings"} className="hidden lg:border-r lg:block" />
+            {children}
           </div>
         </div>
-    </>
+      </div>
+    </div>
   );
 }
