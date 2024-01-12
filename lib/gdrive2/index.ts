@@ -183,7 +183,7 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
     requestBody: fileMetadata,
   });
 
-  return file.data;
+  return file.data as { id: string; name: string };
 }
 
 async function uploadFile(
