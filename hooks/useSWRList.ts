@@ -7,14 +7,18 @@ const fetcher = (url: string, setLoading?: (loading: boolean) => void) =>
       if (setLoading) setLoading(false);
     });
 
-const urlKey = "/api/v2/drive";
+export const urlKey: string = "/api/v2/drive";
 
-export default function useSWRList(
-  setRefreshClicked?: (clicked: boolean) => void
-) {
+export default function useSWRList({
+  folderId,
+  setRefreshClicked,
+}: {
+  folderId?: string;
+  setRefreshClicked?: (loading: boolean) => void;
+}) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    urlKey,
-    (url: string) => fetcher(url, setRefreshClicked),
+    [urlKey, folderId],
+    () => fetcher(`${urlKey}/${folderId}`, setRefreshClicked),
     {
       revalidateOnFocus: false,
       errorRetryCount: 2,
@@ -31,4 +35,4 @@ export default function useSWRList(
   };
 }
 
-export const mutateList = () => mutate(urlKey);
+export const mutateList = (folderId?: string) => mutate([urlKey, folderId]);
