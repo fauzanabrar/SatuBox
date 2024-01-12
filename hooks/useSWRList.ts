@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string, setLoading?: (loading: boolean) => void) =>
   fetch(url)
@@ -7,12 +7,13 @@ const fetcher = (url: string, setLoading?: (loading: boolean) => void) =>
       if (setLoading) setLoading(false);
     });
 
+const urlKey = "/api/v2/drive";
+
 export default function useSWRList(
-  key: string,
   setRefreshClicked?: (clicked: boolean) => void
 ) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    key,
+    urlKey,
     (url: string) => fetcher(url, setRefreshClicked),
     {
       revalidateOnFocus: false,
@@ -29,3 +30,5 @@ export default function useSWRList(
     mutate,
   };
 }
+
+export const mutateList = () => mutate(urlKey);
