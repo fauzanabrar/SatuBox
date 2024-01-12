@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Loading from "../loading";
-import { mutate } from "swr";
+import { mutateList } from "@/hooks/useSWRList";
 
 export default function AddFolderDialog() {
   const [loadingFolder, setLoadingFolder] = useState(false);
@@ -35,15 +35,12 @@ export default function AddFolderDialog() {
         const body = {
           folderName,
         };
-        const response = await fetch(
-          `http://localhost:3000/api/v2/drive/folder/${folderId}`,
-          {
-            method: "POST",
-            body: JSON.stringify(body),
-          }
-        );
+        const response = await fetch(`/api/v2/drive/folder/${folderId}`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
         if (response.ok) {
-          mutate("/api/v2/drive");
+          mutateList();
           console.log("Add folder successfully");
         } else {
           console.error("Failed to add folder");
