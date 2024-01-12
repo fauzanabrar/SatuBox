@@ -19,7 +19,7 @@ export function Menu() {
   const pathname = usePathname();
   const activePath = pathname.split("/")[1];
 
-  useEffect(() => {}, [data]);
+  useEffect(() => {}, [sessionUser]);
 
   return (
     <Menubar className="flex items-center justify-between lg:justify-end rounded-none border-b border-none px-2 lg:px-4">
