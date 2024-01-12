@@ -17,11 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import Loading from "./loading";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import Loading from "../loading";
 import { usePathname, useRouter } from "next/navigation";
 import { LucideMoreVertical } from "lucide-react";
 

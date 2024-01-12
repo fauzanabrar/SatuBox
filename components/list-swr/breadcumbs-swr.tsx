@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-type BreadcumbsItem = {
+export type BreadcumbsItem = {
   url: string;
   name: string;
 };
@@ -17,7 +17,7 @@ type BreadcumbsSWRProps = {
 
 const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
   <>
-    <Link href={`/${item.url}`} className="link-ghost">
+    <Link href={`/list/${item.url}`} className="link-ghost">
       <span className="font-semibold">{item.name}</span>
     </Link>
     {!isLastItem && ">"}

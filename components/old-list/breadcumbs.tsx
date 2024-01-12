@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect } from "react";
-import { Card } from "./ui/card";
+import { Card } from "../ui/card";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import useListStore from "@/lib/zustand/useListStore";
 
 export default function Breadcumbs() {

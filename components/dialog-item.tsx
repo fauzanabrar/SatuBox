@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogPortal,
   DialogTrigger

@@ -22,8 +22,27 @@ export async function GET(
   { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop();
+  const parents = request.nextUrl.searchParams.get("parents") as string;
   const limit = request.nextUrl.searchParams.get("limit") as string;
   const page = request.nextUrl.searchParams.get("page") as string;
+
+  if (parents === "true" && id) {
+    try {
+      const parents = await driveServices.parentsFolder(id);
+
+      return NextResponse.json({
+        status: 200,
+        message: "success",
+        parents,
+      });
+    } catch (error: any) {
+      return NextResponse.json({
+        status: 500,
+        message: "error",
+        error: error.message,
+      });
+    }
+  }
 
   // get list files in limit and page
   if (limit && page) {

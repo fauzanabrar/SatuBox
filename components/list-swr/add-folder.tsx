@@ -24,7 +24,7 @@ export default function AddFolderDialog() {
 
   let folderId = "";
 
-  if (lastPath !== "list-swr" && lastPath) {
+  if (lastPath !== "list" && lastPath) {
     folderId = lastPath;
   }
 

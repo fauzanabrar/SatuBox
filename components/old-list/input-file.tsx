@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useListStore, { ListStore } from "@/lib/zustand/useListStore";
 import React from "react";
-import Loading from "./loading";
+import Loading from "../loading";
 import { usePathname } from "next/navigation";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}

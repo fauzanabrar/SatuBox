@@ -1,4 +1,4 @@
-import { FileDrive } from "@/types/api/drive/file";
+import { FileDrive, ParentsFolder } from "@/types/api/drive/file";
 import gdrive from "@/lib/gdrive2";
 
 const fileTypes: Record<string, string> = {
@@ -43,13 +43,7 @@ async function list(folderId?: string): Promise<FileDrive[]> {
   }
 }
 
-type ParentsFolder = {
-  id: string;
-  name: string;
-  currentName?: string;
-};
-
-async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
+async function reversedParentsFolder(folderId: string): Promise<ParentsFolder[]> {
   try {
     const parent: any = await gdrive.getAllParentsFolder(folderId);
     const newParent = {
@@ -57,19 +51,18 @@ async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
       name: parent.currentName,
     };
     if (parent.id && parent.id !== process.env.SHARED_FOLDER_ID_DRIVE) {
-      const grandparents = await parentsFolder(parent.id);
-      const newGrandparents = [
-        {
-          id: parent.id as string,
-          name: grandparents[0].name as string,
-        },
-      ];
+      const grandparents = await reversedParentsFolder(parent.id);
       return [newParent, ...grandparents];
     }
     return [newParent];
   } catch (error: any) {
     throw new Error(error);
   }
+}
+
+async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
+  const parents = await reversedParentsFolder(folderId);
+  return parents.reverse();
 }
 
 type FileUpload = {

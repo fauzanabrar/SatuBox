@@ -17,7 +17,7 @@ export default function InputFile({}: InputFileProps) {
 
   let folderId = "";
 
-  if (lastPath !== "list-swr" && lastPath) {
+  if (lastPath !== "list" && lastPath) {
     folderId = lastPath;
   }
 

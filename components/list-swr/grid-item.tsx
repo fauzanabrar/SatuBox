@@ -51,7 +51,7 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   const handleOpen = () => {
     console.log("open");
     if (item.fileType === "folder") {
-      router.push(`/list-swr/${item.id}`);
+      router.push(`/list/${item.id}`);
       return;
     }
     window.open(`https://drive.google.com/file/d/${item.id}/view`, "_blank");
@@ -84,12 +84,9 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   const handleDelete = async () => {
     console.log("delete");
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/drive/file/${item.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/v2/drive/${item.id}`, {
+        method: "DELETE",
+      });
       const data = await response.json();
       if (data.status === 200) {
         console.log("delete berhasil");
