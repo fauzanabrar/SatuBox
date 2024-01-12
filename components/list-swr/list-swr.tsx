@@ -1,15 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useSWR from "swr";
 import Loading from "../loading";
 import RefreshButtonSWR from "./refresh-button";
+import BreadcumbsSWR from "./breadcumbs-swr";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { FileDrive, FileResponse } from "@/types/api/drive/file";
+import GridItemSWR from "./grid-item";
 
 const fetcher = (url: string, setLoading: (loading: boolean) => void) =>
   fetch(url)
     .then((res) => res.json())
     .finally(() => setLoading(false));
 
-const listSWRKey = "/api/fake";
+const listSWRKey = "/api/v2/drive";
 
 type ListSWRProps = {
   canScroll?: boolean;
@@ -21,7 +25,7 @@ export default function ListSWR({
   type = "grid",
 }: ListSWRProps) {
   const [refreshClicked, setRefreshClicked] = useState<boolean>(true);
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR<FileResponse>(
     listSWRKey,
     (url: string) => fetcher(url, setRefreshClicked),
     {
@@ -38,14 +42,19 @@ export default function ListSWR({
 
   const loading = refreshClicked || isLoading;
 
+  const dataItems = useMemo(
+    () => (data?.files ? data?.files : []),
+    [data?.files]
+  );
+
   return (
     <div className="relative">
-      <div className="flex justify-between w-auto items-center">
-        {/* <Breadcumbs /> */}
+      <div className="flex justify-between w-auto items-center h-10">
+        <BreadcumbsSWR />
         <RefreshButtonSWR handleClick={handleRefresh} />
       </div>
       <div className="flex justify-center mt-4">
-        {renderContent(loading, error, data)}
+        {renderContent(loading, error, dataItems, canScroll)}
       </div>
     </div>
   );
@@ -71,11 +80,25 @@ function renderEmpty() {
   );
 }
 
-function renderData(data: any) {
-  return <p>{data?.message}</p>;
+function renderData(data: FileDrive[], canScroll: boolean) {
+  return (
+    <ScrollArea className={canScroll ? "h-auto" : "h-full"}>
+      <div className="flex flex-wrap gap-2">
+        {data.map((item: FileDrive) => {
+          return <GridItemSWR key={item.id} item={item} />;
+        })}
+      </div>
+      <ScrollBar orientation="vertical" />
+    </ScrollArea>
+  );
 }
 
-function renderContent(loading: boolean, error: any, data: any) {
+function renderContent(
+  loading: boolean,
+  error: any,
+  data: FileDrive[],
+  canScroll: boolean
+) {
   if (loading) {
     return renderLoading();
   }
@@ -84,9 +107,9 @@ function renderContent(loading: boolean, error: any, data: any) {
     return renderError();
   }
 
-  if (data?.message.length < 1) {
+  if (data.length < 1) {
     return renderEmpty();
   }
 
-  return renderData(data);
+  return renderData(data, canScroll);
 }
