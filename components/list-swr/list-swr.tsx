@@ -1,11 +1,10 @@
 "use client";
-import React, { useMemo, useState } from "react";
-import useSWR from "swr";
+import  { useMemo, useState } from "react";
 import Loading from "../loading";
 import RefreshButtonSWR from "./refresh-button";
 import BreadcumbsSWR from "./breadcumbs-swr";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { FileDrive, FileResponse } from "@/types/api/drive/file";
+import { FileDrive } from "@/types/api/drive/file";
 import GridItemSWR from "./grid-item";
 import useSWRList from "@/hooks/useSWRList";
 
@@ -25,7 +24,7 @@ export default function ListSWR({
     error,
     mutate,
     isValidating: isLoading,
-  } = useSWRList("/api/v2/drive", setRefreshClicked);
+  } = useSWRList(setRefreshClicked);
 
   const handleRefresh = () => {
     setRefreshClicked(true);
