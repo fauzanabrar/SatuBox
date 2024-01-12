@@ -12,7 +12,7 @@ type BreadcumbsItemProps = {
 };
 
 type BreadcumbsSWRProps = {
-  items: BreadcumbsItem[];
+  items?: BreadcumbsItem[];
 };
 
 const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
