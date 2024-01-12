@@ -23,6 +23,9 @@ async function list(folderId?: string): Promise<FileDrive[]> {
 
         // set the filetype
         newfile.fileType = fileTypes[file.mimeType];
+        if (!newfile.fileType) {
+          newfile.fileType = "file";
+        }
 
         // set the media (deprecated)
         // if (newfile.fileType === "image") {
