@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const { config } = require("dotenv");
 
@@ -10,11 +10,15 @@ config();
 
 const nextConfig = {
   images: {
-    domains: ["drive.google.com"],
-    minimumCacheTTL: 600,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "drive.google.com",
+        port: "",
+      },
+    ],
   },
   transpilePackages: ["lucide-react"],
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
-
