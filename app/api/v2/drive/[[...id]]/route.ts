@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
+import { FileResponse } from "@/types/api/drive/file";
 
 type ParamsType = {
   params: {
@@ -19,7 +20,7 @@ type ParamsType = {
 export async function GET(
   request: NextRequest,
   { params }: ParamsType
-): Promise<NextResponse> {
+): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop();
   const limit = request.nextUrl.searchParams.get("limit") as string;
   const page = request.nextUrl.searchParams.get("page") as string;
@@ -59,7 +60,10 @@ export async function GET(
  * @query id?
  * @body folderName
  */
-export async function POST(request: NextRequest, { params }: ParamsType) {
+export async function POST(
+  request: NextRequest,
+  { params }: ParamsType
+): Promise<NextResponse<FileResponse>> {
   const type = params.id ? params.id[0] : "";
   const folderId: string | null = params.id ? params.id[1] : "";
 
@@ -104,7 +108,7 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
 
     if (!file) {
       return NextResponse.json({
-        status: "400",
+        status: 400,
         message: "Your file not found",
       });
     }
@@ -121,7 +125,7 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
     try {
       const response: any = await driveServices.addFile(newFile, folderId);
       return NextResponse.json({
-        status: "200",
+        status: 200,
         message: "success",
         files: response,
       });
@@ -146,7 +150,10 @@ export async function POST(request: NextRequest, { params }: ParamsType) {
  * @param id?
  * @body newName
  */
-export async function PUT(request: NextRequest, { params }: ParamsType) {
+export async function PUT(
+  request: NextRequest,
+  { params }: ParamsType
+): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop() as string;
   const { newName } = await request.json();
 
@@ -163,7 +170,7 @@ export async function PUT(request: NextRequest, { params }: ParamsType) {
     return NextResponse.json({
       status: 200,
       message: "success rename file",
-      file,
+      id: file.id,
     });
   } catch (error: any) {
     return NextResponse.json({
@@ -181,7 +188,10 @@ export async function PUT(request: NextRequest, { params }: ParamsType) {
  *
  * @returns
  */
-export async function DELETE(request: NextRequest, { params }: ParamsType) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: ParamsType
+): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop() as string;
 
   try {
