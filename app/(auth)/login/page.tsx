@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import * as React from "react";
 import LoginForm from "@/app/(auth)/login/LoginForm";
 import Link from "next/link";
 

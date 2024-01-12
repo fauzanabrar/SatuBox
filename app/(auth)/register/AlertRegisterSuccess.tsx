@@ -1,6 +1,5 @@
 "use client"
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
-import React from 'react'
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {LucideCheck} from "lucide-react";

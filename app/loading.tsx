@@ -1,7 +1,6 @@
-import React from 'react';
 import Loading from "@/components/loading";
 
-function LoadingPage(props: any) {
+function LoadingPage() {
   return (
     <div className={"h-screen flex items-center justify-center"}>
       <Loading loading={true} size={200}/>
