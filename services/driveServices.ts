@@ -2,8 +2,10 @@ import { FileDrive } from "@/types/api/drive/file";
 import gdrive from "@/lib/gdrive2";
 
 const fileTypes: Record<string, string> = {
-  folder: "application/vnd.google-apps.folder",
-  image: "image/jpeg" || "image/png",
+  "application/vnd.google-apps.folder": "folder",
+  "image/jpeg": "image",
+  "image/gif": "image",
+  "image/png": "image",
 };
 
 async function list(folderId?: string): Promise<FileDrive[]> {
@@ -20,10 +22,7 @@ async function list(folderId?: string): Promise<FileDrive[]> {
         };
 
         // set the filetype
-        newfile.fileType =
-          Object.keys(fileTypes).find(
-            (fileType: any) => fileTypes[fileType] === file.mimeType
-          ) || "file";
+        newfile.fileType = fileTypes[file.mimeType];
 
         // set the media (deprecated)
         // if (newfile.fileType === "image") {
