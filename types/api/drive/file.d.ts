@@ -8,15 +8,11 @@ export type FileDrive = {
   whitelist?: string[];
 }
 
-export type FileResponseSuccess = {
+export type FileResponse = {
   status: number;
   message: string;
+  id?: string;
   file?: FileDrive;
   files?: FileDrive[];
-}
-
-export type FileResponseError = {
-  status: number;
-  message: string;
   error?: string;
 }
