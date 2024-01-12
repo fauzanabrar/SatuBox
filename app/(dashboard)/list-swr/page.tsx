@@ -1,8 +1,7 @@
-import AddFolderDialog from "@/components/add-folder";
-import InputFile from "@/components/input-file";
+import InputFile from "@/components/list-swr/input-file";
+import AddFolder from "@/components/list-swr/add-folder";
 import ListSWR from "@/components/list-swr/list-swr";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
 
 export default function ListSWRPage() {
   return (
@@ -13,7 +12,7 @@ export default function ListSWRPage() {
             <h2 className="text-2xl font-semibold tracking-tight">
               Upload File
             </h2>
-            <AddFolderDialog />
+            <AddFolder />
           </div>
         </div>
         <div className="flex align-middle gap-2">
