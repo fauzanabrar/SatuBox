@@ -7,13 +7,7 @@ import BreadcumbsSWR from "./breadcumbs-swr";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { FileDrive, FileResponse } from "@/types/api/drive/file";
 import GridItemSWR from "./grid-item";
-
-const fetcher = (url: string, setLoading: (loading: boolean) => void) =>
-  fetch(url)
-    .then((res) => res.json())
-    .finally(() => setLoading(false));
-
-const listSWRKey = "/api/v2/drive";
+import useSWRList from "@/hooks/useSWRList";
 
 type ListSWRProps = {
   canScroll?: boolean;
@@ -25,15 +19,13 @@ export default function ListSWR({
   type = "grid",
 }: ListSWRProps) {
   const [refreshClicked, setRefreshClicked] = useState<boolean>(true);
-  const { data, error, isLoading, mutate } = useSWR<FileResponse>(
-    listSWRKey,
-    (url: string) => fetcher(url, setRefreshClicked),
-    {
-      revalidateOnFocus: false,
-      errorRetryCount: 2,
-      // refreshInterval: 1000,
-    }
-  );
+
+  const {
+    data,
+    error,
+    mutate,
+    isValidating: isLoading,
+  } = useSWRList("/api/v2/drive", setRefreshClicked);
 
   const handleRefresh = () => {
     setRefreshClicked(true);
@@ -42,10 +34,7 @@ export default function ListSWR({
 
   const loading = refreshClicked || isLoading;
 
-  const dataItems = useMemo(
-    () => (data?.files ? data?.files : []),
-    [data?.files]
-  );
+  const dataItems = useMemo(() => data?.files, [data?.files]);
 
   return (
     <div className="relative">
@@ -95,8 +84,8 @@ function renderData(data: FileDrive[], canScroll: boolean) {
 
 function renderContent(
   loading: boolean,
-  error: any,
-  data: FileDrive[],
+  error: Error | undefined,
+  data: FileDrive[] | undefined,
   canScroll: boolean
 ) {
   if (loading) {
@@ -107,9 +96,9 @@ function renderContent(
     return renderError();
   }
 
-  if (data.length < 1) {
+  if (data && data.length < 1) {
     return renderEmpty();
   }
 
-  return renderData(data, canScroll);
+  return renderData(data as FileDrive[], canScroll);
 }
