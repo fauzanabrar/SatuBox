@@ -15,9 +15,10 @@ import { mutateList } from "@/hooks/useSWRList";
 
 type GridItemSWRProps = {
   item: FileDrive;
+  folderId?: string;
 };
 
-export default function GridItemSWR({ item }: GridItemSWRProps) {
+export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   const router = useRouter();
 
   // Rename
@@ -70,7 +71,7 @@ export default function GridItemSWR({ item }: GridItemSWRProps) {
       const data = await response.json();
       if (data.status === 200) {
         console.log("rename berhasil");
-        mutateList();
+        mutateList(folderId);
       }
     } catch (error) {
       console.log(error);
@@ -92,7 +93,7 @@ export default function GridItemSWR({ item }: GridItemSWRProps) {
       const data = await response.json();
       if (data.status === 200) {
         console.log("delete berhasil");
-        mutateList();
+        mutateList(folderId);
       }
     } catch (error) {
       console.log(error);
