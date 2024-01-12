@@ -25,10 +25,10 @@ async function list(folderId?: string): Promise<FileDrive[]> {
             (fileType: any) => fileTypes[fileType] === file.mimeType
           ) || "file";
 
-        // set the media
-        if (newfile.fileType === "image") {
-          newfile.media = (await gdrive.getMedia(newfile.id)) as string;
-        }
+        // set the media (deprecated)
+        // if (newfile.fileType === "image") {
+        //   newfile.media = (await gdrive.getMedia(newfile.id)) as string;
+        // }
 
         // set the restrict
 
