@@ -19,7 +19,7 @@ export default function ListSWRPage() {
         <div className="flex align-middle gap-2">
           <InputFile />
         </div>
-        <Separator className="my-4" />
+        <Separator className="my-1" />
         <ListSWR />
       </div>
     </div>
