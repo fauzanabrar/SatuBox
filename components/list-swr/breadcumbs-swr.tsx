@@ -25,7 +25,7 @@ const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
 );
 
 const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => (
-  <div className="my-2 h-auto flex items-center">
+  <div className="h-auto flex items-center">
     <div className="w-fit py-2 px-2 h-auto flex justify-start items-center">
       <Link href={"/"} className="link-ghost">
         <span className="font-semibold">root</span>
