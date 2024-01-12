@@ -40,7 +40,7 @@ export default function AddFolderDialog() {
           body: JSON.stringify(body),
         });
         if (response.ok) {
-          mutateList();
+          mutateList(folderId);
           console.log("Add folder successfully");
         } else {
           console.error("Failed to add folder");

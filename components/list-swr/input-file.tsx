@@ -39,7 +39,7 @@ export default function InputFile({}: InputFileProps) {
           body: formData,
         });
         if (response.ok) {
-          mutateList();
+          mutateList(folderId);
           console.log("File uploaded successfully");
         } else {
           console.error("Failed to upload file");
