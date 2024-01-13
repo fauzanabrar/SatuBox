@@ -1,5 +1,5 @@
-import React from "react";
 import Link from "next/link";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export type BreadcumbsItem = {
   url: string;
@@ -24,22 +24,28 @@ const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
   </>
 );
 
-const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => (
-  <div className="h-auto flex items-center">
-    <div className="w-fit py-2 px-2 h-auto flex justify-start items-center">
-      <Link href={"/"} className="link-ghost">
-        <span className="font-semibold">root</span>
-      </Link>
-      {items.length > 0 && ">"}
-      {items.map((item: BreadcumbsItem, index: number) => (
-        <BreadcrumbItem
-          key={item.url}
-          item={item}
-          isLastItem={index === items.length - 1}
-        />
-      ))}
+const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => {
+  return (
+    <div className="flex items-center max-w-full">
+      <div className="py-2 px-2 flex justify-start items-center max-w-full">
+        <ScrollArea className="whitespace-nowrap overflow-x-auto">
+          <Link href={"/"} className="link-ghost">
+            <span className="font-semibold">root</span>
+          </Link>
+          {items.length > 0 && ">"}
+          {items.map((item: BreadcumbsItem, index: number) => (
+            <BreadcrumbItem
+              key={item.url}
+              item={item}
+              isLastItem={index === items.length - 1}
+            />
+          ))}
+          {/* scroll to the last */}
+          <ScrollBar orientation="horizontal" className="mt-1" />
+        </ScrollArea>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default BreadcrumbsSWR;
