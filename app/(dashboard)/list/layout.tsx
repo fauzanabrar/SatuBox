@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 
 export default function ListSWRLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="h-screen flex flex-col max-w-full">
+    <div className="h-screen flex flex-col w-screen">
       <Menu />
       <div className="border-t flex-grow">
         <div className="bg-background h-full">

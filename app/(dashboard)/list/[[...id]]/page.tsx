@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function ListSWRPage() {
   return (
-    <div className="col-span-5 lg:col-span-4 h-full">
+    <div className="col-span-5 lg:col-span-4 h-full w-screen lg:w-full">
       <div className="px-4 py-6 lg:px-8 h-full ">
         <div className="mt-4 space-y-1">
           <div className="flex justify-between">
