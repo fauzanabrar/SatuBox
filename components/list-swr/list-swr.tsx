@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import Loading from "../loading";
 import RefreshButtonSWR from "./refresh-button";
-import BreadcumbsSWR, { BreadcumbsItem } from "./breadcumbs-swr";
+import BreadcumbsSWR from "./breadcumbs-swr";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { FileDrive } from "@/types/api/drive/file";
 import GridItemSWR from "./grid-item";
@@ -29,6 +29,7 @@ export default function ListSWR({
   }
 
   const [refreshClicked, setRefreshClicked] = useState<boolean>(true);
+
   const {
     data,
     error,
@@ -48,15 +49,17 @@ export default function ListSWR({
 
   const dataItems = useMemo(() => data?.files, [data?.files]);
 
-  // const reversedParents = useMemo(() => [...data.parents].reverse(), [data.parents]);
-
   return (
     <div className="relative">
-      <div className="flex justify-between w-auto items-center h-10">
-        <BreadcumbsSWR items={data.parents}/>
-        <RefreshButtonSWR handleClick={handleRefresh} />
+      <div className="flex items-center w-full">
+        <div className="grow w-[90%]">
+          <BreadcumbsSWR items={data.parents} />
+        </div>
+        <div className="shrink">
+          <RefreshButtonSWR handleClick={handleRefresh} />
+        </div>
       </div>
-      <div className=" mt-4">
+      <div className="mt-4">
         {renderContent(loading, error, dataItems, canScroll, folderId)}
       </div>
     </div>
@@ -116,7 +119,6 @@ function renderContent(
   if (data === undefined || data?.length < 1) {
     return renderEmpty();
   }
-
 
   return renderData(data as FileDrive[], canScroll, folderId);
 }

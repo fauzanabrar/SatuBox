@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export type BreadcumbsItem = {
-  url: string;
+  id: string;
   name: string;
 };
 
@@ -17,7 +17,7 @@ type BreadcumbsSWRProps = {
 
 const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
   <>
-    <Link href={`/list/${item.url}`} className="link-ghost">
+    <Link href={`/list/${item.id}`} className="link-ghost">
       <span className="font-semibold">{item.name}</span>
     </Link>
     {!isLastItem && ">"}
@@ -35,7 +35,7 @@ const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => {
           {items.length > 0 && ">"}
           {items.map((item: BreadcumbsItem, index: number) => (
             <BreadcrumbItem
-              key={item.url}
+              key={index}
               item={item}
               isLastItem={index === items.length - 1}
             />
