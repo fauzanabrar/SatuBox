@@ -10,7 +10,7 @@ export default function RefreshButtonSWR({
   handleClick,
 }: RefreshButtonSWR) {
   return (
-    <Button variant={"outline"} className="w-fit px-2" onClick={handleClick}>
+    <Button variant={"outline"} className="w-fit px-2 flex-none" onClick={handleClick}>
       <LucideRefreshCw className="mr-1 h-4 w-4" />
       Refresh
     </Button>
