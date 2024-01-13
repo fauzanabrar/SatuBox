@@ -1,5 +1,7 @@
 import { FileDrive, ParentsFolder } from "@/types/api/drive/file";
 import gdrive from "@/lib/gdrive2";
+import restrictServices from "./restrictServices";
+import userServices from "./userServices";
 
 const fileTypes: Record<string, string> = {
   "application/vnd.google-apps.folder": "folder",
@@ -8,11 +10,15 @@ const fileTypes: Record<string, string> = {
   "image/png": "image",
 };
 
-async function list(folderId?: string): Promise<FileDrive[]> {
+async function list(username: string, folderId?: string): Promise<FileDrive[]> {
   try {
     const driveFiles = await gdrive.listFiles(
       folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string)
     );
+
+    const restricts = await restrictServices.list();
+    const user = await userServices.getByUsername(username);
+
     const listFiles: Promise<FileDrive[]> = Promise.all(
       driveFiles.map(async (file: any) => {
         const newfile: FileDrive = {
@@ -33,6 +39,12 @@ async function list(folderId?: string): Promise<FileDrive[]> {
         // }
 
         // set the restrict
+        newfile.isRestrict =
+          user.role === "admin"
+            ? false
+            : restricts.map((restrict) => restrict.fileId).includes(newfile.id)
+            ? true
+            : false;
 
         return newfile;
       })
@@ -43,7 +55,9 @@ async function list(folderId?: string): Promise<FileDrive[]> {
   }
 }
 
-async function reversedParentsFolder(folderId: string): Promise<ParentsFolder[]> {
+async function reversedParentsFolder(
+  folderId: string
+): Promise<ParentsFolder[]> {
   try {
     const parent: any = await gdrive.getAllParentsFolder(folderId);
     const newParent = {
@@ -173,6 +187,7 @@ const driveServices = {
   parentsFolder,
   renameFile,
   deleteFile,
+  checkId,
 };
 
 export default driveServices;

@@ -109,6 +109,8 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
     }
   };
 
+  if (item.isRestrict) return null;
+
   return (
     <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
       <div className="overflow-hidden rounded-md">

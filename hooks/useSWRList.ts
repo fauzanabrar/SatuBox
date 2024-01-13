@@ -2,7 +2,7 @@ import { FileDrive } from "@/types/api/drive/file";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string[], setLoading?: (loading: boolean) => void) => {
-  const f = (u: string) => fetch(u).then((r) => r.json());
+  const f = (u: string) => fetch(u).then((r) => r.json()).catch((e) => e);
 
   if (setLoading) setLoading(true);
 

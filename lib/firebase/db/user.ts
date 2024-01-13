@@ -1,6 +1,13 @@
-import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  deleteDoc,
+} from "firebase/firestore/lite";
 import { firestoreApp } from "../init";
-import { RegisterUser } from "@/app/(auth)/register/RegisterForm";
+import { RegisterUser, User } from "@/types/userTypes";
 
 const usersCol = collection(firestoreApp, "user");
 
@@ -9,7 +16,14 @@ export interface FireStoreUser {
   password: string;
   name: string;
   role: string;
-  createdAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface FireStoreUpdateUser {
+  username: string;
+  name: string;
+  role: string;
   updatedAt: Date;
 }
 
@@ -55,5 +69,52 @@ export async function createUser(user: RegisterUser) {
     return docRef.id;
   } catch (e) {
     console.error("Error adding document: ", e);
+  }
+}
+
+// Update User
+export async function updateUser(user: User) {
+  const updatedAt = new Date();
+
+  const userDoc: FireStoreUpdateUser = {
+    username: user.username,
+    name: user.name,
+    role: "user",
+    updatedAt: updatedAt,
+  };
+
+  // Check if user already exists
+  const userSnapshot = await getUserByUsername(user.username);
+
+  if (!userSnapshot) throw new Error("User not found");
+
+  const changedUser = {
+    ...userDoc,
+    password: userSnapshot.password,
+  };
+
+  const userDocRef = doc(usersCol, userSnapshot.username);
+
+  try {
+    await updateDoc(userDocRef, changedUser);
+    console.log(`Document updated with ID: ${userDocRef.id}`);
+  } catch (e) {
+    console.error("Error update document: ", e);
+  }
+}
+
+// Remove User
+export async function deleteUser(username: string) {
+  const userSnapshot = await getUserByUsername(username);
+
+  if (!userSnapshot) throw new Error("User not found");
+
+  const userDocRef = doc(usersCol, userSnapshot.username);
+
+  try {
+    await deleteDoc(userDocRef);
+    console.log(`Document deleted with ID: ${userDocRef.id}`);
+  } catch (e) {
+    console.error("Error delete document: ", e);
   }
 }

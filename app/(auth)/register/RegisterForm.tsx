@@ -5,17 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import dynamic from "next/dynamic";
+import { RegisterUser } from "@/types/userTypes";
 
 const AlertRegisterSuccess = dynamic(
   () => import("@/app/(auth)/register/AlertRegisterSuccess"),
   { ssr: false }
 );
 
-export interface RegisterUser {
-  name: string;
-  username: string;
-  password: string;
-}
+
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false);

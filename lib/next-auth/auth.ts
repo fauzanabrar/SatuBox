@@ -6,7 +6,7 @@ import { compare } from "bcryptjs";
 interface UserToken {
   id: string;
   name: string;
-  email: string;
+  username: string;
   role: string;
   sub: string;
   iat: number;
@@ -18,7 +18,7 @@ export interface UserSession {
   user: {
     id: string;
     name: string;
-    email: string;
+    username: string;
     image: string;
     role: string;
   };
@@ -71,6 +71,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.username = user.username;
       }
       return token as UserToken;
     },
@@ -78,6 +79,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.username = token.username;
       }
       return session as UserSession;
     },

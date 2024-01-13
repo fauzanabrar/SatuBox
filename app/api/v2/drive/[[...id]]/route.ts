@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/drive/file";
+import { getServerSession } from "next-auth";
+import { UserSession, authOptions } from "@/lib/next-auth/auth";
 
 type ParamsType = {
   params: {
@@ -22,9 +24,21 @@ export async function GET(
   { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop();
-  const parents = request.nextUrl.searchParams.get("parents") as string;
+
   const limit = request.nextUrl.searchParams.get("limit") as string;
   const page = request.nextUrl.searchParams.get("page") as string;
+
+  const parents = request.nextUrl.searchParams.get("parents") as string;
+
+  // get session
+  const session = await getServerSession<any, UserSession>(authOptions);
+
+  if (!session) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
+    });
+  }
 
   if (parents === "true" && id) {
     try {
@@ -58,7 +72,7 @@ export async function GET(
 
   // get all list files
   try {
-    const files = await driveServices.list(id);
+    const files = await driveServices.list(session.user.username, id);
 
     return NextResponse.json({
       status: 200,
