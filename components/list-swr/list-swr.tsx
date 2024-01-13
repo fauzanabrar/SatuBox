@@ -1,13 +1,30 @@
 "use client";
 import { useMemo, useState } from "react";
 import Loading from "../loading";
-import RefreshButtonSWR from "./refresh-button";
-import BreadcumbsSWR from "./breadcumbs-swr";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { FileDrive } from "@/types/api/drive/file";
-import GridItemSWR from "./grid-item";
 import useSWRList from "@/hooks/useSWRList";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const GridItemSWR = dynamic(() => import("./grid-item"), { ssr: false });
+
+const BreadcumbsSWR = dynamic(() => import("./breadcumbs-swr"), {
+  ssr: false,
+});
+
+const RefreshButtonSWR = dynamic(() => import("./refresh-button"), {
+  ssr: false,
+});
+
+const ScrollArea = dynamic(
+  async () => (await import("../ui/scroll-area")).ScrollArea,
+  { ssr: false }
+);
+
+const ScrollBar = dynamic(
+  async () => (await import("../ui/scroll-area")).ScrollBar,
+  { ssr: false }
+);
 
 type ListSWRProps = {
   canScroll?: boolean;
