@@ -1,16 +1,14 @@
 import { FileDrive } from "@/types/api/drive/file";
 import useSWR, { mutate } from "swr";
 
-const fetcher = (url: string, setLoading?: (loading: boolean) => void) => {
+const fetcher = (url: string[], setLoading?: (loading: boolean) => void) => {
   const f = (u: string) => fetch(u).then((r) => r.json());
 
   if (setLoading) setLoading(true);
 
-  if (Array.isArray(url)) {
-    return Promise.all(url.map((u) => f(u))).finally(() => {
-      if (setLoading) setLoading(false);
-    });
-  }
+  return Promise.all(url.map((u: string) => f(u))).finally(() => {
+    if (setLoading) setLoading(false);
+  });
 };
 
 export const urlKey: string = "/api/v2/drive";
@@ -24,7 +22,7 @@ export default function useSWRList({
 }) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     [`${urlKey}/${folderId}`, `${urlKey}/${folderId}?parents=true`],
-    (url: string) => fetcher(url, setRefreshClicked),
+    (url: string[]) => fetcher(url, setRefreshClicked),
     {
       revalidateOnFocus: false,
       errorRetryCount: 2,
