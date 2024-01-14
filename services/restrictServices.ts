@@ -6,7 +6,7 @@ import {
   getRestricts,
   removeWhitelistRestrict,
 } from "@/lib/firebase/db/restrict";
-import { FireStoreRestrict } from "@/types/api/restrict";
+import { FireStoreRestrict } from "@/types/api/restrict/restrict";
 import driveServices from "@/services/driveServices";
 import userServices from "./userServices";
 
