@@ -1,16 +1,18 @@
 import { Menu } from "@/components/menu";
 import { Sidebar } from "@/components/sidebar";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
 import { ReactNode } from "react";
 
-export default function ListLayout({ children }: { children: ReactNode }) {
+export default async function ListLayout({ children }: { children: ReactNode }) {
+  const userSession = await getUserSession();
   return (
     <>
         <Menu />
         <div className="border-t">
           <div className="bg-background">
             <div className="grid lg:grid-cols-5">
-              <Sidebar activePath={"upload"} className="hidden lg:block" />
+              <Sidebar userSession={userSession} className="hidden lg:block" />
               {children}
             </div>
           </div>
