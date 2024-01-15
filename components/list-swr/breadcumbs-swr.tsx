@@ -29,7 +29,7 @@ const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => {
     <div className="flex items-center max-w-full">
       <div className="py-2 px-2 flex justify-start items-center max-w-full">
         <ScrollArea className="whitespace-nowrap overflow-x-auto">
-          <Link href={"/"} className="link-ghost">
+          <Link href={"/list"} className="link-ghost">
             <span className="font-semibold">root</span>
           </Link>
           {items.length > 0 && ">"}

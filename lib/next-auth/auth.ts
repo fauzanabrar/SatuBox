@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { FireStoreUser, getUserByUsername } from "@/lib/firebase/db/user";
 import { compare } from "bcryptjs";
+import { SessionType } from "@/types/api/auth/auth";
 
 interface UserToken {
   id: string;
@@ -12,17 +13,6 @@ interface UserToken {
   iat: number;
   exp: number;
   jti: string;
-}
-
-export interface UserSession {
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    image: string;
-    role: string;
-  };
-  expires: string;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -81,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.username = token.username;
       }
-      return session as UserSession;
+      return session as SessionType;
     },
   },
   pages: {

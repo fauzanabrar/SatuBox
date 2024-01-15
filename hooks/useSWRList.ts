@@ -2,9 +2,12 @@ import { FileDrive } from "@/types/api/drive/file";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string[], setLoading?: (loading: boolean) => void) => {
-  const f = (u: string) => fetch(u).then((r) => r.json()).catch((e) => e);
+  const f = (u: string) =>
+    fetch(u)
+      .then((r) => r.json())
+      .catch((e) => e);
 
-  if (setLoading) setLoading(true);
+  // if (setLoading) setLoading(true);
 
   return Promise.all(url.map((u: string) => f(u))).finally(() => {
     if (setLoading) setLoading(false);
@@ -26,7 +29,7 @@ export default function useSWRList({
     {
       revalidateOnFocus: false,
       errorRetryCount: 2,
-      // refreshInterval: 1000,
+      refreshInterval: 5000,
     }
   );
 
@@ -44,7 +47,5 @@ export default function useSWRList({
   };
 }
 
-export const mutateList = (folderId?: string) => {
-  mutate(`${urlKey}/${folderId}`);
-  mutate(`${urlKey}/${folderId}?parents=true`);
-};
+export const mutateList = (folderId?: string) =>
+  mutate([`${urlKey}/${folderId}`, `${urlKey}/${folderId}?parents=true`]);

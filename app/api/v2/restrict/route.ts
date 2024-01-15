@@ -1,3 +1,4 @@
+import { getUserSession } from "@/lib/next-auth/user-session";
 import restrictServices from "@/services/restrictServices";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -38,17 +39,30 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { fileId, username } = await request.json();
+  const { fileId } = await request.json();
 
-  if (!fileId || !username) {
+  if (!fileId) {
     return NextResponse.json({
       status: 400,
-      message: "fileId and username are required",
+      message: "fileId are required",
+    });
+  }
+
+  // get user session
+  const userSession = await getUserSession();
+
+  if (!userSession) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
     });
   }
 
   try {
-    const restrictId = await restrictServices.addFile(fileId, username);
+    const restrictId = await restrictServices.addFile(
+      fileId,
+      userSession.username
+    );
 
     return NextResponse.json({
       status: 201,
@@ -64,18 +78,32 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const { fileId, username, whitelist, remove } = await request.json();
+  const { fileId, whitelist, remove } = await request.json();
 
-  if (!fileId || !username || !whitelist) {
+  if (!fileId || !whitelist) {
     return NextResponse.json({
       status: 400,
-      message: "fileId, username, and whitelist are required",
+      message: "fileId and whitelist are required",
+    });
+  }
+
+  // get user session
+  const userSession = await getUserSession();
+
+  if (!userSession) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
     });
   }
 
   if (remove) {
     try {
-      await restrictServices.removeWhitelist(fileId, username, whitelist);
+      await restrictServices.removeWhitelist(
+        fileId,
+        userSession.username,
+        whitelist
+      );
 
       return NextResponse.json({
         status: 200,
@@ -90,7 +118,11 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    await restrictServices.addWhitelist(fileId, username, whitelist);
+    await restrictServices.addWhitelist(
+      fileId,
+      userSession.username,
+      whitelist
+    );
 
     return NextResponse.json({
       status: 200,
@@ -105,17 +137,27 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { fileId, username } = await request.json();
+  const { fileId } = await request.json();
 
-  if (!fileId || !username) {
+  if (!fileId) {
     return NextResponse.json({
       status: 400,
-      message: "fileId and username are required",
+      message: "fileId are required",
+    });
+  }
+
+  // get user session
+  const userSession = await getUserSession();
+
+  if (!userSession) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
     });
   }
 
   try {
-    await restrictServices.deleteFile(fileId, username);
+    await restrictServices.deleteFile(fileId, userSession.username);
 
     return NextResponse.json({
       status: 200,

@@ -47,12 +47,7 @@ export default function ListSWR({
 
   const [refreshClicked, setRefreshClicked] = useState<boolean>(true);
 
-  const {
-    data,
-    error,
-    mutate,
-    isValidating: isLoading,
-  } = useSWRList({
+  const { data, error, mutate, isLoading } = useSWRList({
     folderId,
     setRefreshClicked,
   });

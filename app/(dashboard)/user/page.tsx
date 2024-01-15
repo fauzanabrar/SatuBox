@@ -1,8 +1,3 @@
-
-export const metadata = {
-  title: "User",
-};
-
 export default async function UserPage() {
   return (
     <>

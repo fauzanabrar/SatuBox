@@ -140,7 +140,10 @@ async function deleteFile(id: string) {
 
   const parents = await parentsFolder(id);
   const parentsId = parents.map((parent: any) => parent.id);
-  parentsId.push(id);
+
+  if (parentsId.length === 1)
+    parentsId.push(process.env.SHARED_FOLDER_ID_DRIVE as string);
+
   try {
     const file = await gdrive.deleteFileOrFolder(id, parentsId);
 
@@ -152,6 +155,7 @@ async function deleteFile(id: string) {
 
 async function renameFile(id: string, newName: string) {
   // check the file first
+  console.log(id);
   const file = await checkId(id);
 
   if (!file) {
@@ -160,7 +164,9 @@ async function renameFile(id: string, newName: string) {
 
   const parents = await parentsFolder(id);
   const parentsId = parents.map((parent: any) => parent.id);
-  parentsId.push(id);
+
+  if (parentsId.length === 1)
+    parentsId.push(process.env.SHARED_FOLDER_ID_DRIVE as string);
 
   try {
     const file = await gdrive.renameFileOrFolder(id, newName, parentsId);

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/drive/file";
-import { getServerSession } from "next-auth";
-import { UserSession, authOptions } from "@/lib/next-auth/auth";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
 type ParamsType = {
   params: {
@@ -30,10 +29,10 @@ export async function GET(
 
   const parents = request.nextUrl.searchParams.get("parents") as string;
 
-  // get session
-  const session = await getServerSession<any, UserSession>(authOptions);
+  // get user session
+  const userSession = await getUserSession();
 
-  if (!session) {
+  if (!userSession) {
     return NextResponse.json({
       status: 401,
       message: "Unauthorized",
@@ -72,7 +71,7 @@ export async function GET(
 
   // get all list files
   try {
-    const files = await driveServices.list(session.user.username, id);
+    const files = await driveServices.list(userSession.username, id);
 
     return NextResponse.json({
       status: 200,
@@ -190,6 +189,7 @@ export async function PUT(
   const id = params.id?.pop() as string;
   const { newName } = await request.json();
 
+  console.log(id, newName);
   if (!newName) {
     return NextResponse.json({
       status: 400,
@@ -198,6 +198,7 @@ export async function PUT(
   }
 
   try {
+    console.log("called");
     const file = await driveServices.renameFile(id, newName);
 
     return NextResponse.json({

@@ -170,7 +170,16 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
   myCache.del(`getFolderName-${id}`);
   myCache.del(`getAllParentsFolder-${id}`);
   myCache.del(`getMedia-${id}`);
-  myCache.del(`listFiles-${id}`);
+  
+  // parents.forEach((parent) => {
+  //   const cacheKey = `listFiles-${parent}`;
+  //   myCache.del(cacheKey);
+  // });
+  // myCache.del(`getFile-${id}`);
+  // myCache.del(`getFolderName-${id}`);
+  // myCache.del(`getAllParentsFolder-${id}`);
+  // myCache.del(`getMedia-${id}`);
+  // myCache.del(`listFiles-${id}`);
 
   const driveClient = await getDriveClient();
 

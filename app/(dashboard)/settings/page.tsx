@@ -2,10 +2,6 @@ import { authOptions } from "@/lib/next-auth/auth";
 import { getServerSession } from "next-auth";
 import SettingsView from "./SettingsView";
 
-export const metadata = {
-  title: "Settings",
-};
-
 export default async function SettingsPage() {
   const userSession: any = await getServerSession(authOptions);
 
