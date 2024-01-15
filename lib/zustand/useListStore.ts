@@ -61,8 +61,8 @@ const useListStore = create(
         allFiles: state.allFiles,
         isChanged: state.isChanged,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useListStore;

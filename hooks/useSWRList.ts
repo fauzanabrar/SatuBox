@@ -30,7 +30,7 @@ export default function useSWRList({
       revalidateOnFocus: false,
       errorRetryCount: 2,
       refreshInterval: 5000,
-    }
+    },
   );
 
   const combineData = {

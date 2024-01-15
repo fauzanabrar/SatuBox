@@ -8,7 +8,11 @@ export const metadata = {
   title: "User",
 };
 
-export default async function UserLayout({ children }: { children: ReactNode }) {
+export default async function UserLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const userSession = await getUserSession();
   return (
     <>

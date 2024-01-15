@@ -1,4 +1,3 @@
-
 export default function SettingsView({ userSession }: { userSession: any }) {
   return (
     <div>

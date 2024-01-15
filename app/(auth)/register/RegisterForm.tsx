@@ -9,10 +9,8 @@ import { RegisterUser } from "@/types/userTypes";
 
 const AlertRegisterSuccess = dynamic(
   () => import("@/app/(auth)/register/AlertRegisterSuccess"),
-  { ssr: false }
+  { ssr: false },
 );
-
-
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false);

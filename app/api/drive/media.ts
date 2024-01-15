@@ -1,10 +1,10 @@
-import {getFileContent} from "@/lib/gdrive";
+import { getFileContent } from "@/lib/gdrive";
 
 export async function getMedia(list: any[]) {
   const newFiles: any = [];
   for (const item of list) {
     if (!item.mimeType.includes("image")) {
-      newFiles.push({id: item.id, name: item.name, type: item.mimeType});
+      newFiles.push({ id: item.id, name: item.name, type: item.mimeType });
     } else {
       const image: any = await getFileContent(item.id);
       newFiles.push({

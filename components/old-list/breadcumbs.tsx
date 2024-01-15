@@ -33,7 +33,7 @@ export default function Breadcumbs() {
           }
           if (item.length === 33) {
             let itemName = allFiles?.find(
-              (file: any) => file.id === item
+              (file: any) => file.id === item,
             )?.name;
             item = itemName ? itemName : item;
           }

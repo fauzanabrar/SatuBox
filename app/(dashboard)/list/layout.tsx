@@ -16,7 +16,7 @@ export default async function ListSWRLayout({
   const userSession = await getUserSession();
 
   return (
-    <div className="h-screen flex flex-col w-screen">
+    <div className="flex flex-col w-screen h-screen">
       <Menu />
       <div className="border-t flex-grow">
         <div className="bg-background h-full">

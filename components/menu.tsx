@@ -16,7 +16,7 @@ export async function Menu() {
         {userSession ? (
           <>
             <p className="text-md">{userSession.name}</p>
-            <LogoutButton variant={"ghost"} className="" icon={false}/>
+            <LogoutButton variant={"ghost"} className="" icon={false} />
           </>
         ) : (
           <>

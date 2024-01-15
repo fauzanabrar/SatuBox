@@ -100,7 +100,7 @@ async function getMedia(id: string): Promise<string> {
       fileId: id,
       alt: "media",
     },
-    { responseType: "stream" }
+    { responseType: "stream" },
   );
 
   return new Promise((resolve, reject) => {
@@ -170,7 +170,7 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
   myCache.del(`getFolderName-${id}`);
   myCache.del(`getAllParentsFolder-${id}`);
   myCache.del(`getMedia-${id}`);
-  
+
   // parents.forEach((parent) => {
   //   const cacheKey = `listFiles-${parent}`;
   //   myCache.del(cacheKey);
@@ -199,7 +199,7 @@ async function uploadFile(
   name: string,
   mimeType: string,
   content: Buffer,
-  parent?: string[]
+  parent?: string[],
 ) {
   myCache.del(`listFiles-${parent}`);
   myCache.del(`listFiles-${process.env.SHARED_FOLDER_ID_DRIVE}`);

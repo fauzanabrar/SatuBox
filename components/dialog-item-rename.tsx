@@ -1,21 +1,35 @@
-import {DialogClose, DialogFooter, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
+import {
+  DialogClose,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import Loading from "@/components/loading";
-import {Button} from "@/components/ui/button";
-import {DialogItem} from "@/components/dialog-item";
+import { Button } from "@/components/ui/button";
+import { DialogItem } from "@/components/dialog-item";
 
 type Props = {
-  handleDialogItemSelect: () => void
-  handleDialogItemOpenChange: (open: boolean) => void
-  newName: string
-  setNewName: (name: string) => void
-  loadingRename: boolean
-  handleRename: () => Promise<void>
-  setIsRename: (bool: boolean) => void
-  defaultName: string
-}
+  handleDialogItemSelect: () => void;
+  handleDialogItemOpenChange: (open: boolean) => void;
+  newName: string;
+  setNewName: (name: string) => void;
+  loadingRename: boolean;
+  handleRename: () => Promise<void>;
+  setIsRename: (bool: boolean) => void;
+  defaultName: string;
+};
 
-const DialogItemRename = ({handleDialogItemSelect, handleDialogItemOpenChange, setIsRename, handleRename, defaultName, newName, setNewName, loadingRename}: Props) => {
+const DialogItemRename = ({
+  handleDialogItemSelect,
+  handleDialogItemOpenChange,
+  setIsRename,
+  handleRename,
+  defaultName,
+  newName,
+  setNewName,
+  loadingRename,
+}: Props) => {
   return (
     <DialogItem
       className={"w-96"}
@@ -25,8 +39,8 @@ const DialogItemRename = ({handleDialogItemSelect, handleDialogItemOpenChange, s
         </>
       }
       onSelect={() => {
-        setNewName(defaultName)
-        handleDialogItemSelect()
+        setNewName(defaultName);
+        handleDialogItemSelect();
       }}
       onOpenChange={handleDialogItemOpenChange}
     >
@@ -46,7 +60,7 @@ const DialogItemRename = ({handleDialogItemSelect, handleDialogItemOpenChange, s
       <DialogFooter>
         <DialogTrigger asChild>
           <div className="flex gap-2 sm:flex-col sm:gap-4">
-            {loadingRename && <Loading loading={loadingRename} size={30}/>}
+            {loadingRename && <Loading loading={loadingRename} size={30} />}
             <Button
               className=""
               type="submit"

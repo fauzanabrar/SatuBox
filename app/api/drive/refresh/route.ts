@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (secret !== process.env.SECRET_KEY) {
     return NextResponse.json({ message: "Secret Key Wrong!" }, { status: 401 });
   }
-  
+
   revalidateTag("list-file");
   return NextResponse.json({ message: "Refresh success" });
 }

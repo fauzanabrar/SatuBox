@@ -29,7 +29,7 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   // Restrict
   const [inputEmail, setInputEmail] = useState("");
   const [restrictSelected, setRestrictSelected] = useState(
-    item.isRestrict ? item.isRestrict : false
+    item.isRestrict ? item.isRestrict : false,
   );
 
   // Dropdown Dialog

@@ -63,7 +63,7 @@ async function addFile(fileId: string, username: string): Promise<string> {
 async function addWhitelist(
   fileId: string,
   username: string,
-  whitelist: string
+  whitelist: string,
 ) {
   try {
     // check if the file is exist in drive
@@ -93,7 +93,7 @@ async function addWhitelist(
 async function removeWhitelist(
   fileId: string,
   username: string,
-  whitelist: string
+  whitelist: string,
 ) {
   try {
     // check if the file is exist in drive

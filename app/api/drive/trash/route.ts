@@ -5,6 +5,6 @@ export async function GET() {
   // const response: any = await emptyTrash();
 
   return NextResponse.json({
-    status: 'Not Implemented et',
-  })
+    status: "Not Implemented et",
+  });
 }

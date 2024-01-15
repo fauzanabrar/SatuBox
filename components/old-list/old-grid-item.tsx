@@ -94,7 +94,7 @@ export function OldGridItem({
         {
           method: "PUT",
           body: formData,
-        }
+        },
       );
       const data = await response.json();
       if (data.status === 200) {
@@ -130,7 +130,7 @@ export function OldGridItem({
         `http://localhost:3000/api/drive/file/${item.id}`,
         {
           method: "DELETE",
-        }
+        },
       );
       const data = await response.json();
       console.log(data);
@@ -158,7 +158,7 @@ export function OldGridItem({
                 height={height}
                 className={cn(
                   "h-full w-full object-cover transition-all hover:scale-105",
-                  aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
+                  aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square",
                 )}
                 onClick={() => {
                   if (image(item) === "/images/folder.svg") {
@@ -190,7 +190,7 @@ export function OldGridItem({
                         buttons: 2,
                         clientX: e.clientX,
                         clientY: e.clientY,
-                      })
+                      }),
                     );
                   }
                 }}

@@ -1,6 +1,6 @@
-import {auth, drive} from "@googleapis/drive";
-import {Readable} from "stream";
-import {Buffer} from "buffer";
+import { auth, drive } from "@googleapis/drive";
+import { Readable } from "stream";
+import { Buffer } from "buffer";
 
 let dClient: ReturnType<typeof drive> | undefined;
 

@@ -12,7 +12,7 @@ const AddFolderDialog = dynamic(
   () => import("@/components/old-list/add-folder"),
   {
     ssr: false,
-  }
+  },
 );
 
 const InputFile = dynamic(() => import("@/components/old-list/input-file"), {

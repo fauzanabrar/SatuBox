@@ -18,12 +18,12 @@ const RefreshButtonSWR = dynamic(() => import("./refresh-button"), {
 
 const ScrollArea = dynamic(
   async () => (await import("../ui/scroll-area")).ScrollArea,
-  { ssr: false }
+  { ssr: false },
 );
 
 const ScrollBar = dynamic(
   async () => (await import("../ui/scroll-area")).ScrollBar,
-  { ssr: false }
+  { ssr: false },
 );
 
 type ListSWRProps = {
@@ -118,7 +118,7 @@ function renderContent(
   error: Error | undefined,
   data: FileDrive[] | undefined,
   canScroll: boolean,
-  folderId?: string
+  folderId?: string,
 ) {
   if (loading) {
     return renderLoading();

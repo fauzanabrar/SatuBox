@@ -14,8 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import dynamic from "next/dynamic";
 
-const DialogItemRename = dynamic(() => import("@/components/dialog-item-rename"), { ssr: false });
-const DialogItemRestrict = dynamic(() => import("@/components/dialog-item-restrict"), { ssr: false });
+const DialogItemRename = dynamic(
+  () => import("@/components/dialog-item-rename"),
+  { ssr: false },
+);
+const DialogItemRestrict = dynamic(
+  () => import("@/components/dialog-item-restrict"),
+  { ssr: false },
+);
 
 type Item = {
   id: string;
@@ -69,7 +75,7 @@ export function GridItem({
   // Restrict
   const [inputEmail, setInputEmail] = useState("");
   const [restrictSelected, setRestrictSelected] = useState(
-    item.restrict ? item.restrict : false
+    item.restrict ? item.restrict : false,
   );
 
   // Dropdown Dialog
@@ -97,7 +103,7 @@ export function GridItem({
         {
           method: "PUT",
           body: formData,
-        }
+        },
       );
       const data = await response.json();
       if (data.status === 200) {
@@ -133,7 +139,7 @@ export function GridItem({
         `http://localhost:3000/api/drive/file/${item.id}`,
         {
           method: "DELETE",
-        }
+        },
       );
       const data = await response.json();
       if (data.status === 200) {
@@ -168,7 +174,7 @@ export function GridItem({
           height={height}
           className={cn(
             "h-full w-full object-cover transition-all hover:scale-105",
-            aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square"
+            aspectRatio === "portrait" ? "aspect-[3/4]" : "aspect-square",
           )}
           onClick={() => {
             if (image(item) === "/images/folder.svg") {

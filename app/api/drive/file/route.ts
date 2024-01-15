@@ -1,9 +1,6 @@
-import {NextRequest, NextResponse} from "next/server";
-import {
-  listFiles,
-  listFilesWithToken,
-} from "@/lib/gdrive";
-import {getMedia} from "@/app/api/drive/media";
+import { NextRequest, NextResponse } from "next/server";
+import { listFiles, listFilesWithToken } from "@/lib/gdrive";
+import { getMedia } from "@/app/api/drive/media";
 
 type ParamsType = {
   params: {
@@ -11,16 +8,20 @@ type ParamsType = {
   };
 };
 
-export async function GET(request: NextRequest, {params}: ParamsType) {
+export async function GET(request: NextRequest, { params }: ParamsType) {
   const media: string = request.nextUrl.searchParams.get("media") as string;
-  const pageSize: string = request.nextUrl.searchParams.get("pageSize") as string;
-  const pageToken: string = request.nextUrl.searchParams.get("pageToken") as string;
+  const pageSize: string = request.nextUrl.searchParams.get(
+    "pageSize",
+  ) as string;
+  const pageToken: string = request.nextUrl.searchParams.get(
+    "pageToken",
+  ) as string;
 
   if (pageSize && pageToken) {
     const list: any = await listFilesWithToken(
       process.env.SHARED_FOLDER_ID_DRIVE,
       parseInt(pageSize),
-      pageToken
+      pageToken,
     );
 
     if (media === "true") {
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest, {params}: ParamsType) {
   if (pageSize) {
     const list: any = await listFilesWithToken(
       process.env.SHARED_FOLDER_ID_DRIVE,
-      parseInt(pageSize)
+      parseInt(pageSize),
     );
 
     if (media === "true") {
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest, {params}: ParamsType) {
     const list: any = await listFilesWithToken(
       process.env.SHARED_FOLDER_ID_DRIVE,
       10,
-      pageToken
+      pageToken,
     );
 
     if (media === "true") {
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest, {params}: ParamsType) {
     return NextResponse.json({
       status: "500",
       message: "failed",
-      files: []
+      files: [],
     });
   }
 
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest, {params}: ParamsType) {
   });
 }
 
-export async function DELETE(request: NextRequest, {params}: ParamsType) {
+export async function DELETE(request: NextRequest, { params }: ParamsType) {
   // const list: any = await deleteAllFiles();
 
   return NextResponse.json({
@@ -131,4 +132,3 @@ export async function DELETE(request: NextRequest, {params}: ParamsType) {
 }
 
 export const dynamic = "force-dynamic";
-

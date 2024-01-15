@@ -6,7 +6,7 @@ export type FileDrive = {
   media?: string;
   isRestrict?: boolean;
   whitelist?: string[];
-}
+};
 
 export type ParentsFolder = {
   id: string;
@@ -22,4 +22,4 @@ export type FileResponse = {
   files?: FileDrive[];
   parents?: ParentsFolder[];
   error?: string;
-}
+};
