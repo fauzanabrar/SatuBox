@@ -30,6 +30,7 @@ export default function InputFile({}: InputFileProps) {
     event.preventDefault();
     if (file) {
       setLoading(true);
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -41,6 +42,7 @@ export default function InputFile({}: InputFileProps) {
         if (response.ok) {
           mutateList(folderId);
           console.log("File uploaded successfully");
+          setFile(null);
         } else {
           console.error("Failed to upload file");
         }

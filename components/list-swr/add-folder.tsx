@@ -42,6 +42,7 @@ export default function AddFolderDialog() {
         if (response.ok) {
           mutateList(folderId);
           console.log("Add folder successfully");
+          setFolderName("");
         } else {
           console.error("Failed to add folder");
         }
