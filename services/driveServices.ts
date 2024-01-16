@@ -58,6 +58,14 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
         return newfile;
       })
     );
+
+    // skip the restrict if the user is user
+    const files = (await listFiles).filter(
+      (file) => !(file.isRestrict && !file.whitelist?.includes(user.username))
+    );
+
+    if (user.role === "user") return files;
+
     return listFiles;
   } catch (error: any) {
     throw new Error(error);

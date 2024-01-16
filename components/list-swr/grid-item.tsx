@@ -164,7 +164,6 @@ export default function GridItemSWR({
     setIsDelete(false);
   };
 
-  console.log(item.name, item.isRestrict, userSession.role);
   if (item.isRestrict && userSession.role !== "admin") return <></>;
 
   return (
