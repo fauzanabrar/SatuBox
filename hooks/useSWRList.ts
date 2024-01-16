@@ -23,8 +23,9 @@ export default function useSWRList({
   folderId?: string;
   setRefreshClicked?: (loading: boolean) => void;
 }) {
+  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    [`${urlKey}/${folderId}`, `${urlKey}/${folderId}?parents=true`],
+    [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`],
     (url: string[]) => fetcher(url, setRefreshClicked),
     {
       revalidateOnFocus: false,
@@ -47,5 +48,7 @@ export default function useSWRList({
   };
 }
 
-export const mutateList = (folderId?: string) =>
-  mutate([`${urlKey}/${folderId}`, `${urlKey}/${folderId}?parents=true`]);
+export const mutateList = (folderId?: string) => {
+  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
+  return mutate([`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]);
+};

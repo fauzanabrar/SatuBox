@@ -2,8 +2,11 @@ import InputFile from "@/components/list-swr/input-file";
 import AddFolder from "@/components/list-swr/add-folder";
 import ListSWR from "@/components/list-swr/list-swr";
 import { Separator } from "@/components/ui/separator";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
-export default function ListSWRPage() {
+export default async function ListSWRPage() {
+  const userSession = await getUserSession();
+
   return (
     <div className="col-span-5 lg:col-span-4 h-full w-screen lg:w-full">
       <div className="px-4 py-6 lg:px-8 h-full ">
@@ -19,7 +22,7 @@ export default function ListSWRPage() {
           <InputFile />
         </div>
         <Separator className="my-1" />
-        <ListSWR />
+        <ListSWR userSession={userSession} />
       </div>
     </div>
   );

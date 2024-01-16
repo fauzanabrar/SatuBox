@@ -1,16 +1,16 @@
 import { FileDrive } from "@/types/api/file";
-import { LucideMoreVertical } from "lucide-react";
+import { LucideLock, LucideMoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useRef, useState } from "react";
 import { mutateList } from "@/hooks/useSWRList";
 import dynamic from "next/dynamic";
 import DialogItemDelete from "../dialog-item-delete";
+import { UserSession } from "@/types/api/auth";
 
 const Image = dynamic(() => import("next/image"), { ssr: false });
 
@@ -24,10 +24,15 @@ const DialogItemRestrict = dynamic(() => import("../dialog-item-restrict"), {
 
 type GridItemSWRProps = {
   item: FileDrive;
-  folderId?: string;
+  folderId: string;
+  userSession: UserSession;
 };
 
-export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
+export default function GridItemSWR({
+  item,
+  folderId,
+  userSession,
+}: GridItemSWRProps) {
   const router = useRouter();
 
   // Rename
@@ -36,12 +41,10 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   const [renameLoading, setRenameLoading] = useState(false);
 
   // Restrict
-  const [inputEmail, setInputEmail] = useState("");
+  const [inputWhitelist, setInputWhitelist] = useState("");
   const [isRestrict, setIsRestrict] = useState(false);
   const [restrictLoading, setRestrictLoading] = useState<boolean>(false);
-  const [restrictSelected, setRestrictSelected] = useState(
-    item.isRestrict ? item.isRestrict : false
-  );
+  const [restrictSelected, setRestrictSelected] = useState(item.isRestrict!!);
 
   // Delete
   const [isDelete, setIsDelete] = useState(false);
@@ -121,7 +124,31 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
 
   const handleAddWhitelist = async () => {};
 
-  const handleRestrict = async () => {};
+  const handleRestrict = async () => {
+    setRestrictLoading(true);
+    try {
+      const body = {
+        fileId: item.id,
+      };
+
+      const response = await fetch(`/api/v2/restrict`, {
+        method: restrictSelected ? "POST" : "DELETE",
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+
+      if (data.status === 200 || data.status === 201) {
+        console.log(data.message);
+        mutateList(folderId);
+        handleDialogItemOpenChange(false);
+        setDropdownOpen(false);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRestrictLoading(false);
+    }
+  };
 
   // Dropdown Handler
   const handleDialogItemSelect = () => {
@@ -130,18 +157,15 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
 
   const handleDialogItemOpenChange = (open: boolean) => {
     setHasDialogOpen((prev) => open);
-    // if (!open) {
-    //   setDropdownOpen(prev => !prev)
-    // }
-    console.log(open);
-    // setDropdownOpen(!open)
-    // setDropdownOpen(!open);
+
     setIsRestrict(false);
+    setRestrictSelected(item.isRestrict!!);
     setIsRename(false);
     setIsDelete(false);
   };
 
-  if (item.isRestrict) return <></>;
+  console.log(item.name, item.isRestrict, userSession.role);
+  if (item.isRestrict && userSession.role !== "admin") return <></>;
 
   return (
     <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
@@ -160,7 +184,8 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
         <h3 className="font-medium line-clamp-3 leading-none px-2 py-1">
           {item.name}
         </h3>
-        <div>
+        <div className="flex items-center gap-1 justify-center align-middle">
+          {item.isRestrict && <LucideLock className="w-4 h-4" />}
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger>
               <LucideMoreVertical className={"w-5 h-5"} />
@@ -188,18 +213,22 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
                 defaultName={item.name}
                 loading={renameLoading}
               />
-              <DialogItemRestrict
-                setIsOpen={setIsRestrict}
-                isOpen={isRestrict}
-                handleDialogItemSelect={handleDialogItemSelect}
-                handleDialogItemOpenChange={handleDialogItemOpenChange}
-                inputEmail={inputEmail}
-                setInputEmail={setInputEmail}
-                restrictSelected={restrictSelected}
-                setRestrictSelected={setRestrictSelected}
-                handleAddWhitelist={handleAddWhitelist}
-                handleSubmit={handleRestrict}
-              />
+              {userSession.role === "admin" && (
+                <DialogItemRestrict
+                  loading={restrictLoading}
+                  isOpen={isRestrict}
+                  setIsOpen={setIsRestrict}
+                  handleDialogItemSelect={handleDialogItemSelect}
+                  handleDialogItemOpenChange={handleDialogItemOpenChange}
+                  handleAddWhitelist={handleAddWhitelist}
+                  handleSubmit={handleRestrict}
+                  inputWhitelist={inputWhitelist}
+                  setInputWhitelist={setInputWhitelist}
+                  restrictSelected={restrictSelected}
+                  setRestrictSelected={setRestrictSelected}
+                  whitelist={item.whitelist}
+                />
+              )}
               <DialogItemDelete
                 isOpen={isDelete}
                 setIsOpen={setIsDelete}

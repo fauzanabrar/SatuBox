@@ -60,7 +60,7 @@ const DialogItemRename = ({
       <DialogFooter>
         <div className="flex gap-2 sm:flex-col sm:gap-4">
           <Button
-            className="flex gap-1"
+            className="flex gap-1 px-2"
             type="submit"
             onClick={async () => {
               await handleRename();

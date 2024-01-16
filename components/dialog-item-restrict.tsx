@@ -1,11 +1,4 @@
-import React, { useState } from "react";
-import {
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { DialogClose, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -18,31 +11,36 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LucidePlus } from "lucide-react";
 import { DialogItem } from "./dialog-item";
+import Loading from "./loading";
 
 type Props = {
   handleDialogItemSelect: () => void;
   handleDialogItemOpenChange: (open: boolean) => void;
-  setRestrictSelected: (bool: boolean) => void;
-  restrictSelected: boolean;
-  inputEmail: string;
-  setInputEmail: (email: string) => void;
   handleAddWhitelist: () => Promise<void>;
   handleSubmit: () => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  restrictSelected: boolean;
+  setRestrictSelected: (bool: boolean) => void;
+  inputWhitelist: string;
+  setInputWhitelist: (email: string) => void;
+  whitelist?: string[];
+  loading: boolean;
 };
 
 const DialogItemRestrict = ({
   handleDialogItemSelect,
   handleDialogItemOpenChange,
-  setRestrictSelected,
-  restrictSelected,
   handleAddWhitelist,
   handleSubmit,
-  setInputEmail,
-  inputEmail,
   isOpen,
   setIsOpen,
+  restrictSelected,
+  setRestrictSelected,
+  inputWhitelist,
+  setInputWhitelist,
+  whitelist,
+  loading,
 }: Props) => {
   return (
     <DialogItem
@@ -61,6 +59,7 @@ const DialogItemRestrict = ({
         <div className={"flex gap-4 items-center justify-between"}>
           <p className={"font-medium text-sm"}>Access</p>
           <Select
+            defaultValue={restrictSelected ? "Restrict" : "Public"}
             onValueChange={(value) => {
               if (value === "Public") setRestrictSelected(false);
               else setRestrictSelected(true);
@@ -82,12 +81,12 @@ const DialogItemRestrict = ({
             <span className={"font-bold text-sm"}>Add whitelist</span>
             <div className="flex items-center gap-2">
               <Input
-                id="name"
-                placeholder="example@gmail.com"
+                id="username"
+                placeholder="username"
                 onChange={(e) => {
-                  setInputEmail(e.target.value);
+                  setInputWhitelist(e.target.value);
                 }}
-                value={inputEmail}
+                value={inputWhitelist}
               />
               <div className="flex gap-2 sm:flex-col sm:gap-4">
                 <Button
@@ -103,12 +102,22 @@ const DialogItemRestrict = ({
                 </Button>
               </div>
             </div>
+            <div>
+              {whitelist?.map((email) => {
+                return <p key={email}>{email}</p>;
+              })}
+            </div>
           </>
         )}
       </div>
 
       <DialogFooter>
-        <Button variant={"default"} onClick={handleSubmit}>
+        <Button
+          className="flex gap-1 px-3"
+          variant={"default"}
+          onClick={handleSubmit}
+        >
+          <Loading loading={loading} size={20} />
           Done
         </Button>
         <DialogClose asChild={true}>

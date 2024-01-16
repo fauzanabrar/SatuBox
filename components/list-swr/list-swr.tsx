@@ -5,6 +5,8 @@ import { FileDrive } from "@/types/api/file";
 import useSWRList from "@/hooks/useSWRList";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import { UserSession } from "@/types/api/auth";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
 const GridItemSWR = dynamic(() => import("./grid-item"), { ssr: false });
 
@@ -27,11 +29,13 @@ const ScrollBar = dynamic(
 );
 
 type ListSWRProps = {
+  userSession: UserSession;
   canScroll?: boolean;
   type?: "list" | "grid";
 };
 
 export default function ListSWR({
+  userSession,
   canScroll = false,
   type = "grid",
 }: ListSWRProps) {
@@ -39,7 +43,7 @@ export default function ListSWR({
   const pathnames = usePathname();
   const lastPath = pathnames.split("/").pop();
 
-  let folderId = "";
+  let folderId = process.env.SHARED_FOLDER_ID_DRIVE as string;
 
   if (lastPath !== "list" && lastPath) {
     folderId = lastPath;
@@ -72,7 +76,14 @@ export default function ListSWR({
         </div>
       </div>
       <div className="mt-4">
-        {renderContent(loading, error, dataItems, canScroll, folderId)}
+        {renderContent(
+          loading,
+          error,
+          dataItems,
+          canScroll,
+          folderId,
+          userSession
+        )}
       </div>
     </div>
   );
@@ -100,12 +111,24 @@ function renderEmpty() {
   );
 }
 
-function renderData(data: FileDrive[], canScroll: boolean, folderId?: string) {
+function renderData(
+  data: FileDrive[],
+  canScroll: boolean,
+  folderId: string,
+  userSession: UserSession
+) {
   return (
     <ScrollArea className={canScroll ? "h-auto" : "h-full"}>
       <div className="flex flex-wrap gap-2">
         {data.map((item: FileDrive) => {
-          return <GridItemSWR key={item.id} item={item} folderId={folderId} />;
+          return (
+            <GridItemSWR
+              key={item.id}
+              item={item}
+              folderId={folderId}
+              userSession={userSession}
+            />
+          );
         })}
       </div>
       <ScrollBar orientation="vertical" />
@@ -118,7 +141,8 @@ function renderContent(
   error: Error | undefined,
   data: FileDrive[] | undefined,
   canScroll: boolean,
-  folderId?: string
+  folderId: string,
+  userSession: UserSession
 ) {
   if (loading) {
     return renderLoading();
@@ -132,5 +156,5 @@ function renderContent(
     return renderEmpty();
   }
 
-  return renderData(data as FileDrive[], canScroll, folderId);
+  return renderData(data as FileDrive[], canScroll, folderId, userSession);
 }

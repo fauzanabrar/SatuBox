@@ -39,12 +39,21 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
         // }
 
         // set the restrict
-        newfile.isRestrict =
-          user.role === "admin"
-            ? false
-            : restricts.map((restrict) => restrict.fileId).includes(newfile.id)
-              ? true
-              : false;
+        newfile.isRestrict = restricts
+          .map((restrict) => restrict.fileId)
+          .includes(newfile.id)
+          ? true
+          : false;
+
+        // set the whitelist
+        if (newfile.isRestrict) {
+          const restrict = restricts.find(
+            (restrict) => restrict.fileId === newfile.id
+          );
+          if (restrict) {
+            newfile.whitelist = restrict.whitelist;
+          }
+        }
 
         return newfile;
       })

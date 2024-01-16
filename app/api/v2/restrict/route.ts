@@ -3,7 +3,7 @@ import restrictServices from "@/services/restrictServices";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const fileId = await request.nextUrl.searchParams.get("fileId");
+  const fileId = request.nextUrl.searchParams.get("fileId");
 
   if (fileId) {
     try {
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       status: 201,
-      message: "success add file",
+      message: "success add file restrict",
       data: restrictId,
     });
   } catch (error: any) {
@@ -161,7 +161,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       status: 200,
-      message: "success delete file",
+      message: "success delete file restrict",
     });
   } catch (error: any) {
     return NextResponse.json({

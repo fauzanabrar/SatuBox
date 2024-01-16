@@ -37,7 +37,10 @@ const DialogItemDelete = ({
       <DialogTitle>Delete this file</DialogTitle>
       <div className="grid gap-4 py-1">
         <div className="flex items-center gap-2">
-          <span>Are you sure to delete <span className="font-bold">{itemName}</span> ?</span>
+          <span>
+            Are you sure to delete <span className="font-bold">{itemName}</span>{" "}
+            ?
+          </span>
         </div>
       </div>
       <DialogFooter className="">
@@ -46,7 +49,7 @@ const DialogItemDelete = ({
           onClick={async () => {
             await handleDelete();
           }}
-          className="flex gap-1"
+          className="flex gap-1 px-2"
         >
           <Loading loading={loading} size={20} />
           Delete

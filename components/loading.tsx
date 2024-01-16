@@ -1,6 +1,4 @@
 import { LucideLoader2 } from "lucide-react";
-import Image from "next/image";
-import React from "react";
 
 type ParamsType = {
   loading: boolean;
