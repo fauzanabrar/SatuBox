@@ -10,6 +10,7 @@ import {
 import { useRef, useState } from "react";
 import { mutateList } from "@/hooks/useSWRList";
 import dynamic from "next/dynamic";
+import DialogItemDelete from "../dialog-item-delete";
 
 const Image = dynamic(() => import("next/image"), { ssr: false });
 
@@ -31,18 +32,24 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
 
   // Rename
   const [newName, setNewName] = useState("");
-  const [, setIsRename] = useState(false);
-  const [loadingRename, setLoadingRename] = useState(false);
+  const [isRename, setIsRename] = useState(false);
+  const [renameLoading, setRenameLoading] = useState(false);
 
   // Restrict
   const [inputEmail, setInputEmail] = useState("");
+  const [isRestrict, setIsRestrict] = useState(false);
+  const [restrictLoading, setRestrictLoading] = useState<boolean>(false);
   const [restrictSelected, setRestrictSelected] = useState(
     item.isRestrict ? item.isRestrict : false
   );
 
+  // Delete
+  const [isDelete, setIsDelete] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+
   // Dropdown Dialog
-  const [, setDropdownOpen] = useState(false);
-  const [hasOpenDialog, setHasOpenDialog] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasDialogOpen, setHasDialogOpen] = useState(false);
   const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
   const focusRef = useRef<null | HTMLButtonElement>(null);
 
@@ -67,11 +74,12 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
 
   const handleRename = async () => {
     console.log("rename");
-    setLoadingRename(true);
+    setRenameLoading(true);
     const body = {
       newName,
     };
     try {
+      if (newName === item.name) throw Error("Newname is same!");
       const response = await fetch(`/api/v2/drive/${item.id}`, {
         method: "PUT",
         body: JSON.stringify(body),
@@ -80,18 +88,20 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
       if (data.status === 200) {
         console.log("rename berhasil");
         mutateList(folderId);
+        handleDialogItemOpenChange(false);
+        setDropdownOpen(false);
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setLoadingRename(false);
-      setIsRename(false);
+      setRenameLoading(false);
     }
   };
 
   const handleDelete = async () => {
     console.log("delete");
     try {
+      setDeleteLoading(true);
       const response = await fetch(`/api/v2/drive/${item.id}`, {
         method: "DELETE",
       });
@@ -99,11 +109,19 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
       if (data.status === 200) {
         console.log("delete berhasil");
         mutateList(folderId);
+        handleDialogItemOpenChange(false);
+        setDropdownOpen(false);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setDeleteLoading(false);
     }
   };
+
+  const handleAddWhitelist = async () => {};
+
+  const handleRestrict = async () => {};
 
   // Dropdown Handler
   const handleDialogItemSelect = () => {
@@ -111,13 +129,19 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   };
 
   const handleDialogItemOpenChange = (open: boolean) => {
-    setHasOpenDialog(open);
-    if (!open) {
-      setDropdownOpen(false);
-    }
+    setHasDialogOpen((prev) => open);
+    // if (!open) {
+    //   setDropdownOpen(prev => !prev)
+    // }
+    console.log(open);
+    // setDropdownOpen(!open)
+    // setDropdownOpen(!open);
+    setIsRestrict(false);
+    setIsRename(false);
+    setIsDelete(false);
   };
 
-  if (item.isRestrict) return null;
+  if (item.isRestrict) return <></>;
 
   return (
     <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
@@ -137,14 +161,14 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
           {item.name}
         </h3>
         <div>
-          <DropdownMenu>
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger>
               <LucideMoreVertical className={"w-5 h-5"} />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-40"
               align="start"
-              hidden={hasOpenDialog}
+              hidden={hasDialogOpen}
               onCloseAutoFocus={(event) => {
                 if (focusRef.current) {
                   focusRef.current.focus();
@@ -154,29 +178,37 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
               }}
             >
               <DialogItemRename
+                isOpen={isRename}
+                setIsRename={setIsRename}
                 handleDialogItemSelect={handleDialogItemSelect}
                 handleDialogItemOpenChange={handleDialogItemOpenChange}
+                handleRename={handleRename}
                 newName={newName}
                 setNewName={setNewName}
-                loadingRename={loadingRename}
-                handleRename={handleRename}
-                setIsRename={setIsRename}
                 defaultName={item.name}
+                loading={renameLoading}
               />
               <DialogItemRestrict
+                setIsOpen={setIsRestrict}
+                isOpen={isRestrict}
                 handleDialogItemSelect={handleDialogItemSelect}
                 handleDialogItemOpenChange={handleDialogItemOpenChange}
                 inputEmail={inputEmail}
                 setInputEmail={setInputEmail}
                 restrictSelected={restrictSelected}
                 setRestrictSelected={setRestrictSelected}
-                handleAddWhitelist={() => {
-                  return Promise.resolve();
-                }}
+                handleAddWhitelist={handleAddWhitelist}
+                handleSubmit={handleRestrict}
               />
-              <DropdownMenuItem onClick={() => handleDelete()}>
-                <span className={"text-destructive"}> Delete</span>
-              </DropdownMenuItem>
+              <DialogItemDelete
+                isOpen={isDelete}
+                setIsOpen={setIsDelete}
+                handleDialogItemSelect={handleDialogItemSelect}
+                handleDialogItemOpenChange={handleDialogItemOpenChange}
+                handleDelete={handleDelete}
+                loading={deleteLoading}
+                itemName={item.name}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

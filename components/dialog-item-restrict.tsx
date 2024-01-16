@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   DialogClose,
+  DialogContent,
   DialogFooter,
   DialogTitle,
   DialogTrigger,
@@ -14,10 +15,9 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { LucidePlus } from "lucide-react";
-import { DialogItem } from "@/components/dialog-item";
+import { DialogItem } from "./dialog-item";
 
 type Props = {
   handleDialogItemSelect: () => void;
@@ -27,6 +27,9 @@ type Props = {
   inputEmail: string;
   setInputEmail: (email: string) => void;
   handleAddWhitelist: () => Promise<void>;
+  handleSubmit: () => Promise<void>;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 };
 
 const DialogItemRestrict = ({
@@ -35,21 +38,25 @@ const DialogItemRestrict = ({
   setRestrictSelected,
   restrictSelected,
   handleAddWhitelist,
+  handleSubmit,
   setInputEmail,
   inputEmail,
+  isOpen,
+  setIsOpen,
 }: Props) => {
   return (
     <DialogItem
-      triggerChildren={
-        <>
-          <span>Restrict</span>
-        </>
-      }
-      onSelect={handleDialogItemSelect}
+      isOpen={isOpen}
+      triggerChildren={<span>Restrict</span>}
+      onSelect={() => {
+        setIsOpen(true);
+        handleDialogItemSelect();
+      }}
       onOpenChange={handleDialogItemOpenChange}
       className={"w-96"}
     >
       <DialogTitle>Restrict This File</DialogTitle>
+
       <div className="grid gap-4 py-1">
         <div className={"flex gap-4 items-center justify-between"}>
           <p className={"font-medium text-sm"}>Access</p>
@@ -68,6 +75,7 @@ const DialogItemRestrict = ({
             </SelectContent>
           </Select>
         </div>
+
         {restrictSelected && (
           <>
             <Separator />
@@ -81,28 +89,30 @@ const DialogItemRestrict = ({
                 }}
                 value={inputEmail}
               />
-              <DialogTrigger asChild>
-                <div className="flex gap-2 sm:flex-col sm:gap-4">
-                  <Button
-                    variant={"outline"}
-                    className="px-2"
-                    type="submit"
-                    onClick={async () => {
-                      await handleAddWhitelist();
-                    }}
-                  >
-                    <LucidePlus className={"w-4 mr-1"} />
-                    Add
-                  </Button>
-                </div>
-              </DialogTrigger>
+              <div className="flex gap-2 sm:flex-col sm:gap-4">
+                <Button
+                  variant={"outline"}
+                  className="px-2"
+                  type="submit"
+                  onClick={async () => {
+                    await handleAddWhitelist();
+                  }}
+                >
+                  <LucidePlus className={"w-4 mr-1"} />
+                  Add
+                </Button>
+              </div>
             </div>
           </>
         )}
       </div>
+
       <DialogFooter>
+        <Button variant={"default"} onClick={handleSubmit}>
+          Done
+        </Button>
         <DialogClose asChild={true}>
-          <Button variant={"default"}>Done</Button>
+          <Button variant={"outline"}>Cancel</Button>
         </DialogClose>
       </DialogFooter>
     </DialogItem>

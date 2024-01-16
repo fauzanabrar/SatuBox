@@ -13,6 +13,7 @@ type Props = {
   onSelect: () => void;
   onOpenChange: (open: boolean) => void;
   className?: string;
+  isOpen?: boolean;
 };
 
 export const DialogItem = ({
@@ -21,15 +22,17 @@ export const DialogItem = ({
   onSelect,
   onOpenChange,
   className,
+  isOpen,
 }: Props) => {
   return (
-    <Dialog onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <DropdownMenuItem
           onSelect={(event) => {
             event.preventDefault();
             onSelect && onSelect();
           }}
+          className="cursor-pointer"
         >
           {triggerChildren}
         </DropdownMenuItem>

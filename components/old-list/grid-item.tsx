@@ -204,12 +204,12 @@ export function GridItem({
                 }
               }}
             >
-              <DialogItemRename
+              {/* <DialogItemRename
                 handleDialogItemSelect={handleDialogItemSelect}
                 handleDialogItemOpenChange={handleDialogItemOpenChange}
                 newName={newName}
                 setNewName={setNewName}
-                loadingRename={loadingRename}
+                loading={loadingRename}
                 handleRename={handleRename}
                 setIsRename={setIsRename}
                 defaultName={item.name}
@@ -224,7 +224,7 @@ export function GridItem({
                 handleAddWhitelist={() => {
                   return Promise.resolve();
                 }}
-              />
+              /> */}
               <DropdownMenuItem onClick={() => handleDelete()}>
                 <span className={"text-destructive"}> Delete</span>
               </DropdownMenuItem>

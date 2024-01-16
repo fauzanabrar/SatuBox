@@ -14,10 +14,11 @@ type Props = {
   handleDialogItemOpenChange: (open: boolean) => void;
   newName: string;
   setNewName: (name: string) => void;
-  loadingRename: boolean;
+  loading: boolean;
   handleRename: () => Promise<void>;
   setIsRename: (bool: boolean) => void;
   defaultName: string;
+  isOpen: boolean;
 };
 
 const DialogItemRename = ({
@@ -28,17 +29,16 @@ const DialogItemRename = ({
   defaultName,
   newName,
   setNewName,
-  loadingRename,
+  loading,
+  isOpen,
 }: Props) => {
   return (
     <DialogItem
       className={"w-96"}
-      triggerChildren={
-        <>
-          <span>Rename</span>
-        </>
-      }
+      triggerChildren={<span>Rename</span>}
+      isOpen={isOpen}
       onSelect={() => {
+        setIsRename(true);
         setNewName(defaultName);
         handleDialogItemSelect();
       }}
@@ -58,29 +58,20 @@ const DialogItemRename = ({
         </div>
       </div>
       <DialogFooter>
-        <DialogTrigger asChild>
-          <div className="flex gap-2 sm:flex-col sm:gap-4">
-            {loadingRename && <Loading loading={loadingRename} size={30} />}
-            <Button
-              className=""
-              type="submit"
-              onClick={async () => {
-                await handleRename();
-              }}
-            >
-              Submit
-            </Button>
-          </div>
-        </DialogTrigger>
-        <DialogClose asChild={true}>
+        <div className="flex gap-2 sm:flex-col sm:gap-4">
           <Button
-            variant={"outline"}
-            onClick={() => {
-              setIsRename(false);
+            className="flex gap-1"
+            type="submit"
+            onClick={async () => {
+              await handleRename();
             }}
           >
-            Cancel
+            <Loading loading={loading} size={20} />
+            Submit
           </Button>
+        </div>
+        <DialogClose asChild={true}>
+          <Button variant={"outline"}>Cancel</Button>
         </DialogClose>
       </DialogFooter>
     </DialogItem>
