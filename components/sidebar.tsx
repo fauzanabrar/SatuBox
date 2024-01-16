@@ -5,7 +5,7 @@ import { TokensIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { LucideSettings, LucideUser } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
-import { UserSession } from "@/types/api/auth/auth";
+import { UserSession } from "@/types/api/auth";
 import { usePathname } from "next/navigation";
 
 export async function Sidebar({

@@ -1,6 +1,6 @@
 import { LucideMenu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { UserSession } from "@/types/api/auth/auth";
+import { UserSession } from "@/types/api/auth";
 import { Sidebar } from "./sidebar";
 
 export default function SheetSidebar({

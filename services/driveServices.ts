@@ -1,4 +1,4 @@
-import { FileDrive, ParentsFolder } from "@/types/api/drive/file";
+import { FileDrive, ParentsFolder } from "@/types/api/file";
 import gdrive from "@/lib/gdrive2";
 import restrictServices from "./restrictServices";
 import userServices from "./userServices";
@@ -13,7 +13,7 @@ const fileTypes: Record<string, string> = {
 async function list(username: string, folderId?: string): Promise<FileDrive[]> {
   try {
     const driveFiles = await gdrive.listFiles(
-      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
+      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string)
     );
 
     const restricts = await restrictServices.list();
@@ -47,7 +47,7 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
               : false;
 
         return newfile;
-      }),
+      })
     );
     return listFiles;
   } catch (error: any) {
@@ -56,7 +56,7 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
 }
 
 async function reversedParentsFolder(
-  folderId: string,
+  folderId: string
 ): Promise<ParentsFolder[]> {
   try {
     const parent: any = await gdrive.getAllParentsFolder(folderId);
@@ -105,12 +105,12 @@ type NewFolder = {
 
 async function addFolder(
   folderName: string,
-  folderId?: string,
+  folderId?: string
 ): Promise<NewFolder> {
   try {
     const newFolderId = await gdrive.createFolder(
       folderName,
-      folderId ? [folderId] : [process.env.SHARED_FOLDER_ID_DRIVE as string],
+      folderId ? [folderId] : [process.env.SHARED_FOLDER_ID_DRIVE as string]
     );
     return {
       id: newFolderId,
@@ -155,7 +155,6 @@ async function deleteFile(id: string) {
 
 async function renameFile(id: string, newName: string) {
   // check the file first
-  console.log(id);
   const file = await checkId(id);
 
   if (!file) {

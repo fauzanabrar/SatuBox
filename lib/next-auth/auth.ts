@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { FireStoreUser, getUserByUsername } from "@/lib/firebase/db/user";
 import { compare } from "bcryptjs";
-import { SessionType } from "@/types/api/auth/auth";
+import { SessionType } from "@/types/api/auth";
 
 interface UserToken {
   id: string;
@@ -32,11 +32,11 @@ export const authOptions: NextAuthOptions = {
         // check credentials to db
         try {
           const user: FireStoreUser = await getUserByUsername(
-            credentials?.username as string,
+            credentials?.username as string
           );
           const comparedPassword = await compare(
             credentials?.password as string,
-            user.password,
+            user.password
           );
           if (comparedPassword) {
             return {

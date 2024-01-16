@@ -1,4 +1,4 @@
-import { FileDrive } from "@/types/api/drive/file";
+import { FileDrive } from "@/types/api/file";
 import useSWR, { mutate } from "swr";
 
 const fetcher = (url: string[], setLoading?: (loading: boolean) => void) => {
@@ -30,7 +30,7 @@ export default function useSWRList({
       revalidateOnFocus: false,
       errorRetryCount: 2,
       refreshInterval: 5000,
-    },
+    }
   );
 
   const combineData = {

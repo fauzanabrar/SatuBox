@@ -1,4 +1,4 @@
-import { FileDrive } from "@/types/api/drive/file";
+import { FileDrive } from "@/types/api/file";
 import { LucideMoreVertical } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
   // Restrict
   const [inputEmail, setInputEmail] = useState("");
   const [restrictSelected, setRestrictSelected] = useState(
-    item.isRestrict ? item.isRestrict : false,
+    item.isRestrict ? item.isRestrict : false
   );
 
   // Dropdown Dialog
@@ -125,7 +125,7 @@ export default function GridItemSWR({ item, folderId }: GridItemSWRProps) {
         />
       </div>
       <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-        <h3 className="font-medium line-clamp-3 leading-none px-2">
+        <h3 className="font-medium line-clamp-3 leading-none px-2 py-1">
           {item.name}
         </h3>
         <div>

@@ -10,7 +10,7 @@ import { firestoreApp } from "../init";
 import {
   FireStoreRestrict,
   FireStoreRestrictWithDocId,
-} from "@/types/api/restrict/restrict";
+} from "@/types/api/restrict";
 
 const restrictsCol = collection(firestoreApp, "restrict");
 
@@ -44,7 +44,7 @@ export async function getRestrictByFileId(fileId: string) {
   const restrictsList: FireStoreRestrict[] = await getRestricts();
 
   return restrictsList.find(
-    (restrict) => restrict.fileId === fileId,
+    (restrict) => restrict.fileId === fileId
   ) as FireStoreRestrict;
 }
 
@@ -76,7 +76,7 @@ export async function getRestrictByFileIdWithDocId(fileId: string) {
     await getRestrictsWithDocId();
 
   return restrictsList.find(
-    (restrict) => restrict.fileId === fileId,
+    (restrict) => restrict.fileId === fileId
   ) as FireStoreRestrictWithDocId;
 }
 
@@ -104,7 +104,7 @@ export async function addWhitelistRestrict(fileId: string, username: string) {
 // Remove whitelist access to a file
 export async function removeWhitelistRestrict(
   fileId: string,
-  username: string,
+  username: string
 ) {
   const restrict = await getRestrictByFileIdWithDocId(fileId);
 

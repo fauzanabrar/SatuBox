@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
-import { FileResponse } from "@/types/api/drive/file";
+import { FileResponse } from "@/types/api/file";
 import { getUserSession } from "@/lib/next-auth/user-session";
 
 type ParamsType = {
@@ -20,7 +20,7 @@ type ParamsType = {
  */
 export async function GET(
   request: NextRequest,
-  { params }: ParamsType,
+  { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop();
 
@@ -94,7 +94,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: ParamsType,
+  { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const type = params.id ? params.id[0] : "";
   const folderId: string | null = params.id ? params.id[1] : "";
@@ -184,12 +184,11 @@ export async function POST(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: ParamsType,
+  { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop() as string;
   const { newName } = await request.json();
 
-  console.log(id, newName);
   if (!newName) {
     return NextResponse.json({
       status: 400,
@@ -198,7 +197,6 @@ export async function PUT(
   }
 
   try {
-    console.log("called");
     const file = await driveServices.renameFile(id, newName);
 
     return NextResponse.json({
@@ -224,7 +222,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: ParamsType,
+  { params }: ParamsType
 ): Promise<NextResponse<FileResponse>> {
   const id = params.id?.pop() as string;
 
