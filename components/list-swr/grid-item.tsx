@@ -1,9 +1,6 @@
 import { FileDrive } from "@/types/api/file";
 import { LucideMoreVertical } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import DialogItemRename from "../dialog-item-rename";
-import DialogItemRestrict from "../dialog-item-restrict";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +9,17 @@ import {
 } from "../ui/dropdown-menu";
 import { useRef, useState } from "react";
 import { mutateList } from "@/hooks/useSWRList";
+import dynamic from "next/dynamic";
+
+const Image = dynamic(() => import("next/image"), { ssr: false });
+
+const DialogItemRename = dynamic(() => import("../dialog-item-rename"), {
+  ssr: false,
+});
+
+const DialogItemRestrict = dynamic(() => import("../dialog-item-restrict"), {
+  ssr: false,
+});
 
 type GridItemSWRProps = {
   item: FileDrive;
