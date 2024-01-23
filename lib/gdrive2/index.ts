@@ -100,7 +100,7 @@ async function getMedia(id: string): Promise<string> {
       fileId: id,
       alt: "media",
     },
-    { responseType: "stream" },
+    { responseType: "stream" }
   );
 
   return new Promise((resolve, reject) => {
@@ -198,8 +198,8 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
 async function uploadFile(
   name: string,
   mimeType: string,
-  content: Buffer,
-  parent?: string[],
+  content: Readable,
+  parent?: string[]
 ) {
   myCache.del(`listFiles-${parent}`);
   myCache.del(`listFiles-${process.env.SHARED_FOLDER_ID_DRIVE}`);
@@ -213,22 +213,18 @@ async function uploadFile(
 
   const media = {
     mimeType,
-    body: await toReadableStream(content),
+    body: content,
   };
 
-  const file = await driveClient.files.create({
-    requestBody: fileMetadata,
-    media,
-  });
-  return file.data;
-}
-
-async function toReadableStream(file: any) {
-  const readable = new Readable();
-  readable.push(file);
-  readable.push(null);
-
-  return readable;
+  await driveClient.files.create(
+    {
+      requestBody: fileMetadata,
+      media,
+    },
+    {
+      responseType: "stream",
+    }
+  );
 }
 
 async function deleteFileOrFolder(id: string, parents: string[]) {

@@ -2,15 +2,20 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Loading from "../loading";
 import { mutateList } from "@/hooks/useSWRList";
+import axios from "axios";
+import { Progress } from "../ui/progress";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
 
 export default function InputFile({}: InputFileProps) {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const inputFileRef = useRef<HTMLInputElement>(null);
 
   const pathnames = usePathname();
   const lastPath = pathnames.split("/").pop();
@@ -22,27 +27,43 @@ export default function InputFile({}: InputFileProps) {
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileUpload: any = event.target.files ? event.target.files[0] : null;
-    setFile(fileUpload);
+    const filesUpload = event.target.files ? event.target.files : [];
+    setFiles(Array.from(filesUpload));
   };
 
   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (file) {
+    if (files.length > 0) {
       setLoading(true);
+      setProgress(0);
 
       const formData = new FormData();
-      formData.append("file", file);
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
 
       try {
-        const response = await fetch(`/api/v2/drive/file/${folderId}`, {
-          method: "POST",
-          body: formData,
-        });
-        if (response.ok) {
+        const response = await axios.post(
+          `/api/v2/drive/file/${folderId}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              let percent = Math.floor((loaded * 100) / (total as number));
+              setProgress(percent);
+            },
+          }
+        );
+        if (response.status === 200) {
           mutateList(folderId);
           console.log("File uploaded successfully");
-          setFile(null);
+          setFiles([]);
+          if (inputFileRef.current) {
+            inputFileRef.current.value = "";
+          }
         } else {
           console.error("Failed to upload file");
         }
@@ -59,9 +80,15 @@ export default function InputFile({}: InputFileProps) {
       <div className="flex gap-5">
         <form onSubmit={(event) => handleFileSubmit(event)}>
           <div className="flex w-full max-w-sm items-center space-x-2 my-2">
-            <Input type="file" onChange={handleFileChange} />
+            <Input
+              type="file"
+              onChange={handleFileChange}
+              ref={inputFileRef}
+              multiple
+            />
             <Button>Upload</Button>
           </div>
+          {loading && <Progress value={progress} />}
         </form>
         <Loading loading={loading} size={30} />
       </div>

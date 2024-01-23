@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/file";
 import { getUserSession } from "@/lib/next-auth/user-session";
+import { Readable } from "node:stream";
 
 type ParamsType = {
   params: {
@@ -136,30 +137,29 @@ export async function POST(
   if (type === "file") {
     const data = await request.formData();
 
-    const file: File | null = data.get("file") as File;
+    const files: File[] = data.getAll("files") as File[];
 
-    if (!file) {
+    if (files.length < 1) {
       return NextResponse.json({
         status: 400,
-        message: "Your file not found",
+        message: "Your files not found",
       });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const newFile = {
-      name: file.name,
-      mimeType: file.type,
-      content: buffer,
-    };
-
     try {
-      const response: any = await driveServices.addFile(newFile, folderId);
+      for (const file of files) {
+        const newFile = {
+          name: file.name,
+          mimeType: file.type,
+          content: Readable.fromWeb(file.stream() as any),
+        };
+
+        await driveServices.addFile(newFile, folderId);
+      }
+
       return NextResponse.json({
         status: 200,
-        message: "success",
-        files: response,
+        message: "success upload all files",
       });
     } catch (error: any) {
       return NextResponse.json({

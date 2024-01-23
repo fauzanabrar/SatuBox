@@ -2,6 +2,7 @@ import { FileDrive, ParentsFolder } from "@/types/api/file";
 import gdrive from "@/lib/gdrive2";
 import restrictServices from "./restrictServices";
 import userServices from "./userServices";
+import { Readable } from "node:stream";
 
 const fileTypes: Record<string, string> = {
   "application/vnd.google-apps.folder": "folder",
@@ -99,18 +100,18 @@ async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
 type FileUpload = {
   name: string;
   mimeType: string;
-  content: Buffer;
+  content: Readable;
 };
 
 async function addFile(file: FileUpload, folderId?: string) {
   const { name, mimeType, content } = file;
 
   try {
-    const newFile = await gdrive.uploadFile(name, mimeType, content, [
+    await gdrive.uploadFile(name, mimeType, content, [
       folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
     ]);
-    return newFile;
   } catch (error: any) {
+    console.log(error);
     throw new Error(error);
   }
 }
