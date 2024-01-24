@@ -105,10 +105,13 @@ export default function GridItemSWR({
     console.log("delete");
     try {
       setDeleteLoading(true);
+
       const response = await fetch(`/api/v2/drive/${item.id}`, {
         method: "DELETE",
       });
+
       const data = await response.json();
+
       if (data.status === 200) {
         console.log("delete berhasil");
         mutateList(folderId);

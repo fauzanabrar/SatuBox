@@ -77,7 +77,7 @@ export default function InputFile({}: InputFileProps) {
 
   return (
     <>
-      <div className="flex gap-5">
+      <div className="flex gap-5 items-center">
         <form onSubmit={(event) => handleFileSubmit(event)}>
           <div className="flex w-full max-w-sm items-center space-x-2 my-2">
             <Input
