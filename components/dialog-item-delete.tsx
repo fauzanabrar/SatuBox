@@ -1,5 +1,4 @@
 import { DialogClose, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { DialogItem } from "@/components/dialog-item";

@@ -6,7 +6,6 @@ import useSWRList from "@/hooks/useSWRList";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { UserSession } from "@/types/api/auth";
-import { getUserSession } from "@/lib/next-auth/user-session";
 
 const GridItemSWR = dynamic(() => import("./grid-item"), { ssr: false });
 

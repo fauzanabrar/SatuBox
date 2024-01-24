@@ -1,5 +1,4 @@
 import { FileDrive } from "@/types/api/file";
-import { useEffect } from "react";
 import useSWR, { mutate } from "swr";
 
 const fetcher = async (url: string[], setLoading?: (loading: boolean) => void) => {
