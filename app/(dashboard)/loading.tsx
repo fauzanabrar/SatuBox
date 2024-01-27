@@ -1,5 +1,5 @@
 import { Menu } from "@/components/menu";
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from "@/components/sidebar/sidebar";
 import Loading from "@/components/loading";
 import { getUserSession } from "@/lib/next-auth/user-session";
 

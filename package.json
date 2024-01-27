@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --write .",
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {

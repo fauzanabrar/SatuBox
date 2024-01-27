@@ -18,14 +18,14 @@ const DialogItemRename = dynamic(
   () => import("./dialog-item/dialog-item-rename"),
   {
     ssr: false,
-  }
+  },
 );
 
 const DialogItemRestrict = dynamic(
   () => import("./dialog-item/dialog-item-restrict"),
   {
     ssr: false,
-  }
+  },
 );
 
 type GridItemSWRProps = {

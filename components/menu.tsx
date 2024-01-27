@@ -4,7 +4,9 @@ import { getUserSession } from "@/lib/next-auth/user-session";
 import dynamic from "next/dynamic";
 import LogoutButton from "@/components/logout-button";
 
-const SheetSidebar = dynamic(() => import("./sheet-sidebar"), { ssr: false });
+const SheetSidebar = dynamic(() => import("./sidebar/sheet-sidebar"), {
+  ssr: false,
+});
 
 export async function Menu() {
   const userSession = await getUserSession();
