@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LucidePlus, LucideTrash2 } from "lucide-react";
 import { DialogItem } from "./dialog-item";
-import Loading from "./loading";
+import Loading from "../../loading";
 
 type Props = {
   handleDialogItemSelect: () => void;

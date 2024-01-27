@@ -7,7 +7,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
-import { DialogItem } from "@/components/dialog-item";
+import { DialogItem } from "@/components/list-swr/dialog-item/dialog-item";
 
 type Props = {
   handleDialogItemSelect: () => void;

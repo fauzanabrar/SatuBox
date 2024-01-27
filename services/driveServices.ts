@@ -1,5 +1,5 @@
 import { FileDrive, ParentsFolder } from "@/types/api/file";
-import gdrive from "@/lib/gdrive2";
+import gdrive from "@/lib/gdrive";
 import restrictServices from "./restrictServices";
 import userServices from "./userServices";
 import { Readable } from "node:stream";

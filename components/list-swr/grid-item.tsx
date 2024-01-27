@@ -9,18 +9,24 @@ import {
 import { useRef, useState } from "react";
 import { mutateList } from "@/hooks/useSWRList";
 import dynamic from "next/dynamic";
-import DialogItemDelete from "../dialog-item-delete";
+import DialogItemDelete from "./dialog-item/dialog-item-delete";
 import { UserSession } from "@/types/api/auth";
 
 const Image = dynamic(() => import("next/image"), { ssr: false });
 
-const DialogItemRename = dynamic(() => import("../dialog-item-rename"), {
-  ssr: false,
-});
+const DialogItemRename = dynamic(
+  () => import("./dialog-item/dialog-item-rename"),
+  {
+    ssr: false,
+  }
+);
 
-const DialogItemRestrict = dynamic(() => import("../dialog-item-restrict"), {
-  ssr: false,
-});
+const DialogItemRestrict = dynamic(
+  () => import("./dialog-item/dialog-item-restrict"),
+  {
+    ssr: false,
+  }
+);
 
 type GridItemSWRProps = {
   item: FileDrive;
