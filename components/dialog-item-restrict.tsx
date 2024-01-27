@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LucidePlus } from "lucide-react";
+import { LucidePlus, LucideTrash2 } from "lucide-react";
 import { DialogItem } from "./dialog-item";
 import Loading from "./loading";
 
@@ -17,6 +17,7 @@ type Props = {
   handleDialogItemSelect: () => void;
   handleDialogItemOpenChange: (open: boolean) => void;
   handleAddWhitelist: () => Promise<void>;
+  handleRemoveWhitelist: (username: string) => () => void;
   handleSubmit: () => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ const DialogItemRestrict = ({
   handleDialogItemSelect,
   handleDialogItemOpenChange,
   handleAddWhitelist,
+  handleRemoveWhitelist,
   handleSubmit,
   isOpen,
   setIsOpen,
@@ -92,8 +94,8 @@ const DialogItemRestrict = ({
                 <Button
                   variant={"outline"}
                   className="px-2"
-                  type="submit"
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.preventDefault();
                     await handleAddWhitelist();
                   }}
                 >
@@ -103,8 +105,21 @@ const DialogItemRestrict = ({
               </div>
             </div>
             <div>
-              {whitelist?.map((email) => {
-                return <p key={email}>{email}</p>;
+              {whitelist?.map((username) => {
+                return (
+                  <div
+                    className="border-1 border flex justify-between p-2"
+                    key={username}
+                  >
+                    {username}
+                    <Button
+                      variant={"ghost"}
+                      onClick={handleRemoveWhitelist(username)}
+                    >
+                      <LucideTrash2 className={"text-destructive"} />
+                    </Button>
+                  </div>
+                );
               })}
             </div>
           </>

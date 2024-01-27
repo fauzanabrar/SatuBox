@@ -125,7 +125,56 @@ export default function GridItemSWR({
     }
   };
 
-  const handleAddWhitelist = async () => {};
+  const handleAddWhitelist = async () => {
+    console.log("add whitelist");
+    try {
+      const body = {
+        fileId: item.id,
+        whitelist: inputWhitelist,
+        remove: false,
+      };
+
+      const response = await fetch(`/api/v2/restrict`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200 || data.status === 201) {
+        console.log("add whitelist berhasil");
+        mutateList(folderId);
+        setInputWhitelist("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRemoveWhitelist = (username: string) => async () => {
+    console.log("remove whitelist");
+    try {
+      const body = {
+        fileId: item.id,
+        whitelist: username,
+        remove: true,
+      };
+
+      const response = await fetch(`/api/v2/restrict`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 200 || data.status === 201) {
+        console.log("remove whitelist berhasil");
+        mutateList(folderId);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleRestrict = async () => {
     setRestrictLoading(true);
@@ -167,7 +216,12 @@ export default function GridItemSWR({
     setIsDelete(false);
   };
 
-  if (item.isRestrict && userSession.role !== "admin") return <></>;
+  if (
+    item.isRestrict &&
+    userSession.role !== "admin" &&
+    !item.whitelist?.includes(userSession.username)
+  )
+    return <></>;
 
   return (
     <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
@@ -223,6 +277,7 @@ export default function GridItemSWR({
                   handleDialogItemSelect={handleDialogItemSelect}
                   handleDialogItemOpenChange={handleDialogItemOpenChange}
                   handleAddWhitelist={handleAddWhitelist}
+                  handleRemoveWhitelist={handleRemoveWhitelist}
                   handleSubmit={handleRestrict}
                   inputWhitelist={inputWhitelist}
                   setInputWhitelist={setInputWhitelist}
