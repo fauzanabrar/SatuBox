@@ -174,7 +174,7 @@ export default function GridItemSWR({
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const handleRestrict = async () => {
     setRestrictLoading(true);

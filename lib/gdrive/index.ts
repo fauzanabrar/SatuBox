@@ -67,7 +67,7 @@ export async function listFiles(folderId?: string) {
 export async function listFilesWithToken(
   folderId?: string,
   pageSize: number = 10,
-  pageToken?: string
+  pageToken?: string,
 ) {
   try {
     const driveClient = await getDriveClient();
@@ -102,7 +102,7 @@ export async function uploadFile(
   name: string,
   mimeType: string,
   content: Buffer,
-  parent?: string[]
+  parent?: string[],
 ) {
   const driveClient = await getDriveClient();
 
@@ -150,7 +150,7 @@ export async function getFileContent(id: string) {
       fileId: id,
       alt: "media",
     },
-    { responseType: "stream" }
+    { responseType: "stream" },
   );
 
   return new Promise((resolve, reject) => {
@@ -198,7 +198,7 @@ export async function getAllParentsFolder(id: string): Promise<any> {
         name: file.data.name,
         children,
       };
-    })
+    }),
   );
 }
 
@@ -234,7 +234,7 @@ export async function getAllFilesAndFolder(parentId: string): Promise<any> {
         name: file.name,
         mimeType: file.mimeType,
       };
-    })
+    }),
   );
 }
 
@@ -356,7 +356,7 @@ export async function deleteAllFiles(folderId?: string): Promise<any> {
           name: file.name,
           mimeType: file.mimeType,
         };
-      })
+      }),
     );
 
     return result;

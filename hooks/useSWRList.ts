@@ -1,8 +1,10 @@
 import { FileDrive } from "@/types/api/file";
 import useSWR, { mutate } from "swr";
 
-const fetcher = async (url: string[], setLoading?: (loading: boolean) => void) => {
-
+const fetcher = async (
+  url: string[],
+  setLoading?: (loading: boolean) => void,
+) => {
   const f = (u: string) =>
     fetch(u)
       .then((r) => r.json())
@@ -35,7 +37,7 @@ export default function useSWRList({
       revalidateOnFocus: false,
       errorRetryCount: 2,
       refreshInterval: 5000,
-    }
+    },
   );
 
   const combineData = {

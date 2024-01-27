@@ -65,6 +65,7 @@ const DialogItemRestrict = ({
             onValueChange={(value) => {
               if (value === "Public") setRestrictSelected(false);
               else setRestrictSelected(true);
+              handleSubmit();
             }}
           >
             <SelectTrigger className={"w-24"}>

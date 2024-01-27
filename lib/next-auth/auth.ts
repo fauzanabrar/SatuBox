@@ -32,11 +32,11 @@ export const authOptions: NextAuthOptions = {
         // check credentials to db
         try {
           const user: FireStoreUser = await getUserByUsername(
-            credentials?.username as string
+            credentials?.username as string,
           );
           const comparedPassword = await compare(
             credentials?.password as string,
-            user.password
+            user.password,
           );
           if (comparedPassword) {
             return {

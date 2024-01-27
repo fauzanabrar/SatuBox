@@ -19,12 +19,12 @@ const RefreshButtonSWR = dynamic(() => import("./refresh-button"), {
 
 const ScrollArea = dynamic(
   async () => (await import("../ui/scroll-area")).ScrollArea,
-  { ssr: false }
+  { ssr: false },
 );
 
 const ScrollBar = dynamic(
   async () => (await import("../ui/scroll-area")).ScrollBar,
-  { ssr: false }
+  { ssr: false },
 );
 
 type ListSWRProps = {
@@ -81,7 +81,7 @@ export default function ListSWR({
           dataItems,
           canScroll,
           folderId,
-          userSession
+          userSession,
         )}
       </div>
     </div>
@@ -114,7 +114,7 @@ function renderData(
   data: FileDrive[],
   canScroll: boolean,
   folderId: string,
-  userSession: UserSession
+  userSession: UserSession,
 ) {
   return (
     <ScrollArea className={canScroll ? "h-auto" : "h-full"}>
@@ -141,7 +141,7 @@ function renderContent(
   data: FileDrive[] | undefined,
   canScroll: boolean,
   folderId: string,
-  userSession: UserSession
+  userSession: UserSession,
 ) {
   if (loading) {
     return renderLoading();

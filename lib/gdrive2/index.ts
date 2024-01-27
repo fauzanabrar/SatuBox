@@ -100,7 +100,7 @@ async function getMedia(id: string): Promise<string> {
       fileId: id,
       alt: "media",
     },
-    { responseType: "stream" }
+    { responseType: "stream" },
   );
 
   return new Promise((resolve, reject) => {
@@ -199,7 +199,7 @@ async function uploadFile(
   name: string,
   mimeType: string,
   content: Readable,
-  parent?: string[]
+  parent?: string[],
 ) {
   myCache.del(`listFiles-${parent}`);
   myCache.del(`listFiles-${process.env.SHARED_FOLDER_ID_DRIVE}`);
@@ -223,7 +223,7 @@ async function uploadFile(
     },
     {
       responseType: "stream",
-    }
+    },
   );
 }
 

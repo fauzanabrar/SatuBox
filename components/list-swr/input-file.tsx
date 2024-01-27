@@ -55,7 +55,7 @@ export default function InputFile({}: InputFileProps) {
               let percent = Math.floor((loaded * 100) / (total as number));
               setProgress(percent);
             },
-          }
+          },
         );
         if (response.status === 200) {
           mutateList(folderId);
