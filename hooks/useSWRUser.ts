@@ -1,31 +1,39 @@
+import { User } from "@/types/userTypes";
 import useSWR from "swr";
 
 const fetcher = async (
   url: string,
-  setLoading?: (loading: boolean) => void,
+  setLoading?: (loading: boolean) => void
 ) => {
-  const response = await fetch(url)
+  const response = await fetch(url);
 
-  const data = await response.json()
+  const data = await response.json();
 
-  return data
+  if (setLoading) setLoading(false);
 
+  return data;
 };
 
-export const useSWRUser = () => {
-  const { data, error, mutate } = useSWR(
-    "/api/user",
-    (url: string) => fetcher(url),
+export const useSWRUser = (setLoading: (loading: boolean) => void) => {
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    "/api/users",
+    (url: string) => fetcher(url, setLoading),
     {
       revalidateOnFocus: false,
       errorRetryCount: 2,
-      refreshInterval: 5000,
-    },
+      refreshInterval: 15000,
+    }
   );
 
+  const sortedData = data?.users.sort((a: User, b: User) => {
+    return a.name.localeCompare(b.name);
+  });
+
   return {
-    data,
+    data: sortedData,
     error,
+    isLoading,
+    isValidating,
     mutate,
   };
-}
+};

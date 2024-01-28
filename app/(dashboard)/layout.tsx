@@ -1,4 +1,3 @@
-import { Menu } from "@/components/menu";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { getUserSession } from "@/lib/next-auth/user-session";
 
@@ -16,7 +15,6 @@ export default async function DashboardLayout({
         <div className="bg-background">
           <div className="block lg:grid lg:grid-cols-5">
             <Sidebar userSession={userSession} />
-
             <div className="lg:pt-4 lg:col-span-4">{children}</div>
           </div>
         </div>
