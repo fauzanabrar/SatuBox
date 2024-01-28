@@ -4,6 +4,12 @@ export interface User {
   role: string;
 }
 
+export interface ChangedUser {
+  name?: string;
+  username: string;
+  role: string;
+}
+
 export interface RegisterUser {
   name: string;
   username: string;

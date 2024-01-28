@@ -12,6 +12,7 @@ import { RegisterUser, User } from "@/types/userTypes";
 const usersCol = collection(firestoreApp, "user");
 
 export interface FireStoreUser {
+  id?: string;
   username: string;
   password: string;
   name: string;
@@ -34,11 +35,33 @@ export async function getUsers() {
   return userList as FireStoreUser[];
 }
 
+// Get a list of all users with doc Id from the database
+export async function getUsersWithDocId() {
+  const userSnapshot = await getDocs(usersCol);
+
+  const userList = userSnapshot.docs.map((doc) => {
+    const user = doc.data();
+    user.id = doc.id;
+    return user;
+  });
+
+  return userList as FireStoreUser[];
+}
+
 // Find a user by their username
 export async function getUserByUsername(username: string) {
   const userSnapshot = await getDocs(usersCol);
   const userList = userSnapshot.docs.map((doc) => doc.data());
   const user = userList.find((user) => user.username === username);
+  return user as FireStoreUser;
+}
+
+// Get a user by their username with doc Id from the database
+export async function getUserByUsernameWithDocId(username: string) {
+  const userList = await getUsersWithDocId();
+
+  const user = userList.find((user) => user.username === username);
+
   return user as FireStoreUser;
 }
 
@@ -79,12 +102,12 @@ export async function updateUser(user: User) {
   const userDoc: FireStoreUpdateUser = {
     username: user.username,
     name: user.name,
-    role: "user",
+    role: user.role,
     updatedAt: updatedAt,
   };
 
   // Check if user already exists
-  const userSnapshot = await getUserByUsername(user.username);
+  const userSnapshot = await getUserByUsernameWithDocId(user.username);
 
   if (!userSnapshot) throw new Error("User not found");
 
@@ -93,7 +116,9 @@ export async function updateUser(user: User) {
     password: userSnapshot.password,
   };
 
-  const userDocRef = doc(usersCol, userSnapshot.username);
+  const userDocRef = doc(usersCol, userSnapshot.id);
+
+  if (userDocRef === null) throw new Error("User not found");
 
   try {
     await updateDoc(userDocRef, changedUser);
@@ -105,11 +130,11 @@ export async function updateUser(user: User) {
 
 // Remove User
 export async function deleteUser(username: string) {
-  const userSnapshot = await getUserByUsername(username);
+  const userSnapshot = await getUserByUsernameWithDocId(username);
 
   if (!userSnapshot) throw new Error("User not found");
 
-  const userDocRef = doc(usersCol, userSnapshot.username);
+  const userDocRef = doc(usersCol, userSnapshot.id);
 
   try {
     await deleteDoc(userDocRef);
