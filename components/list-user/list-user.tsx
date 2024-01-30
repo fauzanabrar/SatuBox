@@ -30,7 +30,12 @@ export default function ListUser({
       </div>
     );
 
-  if (error) return <div>failed to load</div>;
+  if (error)
+    return (
+      <div className="w-full flex justify-center mt-2 text-destructive font-semibold text-lg">
+        Failed to load users!
+      </div>
+    );
 
   return (
     <div className="max-w-3xl">
