@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   LucideCircleUserRound,
   LucideSettings,
-  LucideUser,
+  LucideUsers2,
 } from "lucide-react";
 import LogoutButton from "@/components/logout-button";
 import { UserSession } from "@/types/api/auth";
@@ -38,13 +38,13 @@ export async function SidebarMenu({
             Admin
           </h2>
           <div className="space-y-1">
-            <Link href={"/user"}>
+            <Link href={"/users"}>
               <Button
                 variant={activePath === "user" ? "secondary" : "ghost"}
                 className="w-full justify-start"
               >
-                <LucideUser className="mr-2 h-4 w-4" />
-                User
+                <LucideUsers2 className="mr-2 h-4 w-4" />
+                Users
               </Button>
             </Link>
             <Link href={"/settings"}>
