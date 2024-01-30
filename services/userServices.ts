@@ -5,7 +5,7 @@ import {
   getUsers,
   updateUser,
 } from "@/lib/firebase/db/user";
-import { ChangedUser, RegisterUser, User } from "@/types/userTypes";
+import { ChangedUser, RegisterUser } from "@/types/userTypes";
 
 async function list() {
   try {
@@ -28,7 +28,6 @@ async function list() {
 
 async function getByUsername(username: string) {
   try {
-    console.log(username);
     const user = await getUserByUsername(username);
     return user;
   } catch (error: any) {
@@ -56,10 +55,9 @@ async function update(registerUser: ChangedUser) {
     const changedUser = {
       name: registerUser.name ?? user.name,
       username: registerUser.username,
+      newUsername: registerUser.newUsername,
       role: registerUser.role,
     };
-
-    console.log(changedUser);
 
     const updatedUser = await updateUser(changedUser);
 

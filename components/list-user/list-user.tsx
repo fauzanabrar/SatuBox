@@ -5,14 +5,19 @@ import Loading from "../loading";
 import { User } from "@/types/userTypes";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import DialogDeleteUser from "./dialog-delete";
-import DialogEditUser from "./dialog-edit";
 import { UserSession } from "@/types/api/auth";
+import dynamic from "next/dynamic";
+
+const DialogDeleteUser = dynamic(() => import("./dialog-delete"), {
+  ssr: false,
+});
+
+const DialogEditUser = dynamic(() => import("./dialog-edit"), { ssr: false });
 
 export default function ListUser({
   userSession,
 }: {
-    userSession: UserSession;
+  userSession: UserSession;
 }) {
   const [loading, setLoading] = useState(false);
 

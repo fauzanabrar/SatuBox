@@ -26,7 +26,7 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const { username, name, role } = await request.json();
+  const { username, newUsername, name, role } = await request.json();
 
   if (!username || !role) {
     return NextResponse.json(
@@ -68,7 +68,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    await userServices.update({ username, name, role });
+    await userServices.update({ username, newUsername, name, role });
 
     return NextResponse.json({
       status: 200,

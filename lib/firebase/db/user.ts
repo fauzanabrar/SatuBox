@@ -7,7 +7,7 @@ import {
   deleteDoc,
 } from "firebase/firestore/lite";
 import { firestoreApp } from "../init";
-import { RegisterUser, User } from "@/types/userTypes";
+import { ChangedUser, RegisterUser } from "@/types/userTypes";
 
 const usersCol = collection(firestoreApp, "user");
 
@@ -96,12 +96,12 @@ export async function createUser(user: RegisterUser) {
 }
 
 // Update User
-export async function updateUser(user: User) {
+export async function updateUser(user: ChangedUser) {
   const updatedAt = new Date();
 
   const userDoc: FireStoreUpdateUser = {
-    username: user.username,
-    name: user.name,
+    username: user.newUsername ?? user.username,
+    name: user.name!,
     role: user.role,
     updatedAt: updatedAt,
   };

@@ -7,6 +7,7 @@ export interface User {
 export interface ChangedUser {
   name?: string;
   username: string;
+  newUsername?: string;
   role: string;
 }
 
