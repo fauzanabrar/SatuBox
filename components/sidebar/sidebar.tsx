@@ -1,35 +1,19 @@
-"use client";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { TokensIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
-import {
-  LucideCircleUserRound,
-  LucideMenu,
-  LucideSettings,
-  LucideUser,
-} from "lucide-react";
-import LogoutButton from "@/components/logout-button";
-import { UserSession } from "@/types/api/auth";
-import { usePathname } from "next/navigation";
+import { Suspense, lazy } from "react";
 import { SidebarMenu } from "./sidebar-menu";
-import SheetSidebar from "./sheet-sidebar";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
-export async function Sidebar({
-  userSession,
-  className,
-}: {
-  userSession: UserSession;
-  className?: string;
-}) {
-  const pathname = usePathname();
-  const activePath = pathname.split("/")[1];
+const SheetSidebar = lazy(() => import("./sheet-sidebar"));
+
+export async function Sidebar({ className }: { className?: string }) {
+  const userSession = await getUserSession();
 
   return (
     <>
       <div className="lg:hidden">
         <div className="flex justify-end p-2">
-          <SheetSidebar userSession={userSession} className={className} />
+          <Suspense fallback={<div className={"ml-1 h-6 w-6"} />}>
+            <SheetSidebar userSession={userSession} className={className} />
+          </Suspense>
         </div>
       </div>
       <div className={"hidden lg:border-r lg:block"}>

@@ -13,8 +13,10 @@ import { usePathname } from "next/navigation";
 
 export async function SidebarMenu({
   userSession,
+  toggle,
 }: {
-  userSession: UserSession;
+    userSession: UserSession;
+    toggle?: () => void;
 }) {
   const pathname = usePathname();
   const activePath = pathname.split("/")[1];
@@ -42,6 +44,7 @@ export async function SidebarMenu({
               <Button
                 variant={activePath === "user" ? "secondary" : "ghost"}
                 className="w-full justify-start"
+                onClick={toggle}
               >
                 <LucideUsers2 className="mr-2 h-4 w-4" />
                 Users
@@ -51,6 +54,7 @@ export async function SidebarMenu({
               <Button
                 variant={activePath === "settings" ? "secondary" : "ghost"}
                 className="w-full justify-start"
+                onClick={toggle}
               >
                 <LucideSettings className="mr-2 h-4 w-4" />
                 Settings
@@ -67,6 +71,7 @@ export async function SidebarMenu({
           <Button
             variant={activePath === "list" ? "secondary" : "ghost"}
             className="w-full justify-start"
+            onClick={toggle}
           >
             <TokensIcon className="mr-2 h-4 w-4" />
             List
@@ -76,6 +81,7 @@ export async function SidebarMenu({
           <Button
             variant={activePath === "settings" ? "secondary" : "ghost"}
             className="w-full justify-start"
+            onClick={toggle}
           >
             <LucideSettings className="mr-2 h-4 w-4" />
             Settings
