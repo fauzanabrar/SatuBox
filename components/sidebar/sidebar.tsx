@@ -8,7 +8,7 @@ export async function Sidebar({ className }: { className?: string }) {
   const userSession = await getUserSession();
 
   return (
-    <>
+    <div>
       <div className="lg:hidden">
         <div className="flex justify-end p-2">
           <Suspense fallback={<div className={"ml-1 h-6 w-6"} />}>
@@ -23,6 +23,6 @@ export async function Sidebar({ className }: { className?: string }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -43,33 +43,35 @@ export default function DialogDeleteUser({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="p-10 pb-4 rounded-lg w-fit">
-        <div className="grid gap-2 py-1">
-          <div className="flex items-center gap-4">
-            <span>
-              Are you sure to delete{" "}
-              <span className="font-bold">{user.username}</span> ?
-            </span>
-          </div>
-          <DialogFooter className="mt-4">
-            <div className="flex justify-end gap-2 ">
-              <Button
-                variant="destructive"
-                className="flex px-4"
-                onClick={handleDelete}
-              >
-                <Loading loading={loading} size={20} className="mr-2 -ml-2" />
-                Delete
-              </Button>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+    <div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent className="p-10 pb-4 rounded-lg w-fit">
+          <div className="grid gap-2 py-1">
+            <div className="flex items-center gap-4">
+              <span>
+                Are you sure to delete{" "}
+                <span className="font-bold">{user.username}</span> ?
+              </span>
             </div>
-          </DialogFooter>
-        </div>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter className="mt-4">
+              <div className="flex justify-end gap-2 ">
+                <Button
+                  variant="destructive"
+                  className="flex px-4"
+                  onClick={handleDelete}
+                >
+                  <Loading loading={loading} size={20} className="mr-2 -ml-2" />
+                  Delete
+                </Button>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+              </div>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

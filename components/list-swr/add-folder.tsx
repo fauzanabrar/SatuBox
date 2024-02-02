@@ -59,7 +59,7 @@ export default function AddFolderDialog() {
   };
 
   return (
-    <>
+    <div>
       <Dialog>
         <DialogTrigger asChild>
           <div className="flex gap-5">
@@ -107,6 +107,6 @@ export default function AddFolderDialog() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

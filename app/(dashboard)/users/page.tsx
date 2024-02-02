@@ -7,15 +7,13 @@ export const metadata = {
 };
 
 export default async function UserPage() {
-  const userSession: UserSession= await getUserSession();
+  const userSession: UserSession = await getUserSession();
   return (
-    <>
-      <div className="col-span-3 lg:col-span-4 lg:border-l">
-        <div className="h-full px-4 py-6 lg:px-8">
-          <h2 className="text-2xl font-semibold tracking-tight mb-4">Users</h2>
-          <ListUser userSession={userSession} />
-        </div>
+    <div className="col-span-3 lg:col-span-4 lg:border-l">
+      <div className="h-full px-4 py-6 lg:px-8">
+        <h2 className="text-2xl font-semibold tracking-tight mb-4">Users</h2>
+        <ListUser userSession={userSession} />
       </div>
-    </>
+    </div>
   );
 }

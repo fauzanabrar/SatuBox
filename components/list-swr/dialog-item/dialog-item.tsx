@@ -25,21 +25,23 @@ export const DialogItem = ({
   isOpen,
 }: Props) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-            onSelect && onSelect();
-          }}
-          className="cursor-pointer"
-        >
-          {triggerChildren}
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogPortal>
-        <DialogContent className={className}>{children}</DialogContent>
-      </DialogPortal>
-    </Dialog>
+    <div>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogTrigger asChild>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              onSelect && onSelect();
+            }}
+            className="cursor-pointer"
+          >
+            {triggerChildren}
+          </DropdownMenuItem>
+        </DialogTrigger>
+        <DialogPortal>
+          <DialogContent className={className}>{children}</DialogContent>
+        </DialogPortal>
+      </Dialog>
+    </div>
   );
 };

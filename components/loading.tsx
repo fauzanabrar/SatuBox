@@ -8,7 +8,7 @@ type ParamsType = {
 
 export default function Loading({ loading, size, className }: ParamsType) {
   return (
-    <>
+    <div>
       {loading && (
         <LucideLoader2
           width={size}
@@ -16,6 +16,6 @@ export default function Loading({ loading, size, className }: ParamsType) {
           className={className + " animate-spin"}
         />
       )}
-    </>
+    </div>
   );
 }

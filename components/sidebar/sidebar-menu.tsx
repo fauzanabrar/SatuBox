@@ -22,7 +22,7 @@ export async function SidebarMenu({
   const activePath = pathname.split("/")[1];
 
   return (
-    <>
+    <div>
       {/* Account Profile */}
       <div className="flex flex-row gap-3 px-4 py-4 items-center">
         <LucideCircleUserRound className="font-semibold text-gray-700 h-10 w-10" />
@@ -92,6 +92,6 @@ export async function SidebarMenu({
         className={"text-destructive border-destructive ml-4 mt-4"}
         variant="outline"
       />
-    </>
+    </div>
   );
 }
