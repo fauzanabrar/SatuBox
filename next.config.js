@@ -1,8 +1,5 @@
+const million = require("million/compiler");
 /** @type {import('next').NextConfig} */
-
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
-});
 
 const { config } = require("dotenv");
 
@@ -21,4 +18,4 @@ const nextConfig = {
   transpilePackages: ["lucide-react"],
 };
 
-module.exports = withBundleAnalyzer(nextConfig);
+module.exports = million.next(nextConfig, { auto: { rsc: true } });
