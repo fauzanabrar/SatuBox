@@ -55,18 +55,6 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  if (userSession.role !== "admin") {
-    return NextResponse.json(
-      {
-        status: 403,
-        message: "Forbidden",
-      },
-      {
-        status: 403,
-      }
-    );
-  }
-
   try {
     await userServices.update({ username, newUsername, name, role });
 

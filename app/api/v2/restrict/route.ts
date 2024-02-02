@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
   try {
     const restrictId = await restrictServices.addFile(
       fileId,
-      userSession.username,
+      userSession.username
     );
 
     return NextResponse.json({
@@ -102,7 +102,7 @@ export async function PUT(request: NextRequest) {
       await restrictServices.removeWhitelist(
         fileId,
         userSession.username,
-        whitelist,
+        whitelist
       );
 
       return NextResponse.json({
@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
     await restrictServices.addWhitelist(
       fileId,
       userSession.username,
-      whitelist,
+      whitelist
     );
 
     return NextResponse.json({
