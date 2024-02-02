@@ -17,10 +17,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Loading from "@/components/loading";
-import ChangeAlert from "./change-alert";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -29,6 +27,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { userAtom } from "@/lib/jotai/user-atom";
+import { useAtom } from "jotai";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -51,6 +51,8 @@ export default function FormEditUser({
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
 
+  const [userSession, setUserSession] = useAtom(userAtom);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,6 +73,7 @@ export default function FormEditUser({
         body: JSON.stringify(values),
       });
       if (!response.ok) throw new Error("Something went wrong");
+      setUserSession((prev) => ({ ...prev, name: values.name }));
     } catch (error: any) {
       console.log(error.message);
     } finally {

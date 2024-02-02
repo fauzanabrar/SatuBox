@@ -10,16 +10,25 @@ import {
 import LogoutButton from "@/components/logout-button";
 import { UserSession } from "@/types/api/auth";
 import { usePathname } from "next/navigation";
+import { useAtom } from "jotai";
+import { userAtom } from "@/lib/jotai/user-atom";
+import { useEffect } from "react";
 
 export async function SidebarMenu({
   userSession,
   toggle,
 }: {
-    userSession: UserSession;
-    toggle?: () => void;
+  userSession: UserSession;
+  toggle?: () => void;
 }) {
   const pathname = usePathname();
   const activePath = pathname.split("/")[1];
+
+  const [user, setUser] = useAtom(userAtom);
+
+  useEffect(() => {
+    setUser(userSession);
+  }, [userSession]);
 
   return (
     <div>
@@ -27,9 +36,9 @@ export async function SidebarMenu({
       <div className="flex flex-row gap-3 px-4 py-4 items-center">
         <LucideCircleUserRound className="font-semibold text-gray-700 h-10 w-10" />
         <div className="">
-          <p className="font-semibold">{userSession.name}</p>
+          <p className="font-semibold">{user.name}</p>
           <p className="text-sm py-0 text-gray-600">
-            @{userSession.username} ({userSession.role})
+            @{user.username} ({user.role})
           </p>
         </div>
       </div>

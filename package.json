@@ -47,6 +47,7 @@
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "firebase": "^10.7.1",
+    "jotai": "^2.6.4",
     "lucide-react": "^0.297.0",
     "million": "^2.6.4",
     "next": "latest",
@@ -68,7 +69,6 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
-    
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",
