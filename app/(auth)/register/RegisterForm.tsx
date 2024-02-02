@@ -9,7 +9,7 @@ import { RegisterUser } from "@/types/userTypes";
 
 const AlertRegisterSuccess = dynamic(
   () => import("@/app/(auth)/register/AlertRegisterSuccess"),
-  { ssr: false },
+  { ssr: false }
 );
 
 function RegisterForm() {
@@ -72,7 +72,6 @@ function RegisterForm() {
             id="name"
             type="text"
             name="name"
-            placeholder="John Doe"
             onChange={handleChange}
             value={formValues.name}
           />
@@ -83,7 +82,6 @@ function RegisterForm() {
             id="username"
             type="text"
             name="username"
-            placeholder="type your username"
             onChange={handleChange}
             value={formValues.username}
           />

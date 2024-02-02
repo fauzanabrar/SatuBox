@@ -65,7 +65,6 @@ function LoginForm() {
             id="username"
             type="text"
             name="username"
-            placeholder="username"
             onChange={handleChange}
             value={formValues.username}
           />
