@@ -18,7 +18,7 @@ export default async function SettingsPage() {
           </h3>
           <FormEditUser
             user={userSession}
-            hidden={["newUsername", "role", "username"]}
+            hidden={["oldUsername", "role", "username"]}
           />
         </div>
       </div>

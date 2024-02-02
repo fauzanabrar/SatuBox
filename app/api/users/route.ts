@@ -26,13 +26,13 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const { username, newUsername, name, role } = await request.json();
+  const { username, oldUsername, name, role } = await request.json();
 
-  if (!username || !role) {
+  if (!oldUsername || !role) {
     return NextResponse.json(
       {
         status: 400,
-        message: "Bad Request! Username and Role is required!",
+        message: "Bad Request! oldUsername and Role is required!",
       },
       {
         status: 400,
@@ -56,7 +56,12 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    await userServices.update({ username, newUsername, name, role });
+    await userServices.update({
+      username: oldUsername,
+      newUsername: username,
+      name,
+      role,
+    });
 
     return NextResponse.json({
       status: 200,

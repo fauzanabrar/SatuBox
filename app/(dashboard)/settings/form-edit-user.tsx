@@ -35,7 +35,7 @@ const formSchema = z.object({
     message: "Name must be at least 4 characters.",
   }),
   username: z.string(),
-  newUsername: z.string().min(4, {
+  oldUsername: z.string().min(4, {
     message: "Username must be at least 4 characters.",
   }),
   role: z.string(),
@@ -58,7 +58,7 @@ export default function FormEditUser({
     defaultValues: {
       name: user.name,
       username: user.username,
-      newUsername: user.username,
+      oldUsername: user.username,
       role: user.role,
     },
   });

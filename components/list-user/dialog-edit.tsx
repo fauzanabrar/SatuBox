@@ -23,6 +23,7 @@ export default function DialogEditUser({
         <DialogContent className="rounded-lg w-1/2 md:w-1/4">
           <h2 className="font-semibold">Edit User {user.username}</h2>
           <FormEditProfile
+            hidden={["oldUsername"]}
             {...{ user, open, setOpen, loading, setLoading, mutate }}
           />
         </DialogContent>
