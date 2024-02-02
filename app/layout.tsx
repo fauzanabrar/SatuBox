@@ -1,9 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next-auth/auth";
-import AuthProvider from "@/components/auth-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,12 +14,11 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default async function RootLayout({ children }: Props) {
-  const session = await getServerSession(authOptions);
+export default function RootLayout({ children }: Props) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider session={session}>{children}</AuthProvider>
+        {children}
         <Toaster />
       </body>
     </html>
