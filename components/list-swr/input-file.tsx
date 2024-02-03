@@ -52,14 +52,13 @@ export default function InputFile({}: InputFileProps) {
             },
             onUploadProgress: (progressEvent) => {
               const { loaded, total } = progressEvent;
-              let percent = Math.floor((loaded * 100) / (total as number));
+              let percent = Math.floor((loaded * 80) / (total as number));
               setProgress(percent);
             },
           }
         );
         if (response.status === 200) {
-          mutateList(folderId);
-          console.log("File uploaded successfully");
+          setProgress(100);
           setFiles([]);
           if (inputFileRef.current) {
             inputFileRef.current.value = "";
@@ -71,6 +70,7 @@ export default function InputFile({}: InputFileProps) {
         console.error("Failed to upload file", error);
       } finally {
         setLoading(false);
+        mutateList(folderId);
       }
     }
   };

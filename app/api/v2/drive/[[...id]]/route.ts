@@ -3,6 +3,7 @@ import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/file";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { Readable } from "node:stream";
+import { deleteCache } from "@/lib/node-cache";
 
 type ParamsType = {
   params: {
@@ -29,6 +30,13 @@ export async function GET(
   const page = request.nextUrl.searchParams.get("page") as string;
 
   const parents = request.nextUrl.searchParams.get("parents") as string;
+
+  const clear = request.nextUrl.searchParams.get("clear") as boolean | null;
+
+  if (clear) {
+    if (id && id !== "undefined") deleteCache(id);
+    else deleteCache(process.env.SHARED_FOLDER_ID_DRIVE as string);
+  }
 
   // get user session
   const userSession = await getUserSession();
