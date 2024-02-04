@@ -1,6 +1,6 @@
-import InputFile from "@/components/list-swr/input-file";
-import AddFolder from "@/components/list-swr/add-folder";
-import ListSWR from "@/components/list-swr/list-swr";
+import InputFile from "@/components/list/input-file";
+import AddFolder from "@/components/list/add-folder";
+import ListSWR from "@/components/list/list";
 import { Separator } from "@/components/ui/separator";
 import { getUserSession } from "@/lib/next-auth/user-session";
 
@@ -9,7 +9,7 @@ export const metadata = {
   description: "List",
 };
 
-export default async function ListSWRPage() {
+export default async function ListPage() {
   const userSession = await getUserSession();
 
   return (

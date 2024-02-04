@@ -1,7 +1,7 @@
 import { DialogClose, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
-import { DialogItem } from "@/components/list-swr/dialog-item/dialog-item";
+import { DialogItem } from "@/components/list/dialog-item/dialog-item";
 
 type Props = {
   handleDialogItemSelect: () => void;

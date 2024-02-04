@@ -1,11 +1,16 @@
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
-export default function Show({
-  when,
-  children,
-}: {
+interface ShowProps {
   when: boolean;
   children: ReactNode;
-}) {
-  return <div>{when && children}</div>;
 }
+
+const Show: React.FC<ShowProps> = ({ when, children }) => {
+  const renderedChildren = useMemo(() => {
+    return when ? children : null;
+  }, [when, children]);
+
+  return renderedChildren;
+};
+
+export default Show;
