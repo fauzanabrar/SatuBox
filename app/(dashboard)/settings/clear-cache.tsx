@@ -7,7 +7,7 @@ export default function ClearCache() {
   const { toast } = useToast();
 
   const handleClick = async () => {
-    await fetch("/api/v2/cache", {
+    await fetch("/api/v2/cache-drive", {
       method: "DELETE",
     });
 
