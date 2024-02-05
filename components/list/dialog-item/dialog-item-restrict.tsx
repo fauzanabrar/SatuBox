@@ -19,6 +19,7 @@ type Props = {
   handleAddWhitelist: () => Promise<void>;
   handleRemoveWhitelist: (username: string) => () => void;
   handleSubmit: () => Promise<void>;
+  changeRestrict: () => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   restrictSelected: boolean;
@@ -35,6 +36,7 @@ const DialogItemRestrict = ({
   handleAddWhitelist,
   handleRemoveWhitelist,
   handleSubmit,
+  changeRestrict,
   isOpen,
   setIsOpen,
   restrictSelected,
