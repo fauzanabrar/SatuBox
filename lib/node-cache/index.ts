@@ -14,22 +14,22 @@ export const cacheKey = {
   parentsFolder: (folderId: string) => `parents-${folderId}`,
 };
 
-const myCache = new NodeCache({ stdTTL: 3600 });
+const driveCache = new NodeCache({ stdTTL: 3600 });
 
 export function cache(key: CacheKey): [any, (data: any) => void] {
-  const cacheData = myCache.get(key);
+  const cacheData = driveCache.get(key);
 
   const setCacheData = (data: any) => {
-    myCache.set(key, data);
+    driveCache.set(key, data);
   };
   return [cacheData, setCacheData];
 }
 
 export function deleteCache(key: CacheKey) {
-  const list = myCache.keys();
+  const list = driveCache.keys();
   list.forEach((k) => {
     if (k.includes(key)) {
-      myCache.del(k);
+      driveCache.del(k);
     }
   });
 }
@@ -41,5 +41,5 @@ export function deleteCaches(keys: CacheKey[]) {
 }
 
 export function clearCache() {
-  myCache.flushAll();
+  driveCache.flushAll();
 }
