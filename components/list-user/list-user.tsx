@@ -57,7 +57,11 @@ export default function ListUser({
             <div className="flex-1">
               <div className="flex gap-2 justify-center items-center">
                 <DialogEditUser user={user} mutate={mutate}>
-                  <Button variant={"outline"} size={"sm"}>
+                  <Button
+                    variant={"outline"}
+                    size={"sm"}
+                    disabled={user.username === userSession.username}
+                  >
                     Edit
                   </Button>
                 </DialogEditUser>

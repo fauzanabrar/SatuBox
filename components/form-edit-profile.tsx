@@ -19,6 +19,15 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { capitalize } from "@/lib/utils";
 import { useToast } from "./ui/use-toast";
+import Switch from "./switch";
+import Match from "./match";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -117,7 +126,25 @@ export default function FormEditProfile({
                   <FormItem>
                     <FormLabel>{capitalize(fieldName)}</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Switch>
+                        <Match when={fieldName === "role"}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="user">User</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Match>
+                        <Match when={fieldName !== "role"}>
+                          <Input {...field} />
+                        </Match>
+                      </Switch>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
