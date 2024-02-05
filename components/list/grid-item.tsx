@@ -175,16 +175,12 @@ export default function GridItemSWR({
         remove: false,
       };
 
-      console.log(body);
-
       const response = await fetch(`/api/v2/restrict`, {
         method: "PUT",
         body: JSON.stringify(body),
       });
 
       const data = await response.json();
-
-      console.log(data);
 
       if (data.status === 200 || data.status === 201) {
         console.log("add whitelist berhasil");
@@ -233,23 +229,20 @@ export default function GridItemSWR({
     }
   };
 
-  const changeRestrict = async () => {
+  const changeRestrict = async (newRestrict: boolean) => {
     try {
       const body = {
         fileId: item.id,
       };
 
       const response = await fetch(`/api/v2/restrict`, {
-        method: restrictSelected ? "POST" : "DELETE",
+        method: newRestrict ? "POST" : "DELETE",
         body: JSON.stringify(body),
       });
 
       const data = await response.json();
 
-      console.log(data);
-
       if (data.status === 200 || data.status === 201) {
-        console.log(data.message);
         mutateList(folderId);
       }
     } catch (error: any) {
@@ -257,10 +250,10 @@ export default function GridItemSWR({
     }
   };
 
-  const handleRestrict = async () => {
+  const handleRestrict = async (newRestrict: boolean) => {
     setRestrictLoading(true);
     try {
-      await changeRestrict();
+      await changeRestrict(newRestrict);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -290,102 +283,87 @@ export default function GridItemSWR({
     setIsDelete(false);
   };
 
-  const cantSee = useMemo(
-    () =>
-      item.isRestrict &&
-      userSession.role !== "admin" &&
-      !item.whitelist?.includes(userSession.username),
-    [item, userSession]
-  );
-
   return (
     <div>
-      <Switch>
-        <Match when={!cantSee!}>
-          <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
-            <div className="overflow-hidden rounded-md">
-              <Image
-                src={image(item) as string}
-                alt={item.name}
-                width={150}
-                height={200}
-                fetchPriority="low"
-                className="h-full w-full object-cover transition-all hover:scale-105 aspect-square"
-                onClick={handleOpen}
-              />
-            </div>
-            <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-              <h3 className="font-medium line-clamp-3 leading-none px-2 py-1">
-                {item.name}
-              </h3>
-              <div className="flex items-center gap-1 justify-center align-middle">
-                <Show when={item.isRestrict! && userSession.role === "admin"}>
-                  <LucideLock className="w-4 h-4" />
-                </Show>
-                <Show when={userSession.role === "admin"}>
-                  <DropdownMenu
-                    open={dropdownOpen}
-                    onOpenChange={setDropdownOpen}
-                  >
-                    <DropdownMenuTrigger>
-                      <LucideMoreVertical className={"w-5 h-5"} />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="w-40"
-                      align="start"
-                      hidden={hasDialogOpen}
-                      onCloseAutoFocus={(event) => {
-                        if (focusRef.current) {
-                          focusRef.current.focus();
-                          focusRef.current = null;
-                          event.preventDefault();
-                        }
-                      }}
-                    >
-                      <DialogItemRename
-                        isOpen={isRename}
-                        setIsRename={setIsRename}
-                        handleDialogItemSelect={handleDialogItemSelect}
-                        handleDialogItemOpenChange={handleDialogItemOpenChange}
-                        handleRename={handleRename}
-                        newName={newName}
-                        setNewName={setNewName}
-                        defaultName={item.name}
-                        loading={renameLoading}
-                      />
-                      <DialogItemRestrict
-                        loading={restrictLoading}
-                        isOpen={isRestrict}
-                        setIsOpen={setIsRestrict}
-                        handleDialogItemSelect={handleDialogItemSelect}
-                        handleDialogItemOpenChange={handleDialogItemOpenChange}
-                        handleAddWhitelist={handleAddWhitelist}
-                        handleRemoveWhitelist={handleRemoveWhitelist}
-                        handleSubmit={handleRestrict}
-                        changeRestrict={changeRestrict}
-                        inputWhitelist={inputWhitelist}
-                        setInputWhitelist={setInputWhitelist}
-                        restrictSelected={restrictSelected}
-                        setRestrictSelected={setRestrictSelected}
-                        whitelist={item.whitelist}
-                      />
-                      <DialogItemDelete
-                        isOpen={isDelete}
-                        setIsOpen={setIsDelete}
-                        handleDialogItemSelect={handleDialogItemSelect}
-                        handleDialogItemOpenChange={handleDialogItemOpenChange}
-                        handleDelete={handleDelete}
-                        loading={deleteLoading}
-                        itemName={item.name}
-                      />
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </Show>
-              </div>
-            </div>
+      <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
+        <div className="overflow-hidden rounded-md">
+          <Image
+            src={image(item) as string}
+            alt={item.name}
+            width={150}
+            height={200}
+            fetchPriority="low"
+            className="h-full w-full object-cover transition-all hover:scale-105 aspect-square"
+            onClick={handleOpen}
+          />
+        </div>
+        <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
+          <h3 className="font-medium line-clamp-3 leading-none px-2 py-1">
+            {item.name}
+          </h3>
+          <div className="flex items-center gap-1 justify-center align-middle">
+            <Show when={item.isRestrict! && userSession.role === "admin"}>
+              <LucideLock className="w-4 h-4" />
+            </Show>
+            <Show when={userSession.role === "admin"}>
+              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                <DropdownMenuTrigger>
+                  <LucideMoreVertical className={"w-5 h-5"} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-40"
+                  align="start"
+                  hidden={hasDialogOpen}
+                  onCloseAutoFocus={(event) => {
+                    if (focusRef.current) {
+                      focusRef.current.focus();
+                      focusRef.current = null;
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  <DialogItemRename
+                    isOpen={isRename}
+                    setIsRename={setIsRename}
+                    handleDialogItemSelect={handleDialogItemSelect}
+                    handleDialogItemOpenChange={handleDialogItemOpenChange}
+                    handleRename={handleRename}
+                    newName={newName}
+                    setNewName={setNewName}
+                    defaultName={item.name}
+                    loading={renameLoading}
+                  />
+                  <DialogItemRestrict
+                    loading={restrictLoading}
+                    isOpen={isRestrict}
+                    setIsOpen={setIsRestrict}
+                    handleDialogItemSelect={handleDialogItemSelect}
+                    handleDialogItemOpenChange={handleDialogItemOpenChange}
+                    handleAddWhitelist={handleAddWhitelist}
+                    handleRemoveWhitelist={handleRemoveWhitelist}
+                    handleSubmit={handleRestrict}
+                    changeRestrict={changeRestrict}
+                    inputWhitelist={inputWhitelist}
+                    setInputWhitelist={setInputWhitelist}
+                    restrictSelected={restrictSelected}
+                    setRestrictSelected={setRestrictSelected}
+                    whitelist={item.whitelist}
+                  />
+                  <DialogItemDelete
+                    isOpen={isDelete}
+                    setIsOpen={setIsDelete}
+                    handleDialogItemSelect={handleDialogItemSelect}
+                    handleDialogItemOpenChange={handleDialogItemOpenChange}
+                    handleDelete={handleDelete}
+                    loading={deleteLoading}
+                    itemName={item.name}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </Show>
           </div>
-        </Match>
-      </Switch>
+        </div>
+      </div>
     </div>
   );
 }
