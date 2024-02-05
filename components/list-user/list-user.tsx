@@ -48,7 +48,7 @@ export default function ListUser({
         </div>
         {data?.map((user: User) => (
           <div
-            className="flex p-4 border border-gray-400 rounded-md m-1"
+            className="flex justify-center items-center align-middle p-4 border border-gray-400 rounded-md m-1"
             key={user.username}
           >
             <p className="flex-1 text-center">{user.name}</p>
