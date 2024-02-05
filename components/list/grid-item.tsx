@@ -11,6 +11,7 @@ import { mutateList } from "@/hooks/useSWRList";
 import dynamic from "next/dynamic";
 import DialogItemDelete from "./dialog-item/dialog-item-delete";
 import { UserSession } from "@/types/api/auth";
+import { useToast } from "../ui/use-toast";
 
 const Image = dynamic(() => import("next/image"), { ssr: false });
 
@@ -18,14 +19,14 @@ const DialogItemRename = dynamic(
   () => import("./dialog-item/dialog-item-rename"),
   {
     ssr: false,
-  },
+  }
 );
 
 const DialogItemRestrict = dynamic(
   () => import("./dialog-item/dialog-item-restrict"),
   {
     ssr: false,
-  },
+  }
 );
 
 type GridItemSWRProps = {
@@ -40,6 +41,8 @@ export default function GridItemSWR({
   userSession,
 }: GridItemSWRProps) {
   const router = useRouter();
+
+  const { toast } = useToast();
 
   // Rename
   const [newName, setNewName] = useState("");
@@ -89,18 +92,34 @@ export default function GridItemSWR({
     };
     try {
       if (newName === item.name) throw Error("Newname is same!");
+
       const response = await fetch(`/api/v2/drive/${item.id}`, {
         method: "PUT",
         body: JSON.stringify(body),
       });
+
       const data = await response.json();
+
       if (data.status === 200) {
         console.log("rename berhasil");
+
+        toast({
+          variant: "success",
+          title: "Rename Success",
+          duration: 3000,
+        });
+
         mutateList(folderId);
         handleDialogItemOpenChange(false);
         setDropdownOpen(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Rename Failed",
+        description: error.message,
+        duration: 5000,
+      });
       console.log(error);
     } finally {
       setRenameLoading(false);
@@ -120,11 +139,24 @@ export default function GridItemSWR({
 
       if (data.status === 200) {
         console.log("delete berhasil");
+
+        toast({
+          variant: "success",
+          title: "Delete Success",
+          duration: 3000,
+        });
+
         mutateList(folderId);
         handleDialogItemOpenChange(false);
         setDropdownOpen(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: error.message,
+        duration: 5000,
+      });
       console.log(error);
     } finally {
       setDeleteLoading(false);
