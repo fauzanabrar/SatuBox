@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 
 import { z } from "zod";
 import { capitalize } from "@/lib/utils";
+import { useToast } from "./ui/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -47,6 +48,8 @@ export default function FormEditProfile({
   mutate: any;
   hidden?: string[];
 }) {
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,9 +79,22 @@ export default function FormEditProfile({
         method: "PUT",
         body: JSON.stringify(values),
       });
+
       if (!response.ok) throw new Error("Something went wrong");
+
       mutate();
+      toast({
+        variant: "success",
+        title: "Success edit user!",
+        duration: 3000,
+      });
     } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error edit user!",
+        description: error.message,
+        duration: 5000,
+      });
       console.log(error.message);
     } finally {
       setLoading(false);

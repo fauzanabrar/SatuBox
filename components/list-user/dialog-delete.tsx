@@ -9,6 +9,7 @@ import {
 import { ReactNode, useState } from "react";
 import { Button } from "../ui/button";
 import Loading from "../loading";
+import { useToast } from "../ui/use-toast";
 
 export default function DialogDeleteUser({
   children,
@@ -22,6 +23,8 @@ export default function DialogDeleteUser({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { toast } = useToast();
+
   const handleDelete = async () => {
     setLoading(true);
 
@@ -34,7 +37,19 @@ export default function DialogDeleteUser({
       if (!response.ok) throw new Error("Something went wrong");
 
       mutate();
+
+      toast({
+        variant: "success",
+        title: "Success Delete User",
+        duration: 3000,
+      });
     } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error delete user!",
+        description: error.message,
+        duration: 5000,
+      });
       console.log(error.message);
     } finally {
       setLoading(false);
