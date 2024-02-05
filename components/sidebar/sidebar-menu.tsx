@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { useAtom } from "jotai";
 import { userAtom } from "@/lib/jotai/user-atom";
 import { useEffect } from "react";
+import SidebarMenuItem from "./sidebar-menu-item";
 
 const sidebarMenu = {
   user: [
@@ -73,20 +74,12 @@ export async function SidebarMenu({
           </h2>
           <div className="space-y-1">
             {sidebarMenu.admin.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={
-                    activePath === item.href.split("/")[1]
-                      ? "secondary"
-                      : "ghost"
-                  }
-                  className="w-full justify-start mt-1"
-                  onClick={toggle}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Button>
-              </Link>
+              <SidebarMenuItem
+                key={item.href}
+                item={item}
+                activePath={activePath}
+                toggle={toggle}
+              />
             ))}
           </div>
         </div>
@@ -96,18 +89,12 @@ export async function SidebarMenu({
       <h2 className="my-2 px-4 text-lg font-semibold tracking-tight">Menu</h2>
       <div>
         {sidebarMenu.user.map((item) => (
-          <Link key={item.href} href={item.href}>
-            <Button
-              variant={
-                activePath === item.href.split("/")[1] ? "secondary" : "ghost"
-              }
-              className="w-full justify-start mt-1"
-              onClick={toggle}
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              {item.name}
-            </Button>
-          </Link>
+          <SidebarMenuItem
+            key={item.href}
+            item={item}
+            activePath={activePath}
+            toggle={toggle}
+          />
         ))}
       </div>
       <LogoutButton
