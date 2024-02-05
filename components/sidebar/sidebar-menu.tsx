@@ -59,16 +59,6 @@ export async function SidebarMenu({
                 Users
               </Button>
             </Link>
-            <Link href={"/settings"}>
-              <Button
-                variant={activePath === "settings" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={toggle}
-              >
-                <LucideSettings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-            </Link>
           </div>
         </div>
       )}

@@ -23,7 +23,7 @@ export default async function SettingsPage() {
           />
         </div>
         {/* Remove cache */}
-        <ClearCache />
+        {/* <ClearCache /> */}
       </div>
     </div>
   );
