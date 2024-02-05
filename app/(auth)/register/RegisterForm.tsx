@@ -1,15 +1,18 @@
 "use client";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import dynamic from "next/dynamic";
 import { RegisterUser } from "@/types/userTypes";
+import Link from "next/link";
 
-const AlertRegisterSuccess = dynamic(
-  () => import("@/app/(auth)/register/AlertRegisterSuccess"),
-  { ssr: false }
+const LoginButton = () => (
+  <Button>
+    <Link href={"/login"} prefetch={true}>
+      Login
+    </Link>
+  </Button>
 );
 
 function RegisterForm() {
@@ -20,32 +23,41 @@ function RegisterForm() {
     name: "",
   });
 
-  const { toast, toasts } = useToast();
+  const { toast } = useToast();
 
   const [error, setError] = useState("");
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
+  const onSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      try {
+        setLoading(true);
 
-      const user: RegisterUser = {
-        username: formValues.username,
-        password: formValues.password,
-        name: formValues.name,
-      };
+        const user: RegisterUser = {
+          username: formValues.username,
+          password: formValues.password,
+          name: formValues.name,
+        };
 
-      const createUser = (await import("@/lib/firebase/db/user")).createUser;
-      await createUser(user);
+        const createUser = (await import("@/lib/firebase/db/user")).createUser;
+        await createUser(user);
 
-      toast({});
-      setLoading(false);
-      setFormValues({ username: "", password: "", name: "" });
-    } catch (error: any) {
-      setLoading(false);
-      setError(error.message);
-    }
-  };
+        toast({
+          title: "Register Success",
+          variant: "success",
+          description: "You can login now!",
+          duration: 3000,
+          action: <LoginButton />,
+        });
+        setLoading(false);
+        setFormValues({ username: "", password: "", name: "" });
+      } catch (error: any) {
+        setLoading(false);
+        setError(error.message);
+      }
+    },
+    [formValues]
+  );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -54,12 +66,6 @@ function RegisterForm() {
 
   return (
     <div>
-      {toasts[0]?.open && (
-        <div className="absolute top-24 right-8 animate-in">
-          <AlertRegisterSuccess />
-        </div>
-      )}
-
       <form method="POST" className="grid gap-4" onSubmit={onSubmit}>
         {error && (
           <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">
@@ -74,6 +80,7 @@ function RegisterForm() {
             name="name"
             onChange={handleChange}
             value={formValues.name}
+            required
           />
         </div>
         <div className="grid gap-2">
@@ -84,6 +91,7 @@ function RegisterForm() {
             name="username"
             onChange={handleChange}
             value={formValues.username}
+            required
           />
         </div>
         <div className="grid gap-2">
@@ -94,6 +102,7 @@ function RegisterForm() {
             type="password"
             onChange={handleChange}
             value={formValues.password}
+            required
           />
         </div>
         <Button className="w-full" disabled={loading}>
