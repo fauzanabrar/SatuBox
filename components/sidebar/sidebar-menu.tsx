@@ -14,6 +14,28 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/lib/jotai/user-atom";
 import { useEffect } from "react";
 
+const sidebarMenu = {
+  user: [
+    {
+      name: "List",
+      href: "/list",
+      icon: TokensIcon,
+    },
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: LucideSettings,
+    },
+  ],
+  admin: [
+    {
+      name: "Users",
+      href: "/users",
+      icon: LucideUsers2,
+    },
+  ],
+};
+
 export async function SidebarMenu({
   userSession,
   toggle,
@@ -42,50 +64,51 @@ export async function SidebarMenu({
           </p>
         </div>
       </div>
+
       {/* Menu Admin */}
       {userSession?.role === "admin" && (
         <div>
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+          <h2 className="my-2 px-4 text-lg font-semibold tracking-tight">
             Admin
           </h2>
           <div className="space-y-1">
-            <Link href={"/users"}>
-              <Button
-                variant={activePath === "user" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={toggle}
-              >
-                <LucideUsers2 className="mr-2 h-4 w-4" />
-                Users
-              </Button>
-            </Link>
+            {sidebarMenu.admin.map((item) => (
+              <Link key={item.href} href={item.href}>
+                <Button
+                  variant={
+                    activePath === item.href.split("/")[1]
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  className="w-full justify-start mt-1"
+                  onClick={toggle}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.name}
+                </Button>
+              </Link>
+            ))}
           </div>
         </div>
       )}
 
       {/* Menu */}
       <h2 className="my-2 px-4 text-lg font-semibold tracking-tight">Menu</h2>
-      <div className="space-y-1">
-        <Link href={"/list"}>
-          <Button
-            variant={activePath === "list" ? "secondary" : "ghost"}
-            className="w-full justify-start"
-            onClick={toggle}
-          >
-            <TokensIcon className="mr-2 h-4 w-4" />
-            List
-          </Button>
-        </Link>
-        <Link href={"/settings"}>
-          <Button
-            variant={activePath === "settings" ? "secondary" : "ghost"}
-            className="w-full justify-start"
-            onClick={toggle}
-          >
-            <LucideSettings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-        </Link>
+      <div>
+        {sidebarMenu.user.map((item) => (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={
+                activePath === item.href.split("/")[1] ? "secondary" : "ghost"
+              }
+              className="w-full justify-start mt-1"
+              onClick={toggle}
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
+            </Button>
+          </Link>
+        ))}
       </div>
       <LogoutButton
         className={"text-destructive border-destructive ml-4 mt-4"}
