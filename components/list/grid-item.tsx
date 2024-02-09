@@ -305,34 +305,34 @@ export default function GridItemSWR({
             <Show when={item.isRestrict! && userSession.role === "admin"}>
               <LucideLock className="w-4 h-4" />
             </Show>
-            <Show when={userSession.role === "admin"}>
-              <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                <DropdownMenuTrigger>
-                  <LucideMoreVertical className={"w-5 h-5"} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-40"
-                  align="start"
-                  hidden={hasDialogOpen}
-                  onCloseAutoFocus={(event) => {
-                    if (focusRef.current) {
-                      focusRef.current.focus();
-                      focusRef.current = null;
-                      event.preventDefault();
-                    }
-                  }}
-                >
-                  <DialogItemRename
-                    isOpen={isRename}
-                    setIsRename={setIsRename}
-                    handleDialogItemSelect={handleDialogItemSelect}
-                    handleDialogItemOpenChange={handleDialogItemOpenChange}
-                    handleRename={handleRename}
-                    newName={newName}
-                    setNewName={setNewName}
-                    defaultName={item.name}
-                    loading={renameLoading}
-                  />
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+              <DropdownMenuTrigger>
+                <LucideMoreVertical className={"w-5 h-5"} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-40"
+                align="start"
+                hidden={hasDialogOpen}
+                onCloseAutoFocus={(event) => {
+                  if (focusRef.current) {
+                    focusRef.current.focus();
+                    focusRef.current = null;
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <DialogItemRename
+                  isOpen={isRename}
+                  setIsRename={setIsRename}
+                  handleDialogItemSelect={handleDialogItemSelect}
+                  handleDialogItemOpenChange={handleDialogItemOpenChange}
+                  handleRename={handleRename}
+                  newName={newName}
+                  setNewName={setNewName}
+                  defaultName={item.name}
+                  loading={renameLoading}
+                />
+                <Show when={userSession.role === "admin"}>
                   <DialogItemRestrict
                     loading={restrictLoading}
                     isOpen={isRestrict}
@@ -349,18 +349,19 @@ export default function GridItemSWR({
                     setRestrictSelected={setRestrictSelected}
                     whitelist={item.whitelist}
                   />
-                  <DialogItemDelete
-                    isOpen={isDelete}
-                    setIsOpen={setIsDelete}
-                    handleDialogItemSelect={handleDialogItemSelect}
-                    handleDialogItemOpenChange={handleDialogItemOpenChange}
-                    handleDelete={handleDelete}
-                    loading={deleteLoading}
-                    itemName={item.name}
-                  />
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Show>
+                </Show>
+
+                <DialogItemDelete
+                  isOpen={isDelete}
+                  setIsOpen={setIsDelete}
+                  handleDialogItemSelect={handleDialogItemSelect}
+                  handleDialogItemOpenChange={handleDialogItemOpenChange}
+                  handleDelete={handleDelete}
+                  loading={deleteLoading}
+                  itemName={item.name}
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
