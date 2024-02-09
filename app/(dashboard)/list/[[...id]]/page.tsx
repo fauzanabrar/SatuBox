@@ -13,8 +13,8 @@ export default async function ListPage() {
   const userSession = await getUserSession();
 
   return (
-    <div className="col-span-5 lg:col-span-4 h-full w-screen lg:w-full">
-      <div className="px-4 py-2 lg:py-4 lg:px-8 h-full ">
+    <div className="col-span-5 h-full w-screen lg:col-span-4 lg:w-full">
+      <div className="h-full px-4 py-2 lg:px-8 lg:py-4 ">
         <div className="mt-4 space-y-1">
           <div className="flex justify-between">
             <h2 className="text-2xl font-semibold tracking-tight">
@@ -23,7 +23,7 @@ export default async function ListPage() {
             <AddFolder />
           </div>
         </div>
-        <div className="flex align-middle gap-2">
+        <div className="flex gap-2 align-middle">
           <InputFile />
         </div>
         <Separator className="my-1" />

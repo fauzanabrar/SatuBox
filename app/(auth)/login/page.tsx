@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function AuthenticationPage() {
   return (
-    <div className="container flex justify-center items-center h-screen w-screen">
+    <div className="container flex h-screen w-screen items-center justify-center">
       <Card className="w-2/7">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -27,7 +27,7 @@ export default function AuthenticationPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <Suspense fallback={<div className="w-full h-36"></div>}>
+          <Suspense fallback={<div className="h-36 w-full"></div>}>
             <LoginForm />
           </Suspense>
         </CardContent>

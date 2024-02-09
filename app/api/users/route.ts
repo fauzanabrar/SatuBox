@@ -20,7 +20,7 @@ export async function GET() {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -36,7 +36,7 @@ export async function PUT(request: NextRequest) {
       },
       {
         status: 400,
-      }
+      },
     );
   }
 
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest) {
       },
       {
         status: 401,
-      }
+      },
     );
   }
 
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -92,7 +92,7 @@ export async function DELETE(request: NextRequest) {
       },
       {
         status: 400,
-      }
+      },
     );
   }
 
@@ -107,7 +107,7 @@ export async function DELETE(request: NextRequest) {
       },
       {
         status: 401,
-      }
+      },
     );
   }
 
@@ -119,7 +119,7 @@ export async function DELETE(request: NextRequest) {
       },
       {
         status: 403,
-      }
+      },
     );
   }
 
@@ -139,7 +139,7 @@ export async function DELETE(request: NextRequest) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

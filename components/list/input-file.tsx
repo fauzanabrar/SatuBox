@@ -55,7 +55,7 @@ export default function InputFile({}: InputFileProps) {
               let percent = Math.floor((loaded * 80) / (total as number));
               setProgress(percent);
             },
-          }
+          },
         );
         if (response.status === 200) {
           setProgress(100);
@@ -76,9 +76,9 @@ export default function InputFile({}: InputFileProps) {
   };
 
   return (
-    <div className="flex gap-5 items-center">
+    <div className="flex items-center gap-5">
       <form onSubmit={(event) => handleFileSubmit(event)}>
-        <div className="flex w-full max-w-sm items-center space-x-2 my-2">
+        <div className="my-2 flex w-full max-w-sm items-center space-x-2">
           <Input
             type="file"
             onChange={handleFileChange}

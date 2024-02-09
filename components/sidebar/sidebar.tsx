@@ -16,7 +16,7 @@ export async function Sidebar({ className }: { className?: string }) {
           </Suspense>
         </div>
       </div>
-      <div className={"hidden lg:border-r lg:block"}>
+      <div className={"hidden lg:block lg:border-r"}>
         <div className="space-y-4 py-4">
           <div className="px-3 py-2">
             <SidebarMenu userSession={userSession} />

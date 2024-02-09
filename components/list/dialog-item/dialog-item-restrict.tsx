@@ -61,8 +61,8 @@ const DialogItemRestrict = ({
       <DialogTitle>Restrict This File</DialogTitle>
 
       <div className="grid gap-4 py-1">
-        <div className={"flex gap-4 items-center justify-between"}>
-          <p className={"font-medium text-sm"}>Access</p>
+        <div className={"flex items-center justify-between gap-4"}>
+          <p className={"text-sm font-medium"}>Access</p>
           <Select
             defaultValue={restrictSelected ? "Restrict" : "Public"}
             onValueChange={(value) => {
@@ -88,7 +88,7 @@ const DialogItemRestrict = ({
         {restrictSelected && (
           <>
             <Separator />
-            <span className={"font-bold text-sm"}>Add whitelist</span>
+            <span className={"text-sm font-bold"}>Add whitelist</span>
             <div className="flex items-center gap-2">
               <Input
                 id="username"
@@ -107,7 +107,7 @@ const DialogItemRestrict = ({
                     await handleAddWhitelist();
                   }}
                 >
-                  <LucidePlus className={"w-4 mr-1"} />
+                  <LucidePlus className={"mr-1 w-4"} />
                   Add
                 </Button>
               </div>
@@ -116,7 +116,7 @@ const DialogItemRestrict = ({
               {whitelist?.map((username) => {
                 return (
                   <div
-                    className="border-1 border flex justify-between p-2"
+                    className="border-1 flex justify-between border p-2"
                     key={username}
                   >
                     {username}

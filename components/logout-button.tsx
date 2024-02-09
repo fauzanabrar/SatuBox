@@ -16,7 +16,7 @@ function LogoutButton({
 }) {
   return (
     <Button variant={variant} className={className} onClick={() => signOut()}>
-      <LucideLogOut className={icon ? "mr-2 h-4 w-4" : "mr-2 h-4 w-4 hidden"} />
+      <LucideLogOut className={icon ? "mr-2 h-4 w-4" : "mr-2 hidden h-4 w-4"} />
       Logout
     </Button>
   );

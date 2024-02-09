@@ -7,7 +7,8 @@
     "dev:turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@googleapis/drive": "^8.3.1",
@@ -71,8 +72,10 @@
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "sharp": "^0.33.1",
     "tailwindcss": "latest",
-    "typescript": "latest",
-    "sharp": "^0.33.1"
+    "typescript": "latest"
   }
 }

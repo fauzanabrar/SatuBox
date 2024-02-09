@@ -27,9 +27,9 @@ const BreadcrumbItem = ({ item, isLastItem }: BreadcumbsItemProps) => (
 
 const BreadcrumbsSWR = ({ items = [] }: BreadcumbsSWRProps) => {
   return (
-    <div className="flex items-center max-w-full">
-      <div className="py-2 px-2 flex justify-start items-center max-w-full">
-        <ScrollArea className="whitespace-nowrap overflow-x-auto">
+    <div className="flex max-w-full items-center">
+      <div className="flex max-w-full items-center justify-start px-2 py-2">
+        <ScrollArea className="overflow-x-auto whitespace-nowrap">
           <Link href={"/list"} className="link-ghost">
             <span className="font-semibold">root</span>
           </Link>

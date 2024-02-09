@@ -14,7 +14,7 @@ const fileTypes: Record<string, string> = {
 async function list(username: string, folderId?: string): Promise<FileDrive[]> {
   try {
     const driveFiles = await gdrive.listFiles(
-      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string)
+      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
     );
 
     const restricts = await restrictServices.list();
@@ -49,7 +49,7 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
         // set the whitelist
         if (newfile.isRestrict) {
           const restrict = restricts.find(
-            (restrict) => restrict.fileId === newfile.id
+            (restrict) => restrict.fileId === newfile.id,
           );
           if (restrict) {
             newfile.whitelist = restrict.whitelist;
@@ -57,12 +57,12 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
         }
 
         return newfile;
-      })
+      }),
     );
 
     // skip the restrict if the user is user
     const files = (await listFiles).filter(
-      (file) => !(file.isRestrict && !file.whitelist?.includes(user.username))
+      (file) => !(file.isRestrict && !file.whitelist?.includes(user.username)),
     );
 
     if (user.role === "user") return files;
@@ -74,7 +74,7 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
 }
 
 async function reversedParentsFolder(
-  folderId: string
+  folderId: string,
 ): Promise<ParentsFolder[]> {
   try {
     const parent: any = await gdrive.getAllParentsFolder(folderId);
@@ -123,12 +123,12 @@ type NewFolder = {
 
 async function addFolder(
   folderName: string,
-  folderId?: string
+  folderId?: string,
 ): Promise<NewFolder> {
   try {
     const newFolderId = await gdrive.createFolder(
       folderName,
-      folderId ? [folderId] : [process.env.SHARED_FOLDER_ID_DRIVE as string]
+      folderId ? [folderId] : [process.env.SHARED_FOLDER_ID_DRIVE as string],
     );
     return {
       id: newFolderId,

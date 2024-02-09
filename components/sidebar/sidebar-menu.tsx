@@ -54,11 +54,11 @@ export async function SidebarMenu({
   return (
     <div>
       {/* Account Profile */}
-      <div className="flex flex-row gap-3 px-4 py-4 items-center">
-        <LucideCircleUserRound className="font-semibold text-gray-700 h-10 w-10" />
+      <div className="flex flex-row items-center gap-3 px-4 py-4">
+        <LucideCircleUserRound className="h-10 w-10 font-semibold text-gray-700" />
         <div className="">
           <p className="font-semibold">{user.name}</p>
-          <p className="text-sm py-0 text-gray-600">
+          <p className="py-0 text-sm text-gray-600">
             @{user.username} ({user.role})
           </p>
         </div>
@@ -96,7 +96,7 @@ export async function SidebarMenu({
         ))}
       </div>
       <LogoutButton
-        className={"text-destructive border-destructive ml-4 mt-4"}
+        className={"ml-4 mt-4 border-destructive text-destructive"}
         variant="outline"
       />
     </div>

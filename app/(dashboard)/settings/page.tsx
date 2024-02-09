@@ -13,8 +13,8 @@ export default async function SettingsPage() {
     <div className="col-span-3 lg:col-span-4">
       <div className="h-full px-4 py-4 lg:px-8">
         <h2 className="text-2xl font-semibold tracking-tight">Settings</h2>
-        <div className="md:w-1/2 lg:w-1/3 border rounded-2xl p-4 mt-4">
-          <h3 className="text-md font-semibold tracking-tight mb-4">
+        <div className="mt-4 rounded-2xl border p-4 md:w-1/2 lg:w-1/3">
+          <h3 className="text-md mb-4 font-semibold tracking-tight">
             Change Profile Name
           </h3>
           <FormEditUser

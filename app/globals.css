@@ -74,6 +74,6 @@
     @apply bg-background text-foreground;
   }
   .link-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 inline-flex items-center justify-center rounded-md text-sm font-medium;
+    @apply inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground;
   }
 }

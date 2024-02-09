@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="container flex justify-center items-center h-screen w-screen">
+    <div className="container flex h-screen w-screen items-center justify-center">
       <Card className="w-2/7">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create an account</CardTitle>

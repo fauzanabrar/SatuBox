@@ -21,7 +21,7 @@ export default function SidebarSubMenuItem({
     <Link key={item.href} href={item.href}>
       <Button
         variant={activePath === item.href.split("/")[1] ? "secondary" : "ghost"}
-        className="w-full justify-start mt-1"
+        className="mt-1 w-full justify-start"
         onClick={toggle}
       >
         <Show when={item.icon}>

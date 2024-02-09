@@ -22,14 +22,14 @@ const DialogItemRename = dynamic(
   () => import("./dialog-item/dialog-item-rename"),
   {
     ssr: false,
-  }
+  },
 );
 
 const DialogItemRestrict = dynamic(
   () => import("./dialog-item/dialog-item-restrict"),
   {
     ssr: false,
-  }
+  },
 );
 
 type GridItemSWRProps = {
@@ -285,7 +285,7 @@ export default function GridItemSWR({
 
   return (
     <div>
-      <div className="space-y-3 w-[150px] border-2 border-gray-200 rounded-md">
+      <div className="w-[150px] space-y-3 rounded-md border-2 border-gray-200">
         <div className="overflow-hidden rounded-md">
           <Image
             src={image(item) as string}
@@ -293,21 +293,21 @@ export default function GridItemSWR({
             width={150}
             height={200}
             fetchPriority="low"
-            className="h-full w-full object-cover transition-all hover:scale-105 aspect-square"
+            className="aspect-square h-full w-full object-cover transition-all hover:scale-105"
             onClick={handleOpen}
           />
         </div>
-        <div className="space-y-1 text-sm flex align-middle items-center justify-between h-fit py-1">
-          <h3 className="font-medium line-clamp-3 leading-none px-2 py-1">
+        <div className="flex h-fit items-center justify-between space-y-1 py-1 align-middle text-sm">
+          <h3 className="line-clamp-3 px-2 py-1 font-medium leading-none">
             {item.name}
           </h3>
-          <div className="flex items-center gap-1 justify-center align-middle">
+          <div className="flex items-center justify-center gap-1 align-middle">
             <Show when={item.isRestrict! && userSession.role === "admin"}>
-              <LucideLock className="w-4 h-4" />
+              <LucideLock className="h-4 w-4" />
             </Show>
             <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
               <DropdownMenuTrigger>
-                <LucideMoreVertical className={"w-5 h-5"} />
+                <LucideMoreVertical className={"h-5 w-5"} />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-40"

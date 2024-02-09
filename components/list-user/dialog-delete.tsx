@@ -61,7 +61,7 @@ export default function DialogDeleteUser({
     <div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="p-10 pb-4 rounded-lg w-fit">
+        <DialogContent className="w-fit rounded-lg p-10 pb-4">
           <div className="grid gap-2 py-1">
             <div className="flex items-center gap-4">
               <span>
@@ -76,7 +76,7 @@ export default function DialogDeleteUser({
                   className="flex px-4"
                   onClick={handleDelete}
                 >
-                  <Loading loading={loading} size={20} className="mr-2 -ml-2" />
+                  <Loading loading={loading} size={20} className="-ml-2 mr-2" />
                   Delete
                 </Button>
                 <DialogClose asChild>

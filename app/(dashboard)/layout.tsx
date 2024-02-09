@@ -8,7 +8,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="bg-background">
           <div className="block lg:grid lg:grid-cols-5">
             <Sidebar />
-            <div className="lg:pt-4 lg:col-span-4">{children}</div>
+            <div className="lg:col-span-4 lg:pt-4">{children}</div>
           </div>
         </div>
       </div>

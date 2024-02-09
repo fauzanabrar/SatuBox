@@ -25,7 +25,7 @@ export default function SidebarMenuItem({
           <div key={item.href}>
             <div
               className={
-                "justify-start mt-1 inline-flex items-center h-9 px-4 py-2 text-sm" +
+                "mt-1 inline-flex h-9 items-center justify-start px-4 py-2 text-sm" +
                 (activePath === item.href.split("/")[1] ? " font-bold" : "")
               }
             >

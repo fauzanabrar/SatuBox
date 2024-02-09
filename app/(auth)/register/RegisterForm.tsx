@@ -56,7 +56,7 @@ function RegisterForm() {
         setError(error.message);
       }
     },
-    [formValues]
+    [formValues],
   );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +68,7 @@ function RegisterForm() {
     <div>
       <form method="POST" className="grid gap-4" onSubmit={onSubmit}>
         {error && (
-          <p className="text-center font-medium font-sans bg-destructive-foreground p-2 text-destructive">
+          <p className="bg-destructive-foreground p-2 text-center font-sans font-medium text-destructive">
             {error}
           </p>
         )}

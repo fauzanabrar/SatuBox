@@ -20,7 +20,7 @@ export default function DialogEditUser({
     <div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="rounded-lg w-1/2 md:w-1/4">
+        <DialogContent className="w-1/2 rounded-lg md:w-1/4">
           <h2 className="font-semibold">Edit User {user.username}</h2>
           <FormEditProfile
             hidden={["oldUsername"]}

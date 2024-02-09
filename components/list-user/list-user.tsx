@@ -25,14 +25,14 @@ export default function ListUser({
 
   if (isLoading && !data)
     return (
-      <div className="w-full flex justify-center mt-8">
+      <div className="mt-8 flex w-full justify-center">
         <Loading size={60} loading={isLoading} />
       </div>
     );
 
   if (error)
     return (
-      <div className="w-full flex justify-center mt-2 text-destructive font-semibold text-lg">
+      <div className="mt-2 flex w-full justify-center text-lg font-semibold text-destructive">
         Failed to load users!
       </div>
     );
@@ -40,7 +40,7 @@ export default function ListUser({
   return (
     <div className="max-w-3xl">
       <div className="flex flex-col">
-        <div className="flex justify-center items-center align-middle p-4 border border-gray-600 rounded-md m-1">
+        <div className="m-1 flex items-center justify-center rounded-md border border-gray-600 p-4 align-middle">
           <p className="flex-1 text-center font-semibold">Name</p>
           <p className="flex-1 text-center font-semibold">Username</p>
           <p className="flex-1 text-center font-semibold">Role</p>
@@ -48,14 +48,14 @@ export default function ListUser({
         </div>
         {data?.map((user: User) => (
           <div
-            className="flex justify-center items-center align-middle p-4 border border-gray-400 rounded-md m-1"
+            className="m-1 flex items-center justify-center rounded-md border border-gray-400 p-4 align-middle"
             key={user.username}
           >
             <p className="flex-1 text-center">{user.name}</p>
             <p className="flex-1 text-center">{user.username}</p>
             <p className="flex-1 text-center">{user.role}</p>
             <div className="flex-1">
-              <div className="flex gap-2 justify-center items-center">
+              <div className="flex items-center justify-center gap-2">
                 <DialogEditUser user={user} mutate={mutate}>
                   <Button
                     variant={"outline"}

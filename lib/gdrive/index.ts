@@ -103,7 +103,7 @@ async function getMedia(id: string): Promise<string> {
       fileId: id,
       alt: "media",
     },
-    { responseType: "stream" }
+    { responseType: "stream" },
   );
 
   return new Promise((resolve, reject) => {
@@ -189,7 +189,7 @@ async function uploadFile(
   name: string,
   mimeType: string,
   content: Readable,
-  parent?: string[]
+  parent?: string[],
 ) {
   const driveClient = await getDriveClient();
 

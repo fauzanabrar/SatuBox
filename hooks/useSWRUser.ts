@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 const fetcher = async (
   url: string,
-  setLoading?: (loading: boolean) => void
+  setLoading?: (loading: boolean) => void,
 ) => {
   const response = await fetch(url);
 
@@ -22,7 +22,7 @@ export const useSWRUser = (setLoading: (loading: boolean) => void) => {
       revalidateOnFocus: false,
       errorRetryCount: 2,
       refreshInterval: 15000,
-    }
+    },
   );
 
   const sortedData = data?.users.sort((a: User, b: User) => {

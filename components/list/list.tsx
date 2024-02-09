@@ -55,8 +55,8 @@ export default function ListSWR({
 
   return (
     <div className="relative">
-      <div className="flex items-center w-full">
-        <div className="grow w-[90%]">
+      <div className="flex w-full items-center">
+        <div className="w-[90%] grow">
           <BreadcumbsSWR items={data.parents} />
         </div>
         <div className="shrink">

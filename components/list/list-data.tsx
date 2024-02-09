@@ -33,12 +33,12 @@ export default function ListData({
           </div>
         </Match>
         <Match when={error}>
-          <p className="flex justify-center m-auto py-2 font-bold text-destructive">
+          <p className="m-auto flex justify-center py-2 font-bold text-destructive">
             Error to get data!
           </p>
         </Match>
         <Match when={dataItems === undefined || dataItems?.length < 1}>
-          <p className="flex justify-center m-auto py-2 font-bold">
+          <p className="m-auto flex justify-center py-2 font-bold">
             Empty. No File.
           </p>
         </Match>

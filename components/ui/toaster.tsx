@@ -28,19 +28,19 @@ export default function Toaster() {
       }) {
         return (
           <Toast className="md:w-fit" key={id} variant={variant} {...props}>
-            <div className="flex justify-start items-center gap-3">
+            <div className="flex items-center justify-start gap-3">
               <Switch>
                 <Match when={variant === "success"}>
-                  <LucideCheck className="bg-green-500 p-1 text-white border rounded-2xl w-6 h-6" />
+                  <LucideCheck className="h-6 w-6 rounded-2xl border bg-green-500 p-1 text-white" />
                 </Match>
                 <Match when={variant === "destructive"}>
-                  <LucideX className="text-white text-md" />
+                  <LucideX className="text-md text-white" />
                 </Match>
                 <Match when={variant === "warning"}>
-                  <LucideAlertCircle className="bg-yellow-500 text-white border rounded-2xl w-8 h-8" />
+                  <LucideAlertCircle className="h-8 w-8 rounded-2xl border bg-yellow-500 text-white" />
                 </Match>
               </Switch>
-              <div className="grid gap-1 w-fit">
+              <div className="grid w-fit gap-1">
                 {title && <ToastTitle>{title}</ToastTitle>}
                 {description && (
                   <ToastDescription>{description}</ToastDescription>
