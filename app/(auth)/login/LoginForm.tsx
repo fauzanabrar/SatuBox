@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
+// million-ignore
 function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
