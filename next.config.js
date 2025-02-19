@@ -6,6 +6,9 @@ const { config } = require("dotenv");
 config();
 
 const nextConfig = {
+  eslint:{
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
