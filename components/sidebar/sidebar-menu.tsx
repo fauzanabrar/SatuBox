@@ -35,7 +35,7 @@ const sidebarMenu = {
   ],
 };
 
-export async function SidebarMenu({
+export function SidebarMenu({
   userSession,
   toggle,
 }: {
@@ -49,7 +49,7 @@ export async function SidebarMenu({
 
   useEffect(() => {
     setUser(userSession);
-  }, [userSession]);
+  }, [setUser, userSession]);
 
   return (
     <div>

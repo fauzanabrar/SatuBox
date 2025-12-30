@@ -30,8 +30,12 @@ export default function useSWRList({
 }) {
   const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
 
+  const urls = id
+    ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]
+    : [`${urlKey}/`];
+
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`],
+    urls,
     (url: string[]) => fetcher(url, setRefreshClicked),
     {
       revalidateOnFocus: false,
@@ -41,8 +45,8 @@ export default function useSWRList({
   );
 
   const combineData = {
-    files: data ? (data[0].files as FileDrive[]) : [],
-    parents: data ? data[1].parents : [],
+    files: data?.[0]?.files ? (data[0].files as FileDrive[]) : [],
+    parents: data?.[1]?.parents ?? [],
   };
 
   return {

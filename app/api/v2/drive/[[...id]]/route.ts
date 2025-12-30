@@ -5,10 +5,12 @@ import { getUserSession } from "@/lib/next-auth/user-session";
 import { Readable } from "node:stream";
 import { deleteCache } from "@/lib/node-cache";
 
+type RouteParams = {
+  id?: string[];
+};
+
 type ParamsType = {
-  params: {
-    id?: string[];
-  };
+  params: Promise<RouteParams>;
 };
 
 /**
@@ -22,9 +24,10 @@ type ParamsType = {
  */
 export async function GET(
   request: NextRequest,
-  { params }: any,
+  { params }: ParamsType,
 ): Promise<NextResponse<FileResponse>> {
-  const id = params.id?.pop();
+  const { id: idParam } = await params;
+  const id = idParam?.[idParam.length - 1];
 
   const limit = request.nextUrl.searchParams.get("limit") as string;
   const page = request.nextUrl.searchParams.get("page") as string;
@@ -41,10 +44,18 @@ export async function GET(
   // get user session
   const userSession = await getUserSession();
 
-  if (!userSession) {
+  if (!userSession?.username) {
     return NextResponse.json({
       status: 401,
       message: "Unauthorized",
+    });
+  }
+
+  if (parents === "true" && !id) {
+    return NextResponse.json({
+      status: 200,
+      message: "success",
+      parents: [],
     });
   }
 
@@ -103,10 +114,11 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: any,
+  { params }: ParamsType,
 ): Promise<NextResponse<FileResponse>> {
-  const type = params.id ? params.id[0] : "";
-  const folderId: string = params.id ? params.id[1] : "";
+  const { id } = await params;
+  const type = id ? id[0] : "";
+  const folderId: string = id ? id[1] : "";
 
   if (!type) {
     return NextResponse.json({
@@ -192,9 +204,10 @@ export async function POST(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: any,
+  { params }: ParamsType,
 ): Promise<NextResponse<FileResponse>> {
-  const id = params.id?.pop() as string;
+  const { id: idParam } = await params;
+  const id = idParam?.[idParam.length - 1] as string;
   const { newName } = await request.json();
 
   if (!newName) {
@@ -230,9 +243,10 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: any,
+  { params }: ParamsType,
 ): Promise<NextResponse<FileResponse>> {
-  const id = params.id?.pop() as string;
+  const { id: idParam } = await params;
+  const id = idParam?.[idParam.length - 1] as string;
 
   try {
     await driveServices.deleteFile(id);
