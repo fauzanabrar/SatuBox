@@ -91,7 +91,13 @@ export async function GET(
 
   // get all list files
   try {
-    const files = await driveServices.list(userSession.username, id);
+    const files = await driveServices.list(
+      {
+        username: userSession.username,
+        role: userSession.role ?? "user",
+      },
+      id,
+    );
 
     return NextResponse.json({
       status: 200,

@@ -31,9 +31,12 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         // check credentials to db
         try {
-          const user: FireStoreUser = await getUserByUsername(
+          const user: FireStoreUser | undefined = await getUserByUsername(
             credentials?.username as string,
           );
+          if (!user) {
+            return null;
+          }
           const comparedPassword = await compare(
             credentials?.password as string,
             user.password,

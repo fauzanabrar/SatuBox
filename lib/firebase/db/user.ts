@@ -5,6 +5,9 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  query,
+  where,
+  limit,
 } from "firebase/firestore/lite";
 import { firestoreApp } from "../init";
 import { ChangedUser, RegisterUser } from "@/types/userTypes";
@@ -49,20 +52,27 @@ export async function getUsersWithDocId() {
 }
 
 // Find a user by their username
-export async function getUserByUsername(username: string) {
-  const userSnapshot = await getDocs(usersCol);
-  const userList = userSnapshot.docs.map((doc) => doc.data());
-  const user = userList.find((user) => user.username === username);
-  return user as FireStoreUser;
+export async function getUserByUsername(
+  username: string,
+): Promise<FireStoreUser | undefined> {
+  const q = query(usersCol, where("username", "==", username), limit(1));
+  const userSnapshot = await getDocs(q);
+  const userDoc = userSnapshot.docs[0];
+  if (!userDoc) return undefined as FireStoreUser | undefined;
+  return userDoc.data() as FireStoreUser;
 }
 
 // Get a user by their username with doc Id from the database
-export async function getUserByUsernameWithDocId(username: string) {
-  const userList = await getUsersWithDocId();
-
-  const user = userList.find((user) => user.username === username);
-
-  return user as FireStoreUser;
+export async function getUserByUsernameWithDocId(
+  username: string,
+): Promise<FireStoreUser | undefined> {
+  const q = query(usersCol, where("username", "==", username), limit(1));
+  const userSnapshot = await getDocs(q);
+  const userDoc = userSnapshot.docs[0];
+  if (!userDoc) return undefined as FireStoreUser | undefined;
+  const user = userDoc.data() as FireStoreUser;
+  user.id = userDoc.id;
+  return user;
 }
 
 // Create new User

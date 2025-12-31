@@ -21,6 +21,12 @@ const fetcher = async (
 
 export const urlKey: string = "/api/v2/drive";
 
+const getListUrls = (folderId?: string) => {
+  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
+
+  return id ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`] : [`${urlKey}/`];
+};
+
 export default function useSWRList({
   folderId,
   setRefreshClicked,
@@ -28,19 +34,15 @@ export default function useSWRList({
   folderId?: string;
   setRefreshClicked?: (loading: boolean) => void;
 }) {
-  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
-
-  const urls = id
-    ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]
-    : [`${urlKey}/`];
+  const urls = getListUrls(folderId);
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     urls,
     (url: string[]) => fetcher(url, setRefreshClicked),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
       errorRetryCount: 2,
-      refreshInterval: 5000,
+      refreshInterval: 0,
     },
   );
 
@@ -59,6 +61,5 @@ export default function useSWRList({
 }
 
 export const mutateList = (folderId?: string) => {
-  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
-  return mutate([`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]);
+  return mutate(getListUrls(folderId));
 };

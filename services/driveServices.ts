@@ -1,7 +1,6 @@
 import { FileDrive, ParentsFolder } from "@/types/api/file";
 import gdrive from "@/lib/gdrive";
 import restrictServices from "./restrictServices";
-import userServices from "./userServices";
 import { Readable } from "node:stream";
 
 const fileTypes: Record<string, string> = {
@@ -11,14 +10,22 @@ const fileTypes: Record<string, string> = {
   "image/png": "image",
 };
 
-async function list(username: string, folderId?: string): Promise<FileDrive[]> {
-  try {
-    const driveFiles = await gdrive.listFiles(
-      folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
-    );
+type UserContext = {
+  username: string;
+  role: string;
+};
 
-    const restricts = await restrictServices.list();
-    const user = await userServices.getByUsername(username);
+async function list(
+  user: UserContext,
+  folderId?: string,
+): Promise<FileDrive[]> {
+  try {
+    const [driveFiles, restricts] = await Promise.all([
+      gdrive.listFiles(
+        folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
+      ),
+      restrictServices.list(),
+    ]);
 
     const listFiles: Promise<FileDrive[]> = Promise.all(
       driveFiles.map(async (file: any) => {
@@ -62,7 +69,8 @@ async function list(username: string, folderId?: string): Promise<FileDrive[]> {
 
     // skip the restrict if the user is user
     const files = (await listFiles).filter(
-      (file) => !(file.isRestrict && !file.whitelist?.includes(user.username)),
+      (file) =>
+        !(file.isRestrict && !file.whitelist?.includes(user.username)),
     );
 
     if (user.role === "user") return files;

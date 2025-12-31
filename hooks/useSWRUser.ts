@@ -19,9 +19,9 @@ export const useSWRUser = (setLoading: (loading: boolean) => void) => {
     "/api/users",
     (url: string) => fetcher(url, setLoading),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
       errorRetryCount: 2,
-      refreshInterval: 15000,
+      refreshInterval: 0,
     },
   );
 

@@ -5,6 +5,9 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  query,
+  where,
+  limit,
 } from "firebase/firestore/lite";
 import { firestoreApp } from "../init";
 import {
@@ -40,12 +43,14 @@ export async function getRestrictsWithDocId() {
 }
 
 // Find a restrict by their id
-export async function getRestrictByFileId(fileId: string) {
-  const restrictsList: FireStoreRestrict[] = await getRestricts();
-
-  return restrictsList.find(
-    (restrict) => restrict.fileId === fileId,
-  ) as FireStoreRestrict;
+export async function getRestrictByFileId(
+  fileId: string,
+): Promise<FireStoreRestrict | undefined> {
+  const q = query(restrictsCol, where("fileId", "==", fileId), limit(1));
+  const restrictsSnapshot = await getDocs(q);
+  const restrictDoc = restrictsSnapshot.docs[0];
+  if (!restrictDoc) return undefined as FireStoreRestrict | undefined;
+  return restrictDoc.data() as FireStoreRestrict;
 }
 
 // Restrict File by ID
@@ -71,13 +76,17 @@ export async function createRestrictFile(fileId: string, username: string) {
 }
 
 // Get a restrict by their id with doc Id
-export async function getRestrictByFileIdWithDocId(fileId: string) {
-  const restrictsList: FireStoreRestrictWithDocId[] =
-    await getRestrictsWithDocId();
-
-  return restrictsList.find(
-    (restrict) => restrict.fileId === fileId,
-  ) as FireStoreRestrictWithDocId;
+export async function getRestrictByFileIdWithDocId(
+  fileId: string,
+): Promise<FireStoreRestrictWithDocId | undefined> {
+  const q = query(restrictsCol, where("fileId", "==", fileId), limit(1));
+  const restrictsSnapshot = await getDocs(q);
+  const restrictDoc = restrictsSnapshot.docs[0];
+  if (!restrictDoc)
+    return undefined as FireStoreRestrictWithDocId | undefined;
+  const restrict = restrictDoc.data() as FireStoreRestrictWithDocId;
+  restrict.id = restrictDoc.id;
+  return restrict;
 }
 
 // Give whitelist access to a file
