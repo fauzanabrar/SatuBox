@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from "../ui/dropdown-menu";
 import { useMemo, useRef, useState } from "react";
 import { mutateList } from "@/hooks/useSWRList";
@@ -85,6 +86,16 @@ export default function GridItemSWR({
       return;
     }
     window.open(`https://drive.google.com/file/d/${item.id}/view`, "_blank");
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = `/api/v2/drive/download/${item.id}`;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setDropdownOpen(false);
   };
 
   const handleRename = async () => {
@@ -349,6 +360,17 @@ export default function GridItemSWR({
                     setRestrictSelected={setRestrictSelected}
                     whitelist={item.whitelist}
                   />
+                </Show>
+                <Show when={item.fileType !== "folder"}>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      handleDownload();
+                    }}
+                  >
+                    Download
+                  </DropdownMenuItem>
                 </Show>
 
                 <DialogItemDelete
