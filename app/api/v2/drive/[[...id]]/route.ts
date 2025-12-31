@@ -13,6 +13,37 @@ type ParamsType = {
   params: Promise<RouteParams>;
 };
 
+const getFilenameFromContentDisposition = (
+  contentDisposition: string | null,
+) => {
+  if (!contentDisposition) return "";
+
+  const filenameStarMatch =
+    /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+  if (filenameStarMatch?.[1]) {
+    try {
+      return decodeURIComponent(filenameStarMatch[1]);
+    } catch {
+      return filenameStarMatch[1];
+    }
+  }
+
+  const filenameMatch = /filename=\"?([^\";]+)\"?/i.exec(
+    contentDisposition,
+  );
+  return filenameMatch?.[1] ?? "";
+};
+
+const getFilenameFromUrl = (url: string) => {
+  try {
+    const urlObj = new URL(url);
+    const name = urlObj.pathname.split("/").pop();
+    return name ? decodeURIComponent(name) : "";
+  } catch {
+    return "";
+  }
+};
+
 /**
  *
  * @param request
@@ -150,6 +181,81 @@ export async function POST(
         status: 201,
         message: "Success Create New Folder!",
         id: folder.id,
+      });
+    } catch (error: any) {
+      return NextResponse.json({
+        status: 500,
+        message: "error",
+        error: error.message,
+      });
+    }
+  }
+
+  if (type === "url") {
+    const { url, fileName } = await request.json();
+
+    if (!url) {
+      return NextResponse.json({
+        status: 400,
+        message: "Bad Request! Url is required!",
+      });
+    }
+
+    let urlObj: URL;
+    try {
+      urlObj = new URL(url);
+    } catch {
+      return NextResponse.json({
+        status: 400,
+        message: "Bad Request! Url is invalid!",
+      });
+    }
+
+    if (!["http:", "https:"].includes(urlObj.protocol)) {
+      return NextResponse.json({
+        status: 400,
+        message: "Bad Request! Url protocol is invalid!",
+      });
+    }
+
+    try {
+      const response = await fetch(urlObj.toString());
+
+      if (!response.ok) {
+        return NextResponse.json({
+          status: 400,
+          message: "Failed to download file",
+          error: response.statusText,
+        });
+      }
+
+      if (!response.body) {
+        return NextResponse.json({
+          status: 400,
+          message: "Failed to read file body",
+        });
+      }
+
+      const contentType =
+        response.headers.get("content-type") ||
+        "application/octet-stream";
+      const headerName = getFilenameFromContentDisposition(
+        response.headers.get("content-disposition"),
+      );
+      const urlName = getFilenameFromUrl(urlObj.toString());
+      const name = fileName || headerName || urlName || "download";
+
+      const newFile = {
+        name,
+        mimeType: contentType,
+        content: Readable.fromWeb(response.body as any),
+      };
+
+      await driveServices.addFile(newFile, folderId);
+
+      return NextResponse.json({
+        status: 200,
+        message: "success upload file from url",
       });
     } catch (error: any) {
       return NextResponse.json({
