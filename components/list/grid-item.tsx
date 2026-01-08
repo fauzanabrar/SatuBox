@@ -74,6 +74,8 @@ export default function GridItemSWR({
       return "/images/folder.svg";
     } else if (item.fileType === "image") {
       return `https://drive.google.com/uc?id=${item.id}&export=download`;
+    } else if (item.fileType === "video") {
+      return "/images/play.svg";
     } else {
       return "/images/file.svg";
     }

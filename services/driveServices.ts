@@ -36,10 +36,14 @@ async function list(
         };
 
         // set the filetype
-        newfile.fileType = fileTypes[file.mimeType];
-        if (!newfile.fileType) {
-          newfile.fileType = "file";
-        }
+        const mimeType = (file.mimeType as string) || "";
+        newfile.fileType =
+          fileTypes[mimeType] ??
+          (mimeType.startsWith("image/")
+            ? "image"
+            : mimeType.startsWith("video/")
+              ? "video"
+              : "file");
 
         // set the media (deprecated)
         // if (newfile.fileType === "image") {
