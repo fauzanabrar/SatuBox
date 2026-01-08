@@ -80,12 +80,11 @@ export default function GridItemSWR({
   };
 
   const handleOpen = () => {
-    console.log("open");
     if (item.fileType === "folder") {
       router.push(`/list/${item.id}`);
       return;
     }
-    window.open(`https://drive.google.com/file/d/${item.id}/view`, "_blank");
+    window.open(`/share/${item.id}`, "_blank", "noopener,noreferrer");
   };
 
   const handleDownload = () => {
@@ -96,6 +95,22 @@ export default function GridItemSWR({
     link.click();
     document.body.removeChild(link);
     setDropdownOpen(false);
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/share/${item.id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        variant: "success",
+        title: "Share link copied",
+        duration: 3000,
+      });
+    } catch (error: any) {
+      window.prompt("Copy share link", shareUrl);
+    } finally {
+      setDropdownOpen(false);
+    }
   };
 
   const handleRename = async () => {
@@ -362,6 +377,15 @@ export default function GridItemSWR({
                   />
                 </Show>
                 <Show when={item.fileType !== "folder"}>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      handleShare();
+                    }}
+                  >
+                    Share link
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer"
                     onSelect={(event) => {
