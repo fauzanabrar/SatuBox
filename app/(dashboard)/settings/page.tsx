@@ -1,6 +1,7 @@
 import { getUserSession } from "@/lib/next-auth/user-session";
 import FormEditUser from "./form-edit-user";
 import ClearCache from "./clear-cache";
+import FolderShare from "./folder-share";
 
 export const metadata = {
   title: "Settings",
@@ -22,6 +23,7 @@ export default async function SettingsPage() {
             hidden={["oldUsername", "role", "username"]}
           />
         </div>
+        <FolderShare />
         {/* Remove cache */}
         {/* <ClearCache /> */}
       </div>

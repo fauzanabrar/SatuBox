@@ -66,7 +66,7 @@ async function getFile(id: string) {
 
   const file = await driveClient.files.get({
     fileId: id,
-    fields: "id, name, mimeType",
+    fields: "id, name, mimeType, size, parents",
   });
 
   setCacheData(file.data);
@@ -206,11 +206,12 @@ async function uploadFile(
   const response = await driveClient.files.create({
     requestBody: fileMetadata,
     media,
+    fields: "id, size",
   });
 
   deleteCaches((parent as string[]) ?? [process.env.GOOGLE_SERVICE_ACCOUNT]);
 
-  return response.status;
+  return response.data as { id?: string; size?: string };
 }
 
 async function deleteFileOrFolder(id: string, parents: string[]) {

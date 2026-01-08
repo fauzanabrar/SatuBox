@@ -2,6 +2,7 @@
 import { TokensIcon } from "@radix-ui/react-icons";
 import {
   LucideCircleUserRound,
+  LucideCreditCard,
   LucideSettings,
   LucideUsers2,
 } from "lucide-react";
@@ -12,6 +13,7 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/lib/jotai/user-atom";
 import { useEffect } from "react";
 import SidebarMenuItem from "./sidebar-menu-item";
+import SharedFoldersSidebar from "./shared-folders";
 
 const sidebarMenu = {
   user: [
@@ -19,6 +21,11 @@ const sidebarMenu = {
       name: "List",
       href: "/list",
       icon: TokensIcon,
+    },
+    {
+      name: "Billing",
+      href: "/billing",
+      icon: LucideCreditCard,
     },
     {
       name: "Settings",
@@ -95,6 +102,7 @@ export function SidebarMenu({
           />
         ))}
       </div>
+      <SharedFoldersSidebar toggle={toggle} />
       <LogoutButton
         className={"ml-4 mt-4 border-destructive text-destructive"}
         variant="outline"

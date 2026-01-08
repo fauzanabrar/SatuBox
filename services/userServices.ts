@@ -2,10 +2,15 @@ import {
   createUser,
   deleteUser,
   getUserByUsername,
+  getUserByUsernameWithDocId,
   getUsers,
+  updateUserByUsername,
   updateUser,
+  type FireStoreUser,
 } from "@/lib/firebase/db/user";
 import { ChangedUser, RegisterUser } from "@/types/userTypes";
+import { DEFAULT_PLAN_ID, PLANS } from "@/lib/billing/plans";
+import gdrive from "@/lib/gdrive";
 
 async function list() {
   try {
@@ -33,6 +38,147 @@ async function getByUsername(username: string) {
   } catch (error: any) {
     throw new Error(error);
   }
+}
+
+async function ensureProfile(username: string) {
+  const user = await getUserByUsernameWithDocId(username);
+
+  if (!user) throw new Error("User not found");
+
+  const updates: Partial<FireStoreUser> = {};
+  const planId = (user.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
+  if (!user.planId || !PLANS[planId]) {
+    updates.planId = DEFAULT_PLAN_ID;
+  }
+  if (
+    user.storageLimitBytes === undefined ||
+    user.storageLimitBytes === null ||
+    user.storageLimitBytes <= 0
+  ) {
+    const plan = PLANS[planId] ?? PLANS[DEFAULT_PLAN_ID];
+    updates.storageLimitBytes = plan.storageLimitBytes;
+  }
+  if (
+    user.storageUsedBytes === undefined ||
+    user.storageUsedBytes === null ||
+    user.storageUsedBytes < 0
+  ) {
+    updates.storageUsedBytes = 0;
+  }
+  if (!Array.isArray(user.sharedRootFolderIds)) {
+    updates.sharedRootFolderIds = [];
+  }
+  if (!Array.isArray(user.sharedWithUsernames)) {
+    updates.sharedWithUsernames = [];
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await updateUserByUsername(user.username, updates);
+  }
+
+  return {
+    ...user,
+    ...updates,
+  };
+}
+
+async function ensureRootFolder(username: string) {
+  const user = await getUserByUsernameWithDocId(username);
+
+  if (!user) throw new Error("User not found");
+
+  if (user.rootFolderId) {
+    return user.rootFolderId;
+  }
+
+  const parentId = process.env.SHARED_FOLDER_ID_DRIVE as string;
+  if (!parentId) {
+    throw new Error("Root folder is not configured");
+  }
+
+  const folderName = `user-${username}`;
+  const folderId = await gdrive.createFolder(folderName, [parentId]);
+
+  await updateUserByUsername(username, { rootFolderId: folderId });
+
+  return folderId;
+}
+
+async function updatePlan(
+  username: string,
+  planId: keyof typeof PLANS,
+  billingCycle: "monthly" | "annual" | null,
+) {
+  const plan = PLANS[planId];
+  if (!plan) throw new Error("Plan not found");
+
+  await updateUserByUsername(username, {
+    planId,
+    billingCycle,
+    storageLimitBytes: plan.storageLimitBytes,
+  });
+
+  return plan;
+}
+
+async function updateStorageUsage(username: string, nextUsedBytes: number) {
+  const safeBytes = Math.max(0, nextUsedBytes);
+  await updateUserByUsername(username, { storageUsedBytes: safeBytes });
+  return safeBytes;
+}
+
+async function incrementStorageUsage(username: string, deltaBytes: number) {
+  const user = await getUserByUsername(username);
+  if (!user) throw new Error("User not found");
+  const used = user.storageUsedBytes ?? 0;
+  const nextUsed = used + deltaBytes;
+  return updateStorageUsage(username, nextUsed);
+}
+
+async function addSharedRootFolder(username: string, folderId: string) {
+  const user = await getUserByUsername(username);
+  if (!user) throw new Error("User not found");
+  const shared = user.sharedRootFolderIds ?? [];
+  if (!shared.includes(folderId)) {
+    shared.push(folderId);
+    await updateUserByUsername(username, { sharedRootFolderIds: shared });
+  }
+  return shared;
+}
+
+async function removeSharedRootFolder(username: string, folderId: string) {
+  const user = await getUserByUsername(username);
+  if (!user) throw new Error("User not found");
+  const shared = user.sharedRootFolderIds ?? [];
+  const nextShared = shared.filter((id) => id !== folderId);
+  await updateUserByUsername(username, { sharedRootFolderIds: nextShared });
+  return nextShared;
+}
+
+async function addSharedWithUsername(
+  ownerUsername: string,
+  targetUsername: string,
+) {
+  const user = await getUserByUsername(ownerUsername);
+  if (!user) throw new Error("User not found");
+  const shared = user.sharedWithUsernames ?? [];
+  if (!shared.includes(targetUsername)) {
+    shared.push(targetUsername);
+    await updateUserByUsername(ownerUsername, { sharedWithUsernames: shared });
+  }
+  return shared;
+}
+
+async function removeSharedWithUsername(
+  ownerUsername: string,
+  targetUsername: string,
+) {
+  const user = await getUserByUsername(ownerUsername);
+  if (!user) throw new Error("User not found");
+  const shared = user.sharedWithUsernames ?? [];
+  const nextShared = shared.filter((name) => name !== targetUsername);
+  await updateUserByUsername(ownerUsername, { sharedWithUsernames: nextShared });
+  return nextShared;
 }
 
 async function add(registerUser: RegisterUser) {
@@ -85,6 +231,15 @@ async function remove(username: string) {
 const userServices = {
   list,
   getByUsername,
+  ensureProfile,
+  ensureRootFolder,
+  updatePlan,
+  updateStorageUsage,
+  incrementStorageUsage,
+  addSharedRootFolder,
+  removeSharedRootFolder,
+  addSharedWithUsername,
+  removeSharedWithUsername,
   add,
   update,
   remove,

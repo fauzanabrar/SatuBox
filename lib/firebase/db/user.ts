@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore/lite";
 import { firestoreApp } from "../init";
 import { ChangedUser, RegisterUser } from "@/types/userTypes";
+import { DEFAULT_PLAN_ID, PLANS } from "@/lib/billing/plans";
 
 const usersCol = collection(firestoreApp, "user");
 
@@ -20,6 +21,13 @@ export interface FireStoreUser {
   password: string;
   name: string;
   role: string;
+  planId?: string;
+  billingCycle?: string | null;
+  storageLimitBytes?: number;
+  storageUsedBytes?: number;
+  rootFolderId?: string;
+  sharedRootFolderIds?: string[];
+  sharedWithUsernames?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -86,6 +94,13 @@ export async function createUser(user: RegisterUser) {
     password: hashedPassword,
     name: user.name,
     role: "user",
+    planId: DEFAULT_PLAN_ID,
+    billingCycle: null,
+    storageLimitBytes: PLANS[DEFAULT_PLAN_ID].storageLimitBytes,
+    storageUsedBytes: 0,
+    rootFolderId: "",
+    sharedRootFolderIds: [],
+    sharedWithUsernames: [],
     createdAt: createdAt,
     updatedAt: createdAt,
   };
@@ -133,6 +148,27 @@ export async function updateUser(user: ChangedUser) {
   try {
     await updateDoc(userDocRef, changedUser);
     console.log(`Document updated with ID: ${userDocRef.id}`);
+  } catch (e) {
+    console.error("Error update document: ", e);
+  }
+}
+
+export async function updateUserByUsername(
+  username: string,
+  updates: Partial<FireStoreUser>,
+) {
+  const userSnapshot = await getUserByUsernameWithDocId(username);
+
+  if (!userSnapshot) throw new Error("User not found");
+
+  const userDocRef = doc(usersCol, userSnapshot.id);
+
+  if (userDocRef === null) throw new Error("User not found");
+
+  const updatedAt = new Date();
+
+  try {
+    await updateDoc(userDocRef, { ...updates, updatedAt });
   } catch (e) {
     console.error("Error update document: ", e);
   }

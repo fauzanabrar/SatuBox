@@ -30,7 +30,7 @@ export default function ListSWR({
   const pathnames = usePathname();
   const lastPath = pathnames.split("/").pop();
 
-  let folderId = process.env.SHARED_FOLDER_ID_DRIVE as string;
+  let folderId = "";
 
   if (lastPath !== "list" && lastPath) {
     folderId = lastPath;
@@ -39,12 +39,15 @@ export default function ListSWR({
   const [refreshClicked, setRefreshClicked] = useState<boolean>(true);
 
   const { data, error, mutate, isLoading } = useSWRList({
-    folderId,
+    folderId: folderId || undefined,
     setRefreshClicked,
   });
 
   const handleRefresh = async () => {
-    await fetch(`/api/v2/drive/${folderId}?clear=true`);
+    const url = folderId
+      ? `/api/v2/drive/${folderId}?clear=true`
+      : "/api/v2/drive?clear=true";
+    await fetch(url);
     setRefreshClicked(true);
     mutate();
   };

@@ -3,6 +3,8 @@ import { getUserSession } from "@/lib/next-auth/user-session";
 import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
 import { getDriveClient } from "@/lib/gdrive";
 import { Readable } from "node:stream";
+import driveServices from "@/services/driveServices";
+import userServices from "@/services/userServices";
 
 const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
@@ -57,6 +59,37 @@ export async function GET(
         status: 403,
         message: "Forbidden",
       });
+    }
+  }
+
+  if (userSession.role !== "admin") {
+    const userProfile = await userServices.ensureProfile(
+      userSession.username,
+    );
+    const rootFolderId = await userServices.ensureRootFolder(
+      userSession.username,
+    );
+    const allowedRootFolderIds = [
+      rootFolderId,
+      ...(userProfile.sharedRootFolderIds ?? []),
+    ].filter(Boolean);
+
+    let canAccess = false;
+    for (const rootId of allowedRootFolderIds) {
+      if (await driveServices.isDescendantOf(id, rootId)) {
+        canAccess = true;
+        break;
+      }
+    }
+
+    if (!canAccess) {
+      return NextResponse.json(
+        {
+          status: 403,
+          message: "Forbidden",
+        },
+        { status: 403 },
+      );
     }
   }
 

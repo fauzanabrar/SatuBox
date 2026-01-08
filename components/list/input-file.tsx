@@ -61,20 +61,19 @@ export default function InputFile({}: InputFileProps) {
     });
 
     try {
-      const response = await axios.post(
-        `/api/v2/drive/file/${folderId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            const { loaded, total } = progressEvent;
-            let percent = Math.floor((loaded * 80) / (total as number));
-            setProgress(percent);
-          },
+      const uploadUrl = folderId
+        ? `/api/v2/drive/file/${folderId}`
+        : "/api/v2/drive/file";
+      const response = await axios.post(uploadUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+        onUploadProgress: (progressEvent) => {
+          const { loaded, total } = progressEvent;
+          let percent = Math.floor((loaded * 80) / (total as number));
+          setProgress(percent);
+        },
+      });
       if (response.status === 200) {
         setProgress(100);
         setFiles([]);
@@ -85,8 +84,12 @@ export default function InputFile({}: InputFileProps) {
         setErrorMessage("Failed to upload file.");
       }
     } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data?.message as string) ||
+          "Failed to upload file."
+        : "Failed to upload file.";
       console.error("Failed to upload file", error);
-      setErrorMessage("Failed to upload file.");
+      setErrorMessage(message);
     } finally {
       setLoading(false);
       mutateList(folderId);
@@ -131,8 +134,11 @@ export default function InputFile({}: InputFileProps) {
       if (response.ok) {
         setFileUrl("");
       } else {
+        const data = await response.json().catch(() => null);
+        const message =
+          data?.message || "Failed to upload file from URL.";
         console.error("Failed to upload file from url");
-        setErrorMessage("Failed to upload file from URL.");
+        setErrorMessage(message);
       }
     } catch (error) {
       console.error("Failed to upload file from url", error);

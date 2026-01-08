@@ -22,9 +22,11 @@ const fetcher = async (
 export const urlKey: string = "/api/v2/drive";
 
 const getListUrls = (folderId?: string) => {
-  const id = folderId === process.env.SHARED_FOLDER_ID_DRIVE ? "" : folderId;
+  const id = folderId || "";
 
-  return id ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`] : [`${urlKey}/`];
+  return id
+    ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]
+    : [urlKey];
 };
 
 export default function useSWRList({

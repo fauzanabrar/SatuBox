@@ -2,6 +2,13 @@ export interface User {
   name: string;
   username: string;
   role: string;
+  planId?: string;
+  billingCycle?: string | null;
+  storageLimitBytes?: number;
+  storageUsedBytes?: number;
+  rootFolderId?: string;
+  sharedRootFolderIds?: string[];
+  sharedWithUsernames?: string[];
 }
 
 export interface ChangedUser {

@@ -35,7 +35,10 @@ export default function AddFolderDialog() {
         const body = {
           folderName,
         };
-        const response = await fetch(`/api/v2/drive/folder/${folderId}`, {
+        const url = folderId
+          ? `/api/v2/drive/folder/${folderId}`
+          : "/api/v2/drive/folder";
+        const response = await fetch(url, {
           method: "POST",
           body: JSON.stringify(body),
         });

@@ -87,15 +87,19 @@ async function list(
 
 async function reversedParentsFolder(
   folderId: string,
+  stopAtId?: string,
 ): Promise<ParentsFolder[]> {
   try {
+    if (stopAtId && folderId === stopAtId) {
+      return [];
+    }
     const parent: any = await gdrive.getAllParentsFolder(folderId);
     const newParent = {
       id: folderId,
       name: parent.currentName,
     };
-    if (parent.id && parent.id !== process.env.SHARED_FOLDER_ID_DRIVE) {
-      const grandparents = await reversedParentsFolder(parent.id);
+    if (parent.id && (!stopAtId || parent.id !== stopAtId)) {
+      const grandparents = await reversedParentsFolder(parent.id, stopAtId);
       return [newParent, ...grandparents];
     }
     return [newParent];
@@ -104,8 +108,11 @@ async function reversedParentsFolder(
   }
 }
 
-async function parentsFolder(folderId: string): Promise<ParentsFolder[]> {
-  const parents = await reversedParentsFolder(folderId);
+async function parentsFolder(
+  folderId: string,
+  stopAtId?: string,
+): Promise<ParentsFolder[]> {
+  const parents = await reversedParentsFolder(folderId, stopAtId);
   return parents.reverse();
 }
 
@@ -154,7 +161,7 @@ async function addFolder(
 async function checkId(id: string) {
   try {
     const file = await gdrive.getFile(id);
-    return file;
+    return file.data;
   } catch (error: any) {
     throw new Error(error);
   }
@@ -175,7 +182,7 @@ async function deleteFile(id: string) {
     parentsId.push(process.env.SHARED_FOLDER_ID_DRIVE as string);
 
   try {
-    const file = await gdrive.deleteFileOrFolder(id, parentsId);
+    await gdrive.deleteFileOrFolder(id, parentsId);
 
     return file;
   } catch (error: any) {
@@ -214,6 +221,20 @@ async function folderName(id: string) {
   }
 }
 
+async function isDescendantOf(
+  itemId: string,
+  rootId: string,
+): Promise<boolean> {
+  if (itemId === rootId) return true;
+
+  const parent = await gdrive.getAllParentsFolder(itemId);
+
+  if (!parent?.id) return false;
+  if (parent.id === rootId) return true;
+
+  return isDescendantOf(parent.id, rootId);
+}
+
 const driveServices = {
   list,
   addFile,
@@ -223,6 +244,7 @@ const driveServices = {
   renameFile,
   deleteFile,
   checkId,
+  isDescendantOf,
 };
 
 export default driveServices;

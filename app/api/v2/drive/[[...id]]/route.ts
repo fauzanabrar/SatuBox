@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/file";
+import { UserSession } from "@/types/api/auth";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { Readable } from "node:stream";
 import { deleteCache } from "@/lib/node-cache";
+import userServices from "@/services/userServices";
 
 type RouteParams = {
   id?: string[];
@@ -44,6 +46,107 @@ const getFilenameFromUrl = (url: string) => {
   }
 };
 
+const parseOwnerUsername = (folderName: string) => {
+  if (folderName.startsWith("user-")) {
+    return folderName.slice(5);
+  }
+  return folderName;
+};
+
+type UserAccessContext = {
+  userSession: UserSession;
+  userProfile: Awaited<ReturnType<typeof userServices.ensureProfile>>;
+  rootFolderId: string;
+  allowedRootFolderIds: string[];
+};
+
+const getUserAccessContext =
+  async (): Promise<UserAccessContext | null> => {
+    const userSession = await getUserSession();
+    if (!userSession?.username) return null;
+
+    const userProfile = await userServices.ensureProfile(
+      userSession.username,
+    );
+    const rootFolderId = await userServices.ensureRootFolder(
+      userSession.username,
+    );
+    const allowedRootFolderIds = [
+      rootFolderId,
+      ...(userProfile.sharedRootFolderIds ?? []),
+    ].filter(Boolean);
+
+    return {
+      userSession,
+      userProfile,
+      rootFolderId,
+      allowedRootFolderIds,
+    };
+  };
+
+const getAccessRootId = async (
+  folderId: string,
+  context: UserAccessContext,
+) => {
+  if (context.userSession.role === "admin") {
+    return context.rootFolderId;
+  }
+
+  for (const rootId of context.allowedRootFolderIds) {
+    if (await driveServices.isDescendantOf(folderId, rootId)) {
+      return rootId;
+    }
+  }
+
+  return null;
+};
+
+const canAccessFolder = async (
+  folderId: string,
+  context: UserAccessContext,
+) => {
+  const rootId = await getAccessRootId(folderId, context);
+  return Boolean(rootId);
+};
+
+const getStorageOwnerUsername = async (
+  folderId: string,
+  context: UserAccessContext,
+) => {
+  const accessRootId = await getAccessRootId(folderId, context);
+  if (!accessRootId) return null;
+
+  if (accessRootId === context.rootFolderId) {
+    return context.userSession.username;
+  }
+
+  try {
+    const rootName = await driveServices.folderName(accessRootId);
+    const ownerUsername = parseOwnerUsername(rootName);
+    return ownerUsername || context.userSession.username;
+  } catch {
+    return context.userSession.username;
+  }
+};
+
+const getStorageStatus = async (
+  folderId: string,
+  context: UserAccessContext,
+) => {
+  const ownerUsername = await getStorageOwnerUsername(
+    folderId,
+    context,
+  );
+  if (!ownerUsername) return null;
+
+  const ownerProfile = await userServices.ensureProfile(ownerUsername);
+  const usedBytes = ownerProfile.storageUsedBytes ?? 0;
+  const limitBytes = ownerProfile.storageLimitBytes ?? 0;
+
+  return { ownerUsername, usedBytes, limitBytes };
+};
+
+
 /**
  *
  * @param request
@@ -67,19 +170,19 @@ export async function GET(
 
   const clear = request.nextUrl.searchParams.get("clear") as boolean | null;
 
-  if (clear) {
-    if (id && id !== "undefined") deleteCache(id);
-    else deleteCache(process.env.SHARED_FOLDER_ID_DRIVE as string);
-  }
-
-  // get user session
-  const userSession = await getUserSession();
-
-  if (!userSession?.username) {
+  const context = await getUserAccessContext();
+  if (!context) {
     return NextResponse.json({
       status: 401,
       message: "Unauthorized",
     });
+  }
+
+  const requestedId = id && id !== "undefined" ? id : undefined;
+  const targetFolderId = requestedId ?? context.rootFolderId;
+
+  if (clear) {
+    deleteCache(targetFolderId);
   }
 
   if (parents === "true" && !id) {
@@ -90,9 +193,26 @@ export async function GET(
     });
   }
 
-  if (parents === "true" && id) {
+  if (parents === "true" && requestedId) {
+    const accessRootId = await getAccessRootId(requestedId, context);
+    if (!accessRootId) {
+      return NextResponse.json(
+        {
+          status: 403,
+          message: "Forbidden",
+        },
+        { status: 403 },
+      );
+    }
     try {
-      const parents = await driveServices.parentsFolder(id);
+      const parents = await driveServices.parentsFolder(
+        requestedId,
+        accessRootId,
+      );
+      if (accessRootId !== context.rootFolderId) {
+        const rootName = await driveServices.folderName(accessRootId);
+        parents.unshift({ id: accessRootId, name: rootName });
+      }
 
       return NextResponse.json({
         status: 200,
@@ -122,12 +242,22 @@ export async function GET(
 
   // get all list files
   try {
+    if (!(await canAccessFolder(targetFolderId, context))) {
+      return NextResponse.json(
+        {
+          status: 403,
+          message: "Forbidden",
+        },
+        { status: 403 },
+      );
+    }
+
     const files = await driveServices.list(
       {
-        username: userSession.username,
-        role: userSession.role ?? "user",
+        username: context.userSession.username,
+        role: context.userSession.role ?? "user",
       },
-      id,
+      targetFolderId,
     );
 
     return NextResponse.json({
@@ -155,7 +285,27 @@ export async function POST(
 ): Promise<NextResponse<FileResponse>> {
   const { id } = await params;
   const type = id ? id[0] : "";
-  const folderId: string = id ? id[1] : "";
+  const rawFolderId: string = id ? id[1] : "";
+
+  const context = await getUserAccessContext();
+  if (!context) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
+    });
+  }
+
+  const targetFolderId = rawFolderId || context.rootFolderId;
+
+  if (targetFolderId && !(await canAccessFolder(targetFolderId, context))) {
+    return NextResponse.json(
+      {
+        status: 403,
+        message: "Forbidden",
+      },
+      { status: 403 },
+    );
+  }
 
   if (!type) {
     return NextResponse.json({
@@ -175,7 +325,10 @@ export async function POST(
     }
 
     try {
-      const folder = await driveServices.addFolder(folderName, folderId);
+      const folder = await driveServices.addFolder(
+        folderName,
+        targetFolderId,
+      );
 
       return NextResponse.json({
         status: 201,
@@ -251,7 +404,69 @@ export async function POST(
         content: Readable.fromWeb(response.body as any),
       };
 
-      await driveServices.addFile(newFile, folderId);
+      const storage = await getStorageStatus(targetFolderId, context);
+      if (!storage) {
+        return NextResponse.json(
+          {
+            status: 403,
+            message: "Forbidden",
+          },
+          { status: 403 },
+        );
+      }
+
+      const contentLength = response.headers.get("content-length");
+      const contentSize = contentLength ? Number(contentLength) : null;
+      if (
+        storage.limitBytes > 0 &&
+        contentSize !== null &&
+        !Number.isNaN(contentSize) &&
+        storage.usedBytes + contentSize > storage.limitBytes
+      ) {
+        return NextResponse.json(
+          {
+            status: 413,
+            message: "Storage limit exceeded",
+          },
+          { status: 413 },
+        );
+      }
+
+      const uploaded = await driveServices.addFile(
+        newFile,
+        targetFolderId,
+      );
+
+      let uploadedSize =
+        contentSize !== null && !Number.isNaN(contentSize)
+          ? contentSize
+          : uploaded?.size
+            ? Number(uploaded.size)
+            : 0;
+
+      if (Number.isNaN(uploadedSize)) {
+        uploadedSize = 0;
+      }
+
+      if (uploadedSize > 0) {
+        const totalBytes = storage.usedBytes + uploadedSize;
+        if (storage.limitBytes > 0 && totalBytes > storage.limitBytes) {
+          if (uploaded?.id) {
+            await driveServices.deleteFile(uploaded.id);
+          }
+          return NextResponse.json(
+            {
+              status: 413,
+              message: "Storage limit exceeded",
+            },
+            { status: 413 },
+          );
+        }
+        await userServices.incrementStorageUsage(
+          storage.ownerUsername,
+          uploadedSize,
+        );
+      }
 
       return NextResponse.json({
         status: 200,
@@ -279,6 +494,34 @@ export async function POST(
     }
 
     try {
+      const storage = await getStorageStatus(targetFolderId, context);
+      if (!storage) {
+        return NextResponse.json(
+          {
+            status: 403,
+            message: "Forbidden",
+          },
+          { status: 403 },
+        );
+      }
+
+      const totalBytes = files.reduce(
+        (sum, file) => sum + (file.size || 0),
+        0,
+      );
+      if (
+        storage.limitBytes > 0 &&
+        storage.usedBytes + totalBytes > storage.limitBytes
+      ) {
+        return NextResponse.json(
+          {
+            status: 413,
+            message: "Storage limit exceeded",
+          },
+          { status: 413 },
+        );
+      }
+
       for (const file of files) {
         const newFile = {
           name: file.name,
@@ -286,7 +529,14 @@ export async function POST(
           content: Readable.fromWeb(file.stream() as any),
         };
 
-        await driveServices.addFile(newFile, folderId);
+        await driveServices.addFile(newFile, targetFolderId);
+      }
+
+      if (totalBytes > 0) {
+        await userServices.incrementStorageUsage(
+          storage.ownerUsername,
+          totalBytes,
+        );
       }
 
       return NextResponse.json({
@@ -321,6 +571,24 @@ export async function PUT(
   const { id: idParam } = await params;
   const id = idParam?.[idParam.length - 1] as string;
   const { newName } = await request.json();
+
+  const context = await getUserAccessContext();
+  if (!context) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
+    });
+  }
+
+  if (!(await canAccessFolder(id, context))) {
+    return NextResponse.json(
+      {
+        status: 403,
+        message: "Forbidden",
+      },
+      { status: 403 },
+    );
+  }
 
   if (!newName) {
     return NextResponse.json({
@@ -360,8 +628,34 @@ export async function DELETE(
   const { id: idParam } = await params;
   const id = idParam?.[idParam.length - 1] as string;
 
+  const context = await getUserAccessContext();
+  if (!context) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized",
+    });
+  }
+
+  if (!(await canAccessFolder(id, context))) {
+    return NextResponse.json(
+      {
+        status: 403,
+        message: "Forbidden",
+      },
+      { status: 403 },
+    );
+  }
+
   try {
-    await driveServices.deleteFile(id);
+    const storageOwnerUsername = await getStorageOwnerUsername(id, context);
+    const deleted = await driveServices.deleteFile(id);
+    const deletedSize = deleted?.size ? Number(deleted.size) : 0;
+    if (storageOwnerUsername && deletedSize > 0) {
+      await userServices.incrementStorageUsage(
+        storageOwnerUsername,
+        -deletedSize,
+      );
+    }
 
     return NextResponse.json({
       status: 200,
