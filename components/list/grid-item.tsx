@@ -33,6 +33,13 @@ const DialogItemRestrict = dynamic(
   },
 );
 
+const DialogItemPaidDownload = dynamic(
+  () => import("./dialog-item/dialog-item-paid-download"),
+  {
+    ssr: false,
+  },
+);
+
 type GridItemSWRProps = {
   item: FileDrive;
   folderId: string;
@@ -63,6 +70,9 @@ export default function GridItemSWR({
   const [isDelete, setIsDelete] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
+  // Paid download
+  const [isPaidDownload, setIsPaidDownload] = useState(false);
+
   // Dropdown Dialog
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [hasDialogOpen, setHasDialogOpen] = useState(false);
@@ -90,12 +100,7 @@ export default function GridItemSWR({
   };
 
   const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = `/api/v2/drive/download/${item.id}`;
-    link.rel = "noopener";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(`/share/${item.id}`, "_blank", "noopener,noreferrer");
     setDropdownOpen(false);
   };
 
@@ -309,6 +314,7 @@ export default function GridItemSWR({
     setRestrictSelected(item.isRestrict!!);
     setIsRename(false);
     setIsDelete(false);
+    setIsPaidDownload(false);
   };
 
   return (
@@ -397,6 +403,13 @@ export default function GridItemSWR({
                   >
                     Download
                   </DropdownMenuItem>
+                  <DialogItemPaidDownload
+                    fileId={item.id}
+                    isOpen={isPaidDownload}
+                    setIsOpen={setIsPaidDownload}
+                    handleDialogItemSelect={handleDialogItemSelect}
+                    handleDialogItemOpenChange={handleDialogItemOpenChange}
+                  />
                 </Show>
 
                 <DialogItemDelete

@@ -5,6 +5,7 @@ import {
   LucideCreditCard,
   LucideSettings,
   LucideUsers2,
+  LucideWallet,
 } from "lucide-react";
 import useSWR from "swr";
 import LogoutButton from "@/components/logout-button";
@@ -29,6 +30,11 @@ const sidebarMenu = {
       name: "Billing",
       href: "/billing",
       icon: LucideCreditCard,
+    },
+    {
+      name: "Pendapatan",
+      href: "/earnings",
+      icon: LucideWallet,
     },
     {
       name: "Settings",

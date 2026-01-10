@@ -66,6 +66,41 @@ const formatDate = (value?: unknown) => {
   return "—";
 };
 
+const formatDateTime = (value?: unknown) => {
+  if (!value) return "—";
+  if (value instanceof Date) {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(value);
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(parsed);
+    }
+  }
+  if (typeof value === "object") {
+    const asAny = value as { toDate?: () => Date; seconds?: number };
+    if (typeof asAny.toDate === "function") {
+      return formatDateTime(asAny.toDate());
+    }
+    if (typeof asAny.seconds === "number") {
+      return formatDateTime(new Date(asAny.seconds * 1000));
+    }
+  }
+  return "—";
+};
+
 const formatCurrency = (value?: number | null) => {
   if (!Number.isFinite(value ?? NaN)) return "—";
   return `Rp ${(value ?? 0).toLocaleString("id-ID")}`;
@@ -150,7 +185,7 @@ export default function BillingPage() {
         ? `Rp ${currentPlan.annualPrice.toLocaleString("id-ID")}/yr`
         : `Rp ${currentPlan.monthlyPrice.toLocaleString("id-ID")}/mo`;
   const lastPaymentLabel = formatCurrency(billing?.lastPaymentAmount);
-  const lastPaymentDate = formatDate(billing?.lastPaymentAt);
+  const lastPaymentDate = formatDateTime(billing?.lastPaymentAt);
   const nextBillingLabel =
     currentPlanId === "free" ? "—" : formatDate(billing?.nextBillingAt);
 

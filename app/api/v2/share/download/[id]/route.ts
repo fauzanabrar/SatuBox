@@ -1,6 +1,10 @@
 import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
+import {
+  getDownloadToken,
+  getPaidDownload,
+} from "@/lib/firebase/db/paid-download";
 import gdrive, { getDriveClient } from "@/lib/gdrive";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "node:stream";
 import userServices from "@/services/userServices";
 
@@ -52,7 +56,7 @@ type ParamsType = {
 };
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: ParamsType,
 ): Promise<Response> {
   const { id } = await params;
@@ -79,6 +83,31 @@ export async function GET(
   }
 
   try {
+    const paidDownload = await getPaidDownload(id);
+    if (paidDownload?.enabled && paidDownload.price > 0) {
+      const token = request.nextUrl.searchParams.get("token");
+      if (!token) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Payment required",
+          },
+          { status: 402 },
+        );
+      }
+
+      const tokenRecord = await getDownloadToken(token);
+      if (!tokenRecord || tokenRecord.fileId !== id) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Payment required",
+          },
+          { status: 402 },
+        );
+      }
+    }
+
     const ownerUsername = await resolveOwnerFromParents(id);
     if (ownerUsername) {
       const billing = await userServices.resolveBillingStatus(
