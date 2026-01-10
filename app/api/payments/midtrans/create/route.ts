@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Buffer } from "buffer";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { PLANS, type BillingCycle, type PlanId } from "@/lib/billing/plans";
+import userServices from "@/services/userServices";
 
 type CreateRequest = {
   planId?: PlanId;
@@ -71,9 +72,40 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const userProfile = await userServices.ensureProfile(userSession.username);
+  const currentPlanId = (userProfile.planId as PlanId) ?? "free";
+
+  if (currentPlanId === "pro" && planId !== "pro") {
+    return NextResponse.json(
+      {
+        status: 403,
+        message: "Pro plan cannot be downgraded",
+      },
+      { status: 403 },
+    );
+  }
+
   const plan = PLANS[planId];
-  const grossAmount =
+  const baseAmount =
     billingCycle === "annual" ? plan.annualPrice : plan.monthlyPrice;
+  const isUpgrade = currentPlanId === "starter" && planId === "pro";
+  const starterAmount =
+    billingCycle === "annual"
+      ? PLANS.starter.annualPrice
+      : PLANS.starter.monthlyPrice;
+  const grossAmount = isUpgrade
+    ? Math.max(0, baseAmount - starterAmount)
+    : baseAmount;
+
+  if (!Number.isFinite(grossAmount) || grossAmount <= 0) {
+    return NextResponse.json(
+      {
+        status: 400,
+        message: "Invalid upgrade amount",
+      },
+      { status: 400 },
+    );
+  }
 
   const orderId = sanitizeOrderId(
     `order-${userSession.username}-${Date.now()}`,
@@ -89,7 +121,9 @@ export async function POST(request: NextRequest) {
         id: `${planId}-${billingCycle}`,
         price: grossAmount,
         quantity: 1,
-        name: `${plan.name} (${billingCycle})`,
+        name: isUpgrade
+          ? `${plan.name} upgrade (${billingCycle})`
+          : `${plan.name} (${billingCycle})`,
       },
     ],
     customer_details: {

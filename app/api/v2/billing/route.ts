@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import userServices from "@/services/userServices";
-import { DEFAULT_PLAN_ID, PLANS } from "@/lib/billing/plans";
+import { DEFAULT_PLAN_ID, PLANS, PLAN_ORDER } from "@/lib/billing/plans";
 
 export async function GET() {
   const userSession = await getUserSession();
@@ -16,9 +16,10 @@ export async function GET() {
   }
 
   try {
-    const userProfile = await userServices.ensureProfile(
+    const billingStatus = await userServices.resolveBillingStatus(
       userSession.username,
     );
+    const userProfile = billingStatus.profile;
     const planId = (userProfile.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
     const plan = PLANS[planId] ?? PLANS[DEFAULT_PLAN_ID];
 
@@ -31,6 +32,12 @@ export async function GET() {
         storageLimitBytes:
           userProfile.storageLimitBytes ?? plan.storageLimitBytes,
         storageUsedBytes: userProfile.storageUsedBytes ?? 0,
+        lastPaymentAt: userProfile.lastPaymentAt ?? null,
+        lastPaymentAmount: userProfile.lastPaymentAmount ?? null,
+        lastPaymentOrderId: userProfile.lastPaymentOrderId ?? null,
+        lastPaymentPlanId: userProfile.lastPaymentPlanId ?? null,
+        lastPaymentCycle: userProfile.lastPaymentCycle ?? null,
+        nextBillingAt: userProfile.nextBillingAt ?? null,
       },
     });
   } catch (error: any) {
@@ -76,6 +83,27 @@ export async function POST(request: NextRequest) {
     nextPlanId === "free" ? null : isCycleValid ? billingCycle : null;
 
   try {
+    const userProfile = await userServices.ensureProfile(
+      userSession.username,
+    );
+    const currentPlanId =
+      (userProfile.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
+
+    if (userSession.role !== "admin") {
+      const currentRank = PLAN_ORDER.indexOf(currentPlanId);
+      const nextRank = PLAN_ORDER.indexOf(nextPlanId);
+
+      if (nextRank < currentRank) {
+        return NextResponse.json(
+          {
+            status: 403,
+            message: "Plan downgrade is not allowed",
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const plan = await userServices.updatePlan(
       userSession.username,
       nextPlanId,

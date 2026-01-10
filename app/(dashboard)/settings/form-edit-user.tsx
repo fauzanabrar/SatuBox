@@ -127,9 +127,14 @@ export default function FormEditUser({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <Button type="submit" form="editName" className="flex px-4">
+                <Button
+                  type="submit"
+                  form="editName"
+                  className="flex px-4"
+                  disabled={loading}
+                >
                   <Loading loading={loading} size={20} className="-ml-2 mr-2" />
-                  Change
+                  {loading ? "Saving..." : "Change"}
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>

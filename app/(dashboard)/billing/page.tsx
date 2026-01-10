@@ -35,6 +35,42 @@ import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+const formatDate = (value?: unknown) => {
+  if (!value) return "—";
+  if (value instanceof Date) {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(value);
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }).format(parsed);
+    }
+  }
+  if (typeof value === "object") {
+    const asAny = value as { toDate?: () => Date; seconds?: number };
+    if (typeof asAny.toDate === "function") {
+      return formatDate(asAny.toDate());
+    }
+    if (typeof asAny.seconds === "number") {
+      return formatDate(new Date(asAny.seconds * 1000));
+    }
+  }
+  return "—";
+};
+
+const formatCurrency = (value?: number | null) => {
+  if (!Number.isFinite(value ?? NaN)) return "—";
+  return `Rp ${(value ?? 0).toLocaleString("id-ID")}`;
+};
+
 declare global {
   interface Window {
     snap?: {
@@ -81,6 +117,42 @@ export default function BillingPage() {
     if (!limit) return 0;
     return Math.min(100, Math.round((used / limit) * 100));
   }, [billing?.storageUsedBytes, billing?.storageLimitBytes]);
+
+  const currentPlanId = (billing?.planId as PlanId) || "free";
+  const availablePlanIds = useMemo(() => {
+    if (currentPlanId === "pro") {
+      return ["pro"];
+    }
+    if (currentPlanId !== "free") {
+      return ["starter", "pro"];
+    }
+    return PLAN_ORDER;
+  }, [currentPlanId]);
+  const upgradeAmount = useMemo(() => {
+    if (currentPlanId !== "starter") return null;
+    const difference =
+      cycle === "annual"
+        ? PLANS.pro.annualPrice - PLANS.starter.annualPrice
+        : PLANS.pro.monthlyPrice - PLANS.starter.monthlyPrice;
+    return Math.max(0, difference);
+  }, [currentPlanId, cycle]);
+
+  const currentCycleLabel =
+    billing?.billingCycle === "annual"
+      ? "Annual"
+      : billing?.billingCycle === "monthly"
+        ? "Monthly"
+        : "—";
+  const currentPriceLabel =
+    currentPlanId === "free"
+      ? "Free"
+      : billing?.billingCycle === "annual"
+        ? `Rp ${currentPlan.annualPrice.toLocaleString("id-ID")}/yr`
+        : `Rp ${currentPlan.monthlyPrice.toLocaleString("id-ID")}/mo`;
+  const lastPaymentLabel = formatCurrency(billing?.lastPaymentAmount);
+  const lastPaymentDate = formatDate(billing?.lastPaymentAt);
+  const nextBillingLabel =
+    currentPlanId === "free" ? "—" : formatDate(billing?.nextBillingAt);
 
   const handlePlanChange = async (planId: PlanId) => {
     try {
@@ -279,8 +351,6 @@ export default function BillingPage() {
     }
   };
 
-  const currentPlanId = (billing?.planId as PlanId) || "free";
-
   return (
     <div className="col-span-3 lg:col-span-4">
       <Script
@@ -301,6 +371,63 @@ export default function BillingPage() {
               limits.
             </p>
           </div>
+
+          <Card className="max-w-3xl">
+            <CardHeader>
+              <CardTitle>Plan details</CardTitle>
+              <CardDescription>
+                Current subscription information for your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">
+                  Tier
+                </p>
+                <p className="text-base font-semibold">
+                  {currentPlan.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {currentPriceLabel}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">
+                  Billing cycle
+                </p>
+                <p className="text-base font-semibold">
+                  {currentCycleLabel}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Paid until {nextBillingLabel}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">
+                  Last payment
+                </p>
+                <p className="text-base font-semibold">
+                  {lastPaymentLabel}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {lastPaymentDate}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">
+                  Status
+                </p>
+                <p className="text-base font-semibold">
+                  {currentPlanId === "free" ? "Free plan" : "Active"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {currentPlan.adFree
+                    ? "Ad-free downloads"
+                    : "Downloads show ads"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card className="max-w-3xl">
             <CardHeader>
@@ -343,16 +470,27 @@ export default function BillingPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
-            {PLAN_ORDER.map((planId) => {
+            {availablePlanIds.map((planId) => {
               const plan = PLANS[planId];
+              const isUpgrade =
+                currentPlanId === "starter" && planId === "pro";
+              const displayUpgrade = isUpgrade && upgradeAmount !== null;
               const price =
                 planId === "free"
                   ? "Free"
-                  : cycle === "monthly"
-                    ? `Rp ${plan.monthlyPrice.toLocaleString("id-ID")}/mo`
-                    : `Rp ${plan.annualPrice.toLocaleString("id-ID")}/yr`;
+                  : displayUpgrade
+                    ? `Upgrade Rp ${upgradeAmount?.toLocaleString(
+                        "id-ID",
+                      )}/${cycle === "annual" ? "yr" : "mo"}`
+                    : cycle === "monthly"
+                      ? `Rp ${plan.monthlyPrice.toLocaleString("id-ID")}/mo`
+                      : `Rp ${plan.annualPrice.toLocaleString("id-ID")}/yr`;
 
               const isCurrent = currentPlanId === planId;
+              const currentRank = PLAN_ORDER.indexOf(currentPlanId);
+              const nextRank = PLAN_ORDER.indexOf(planId);
+              const isDowngrade =
+                !isAdmin && currentRank !== -1 && nextRank < currentRank;
 
               return (
                 <Card
@@ -395,16 +533,23 @@ export default function BillingPage() {
                             : handleCheckout(planId)
                       }
                       disabled={
-                        isLoading || checkoutLoading === planId || isCurrent
+                        isLoading ||
+                        checkoutLoading === planId ||
+                        isCurrent ||
+                        isDowngrade
                       }
                     >
                       {isCurrent
                         ? "Current plan"
-                        : planId === "free"
-                          ? "Choose plan"
-                          : checkoutLoading === planId
-                            ? "Processing..."
-                            : "Pay with Midtrans"}
+                        : isDowngrade
+                          ? "Downgrade blocked"
+                          : planId === "free"
+                            ? "Choose plan"
+                            : checkoutLoading === planId
+                              ? "Processing..."
+                              : isUpgrade
+                                ? "Upgrade now"
+                                : "Pay now"}
                     </Button>
                   </CardFooter>
                 </Card>

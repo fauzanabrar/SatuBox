@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { PLANS, type BillingCycle, type PlanId } from "@/lib/billing/plans";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -38,7 +39,33 @@ const formSchema = z.object({
     message: "Username must be at least 4 characters.",
   }),
   role: z.string(),
+  planId: z.string().optional(),
+  billingCycle: z.string().optional(),
+  nextBillingAt: z.string().optional(),
 });
+
+const toDateInputValue = (value?: unknown) => {
+  if (!value) return "";
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().slice(0, 10);
+    }
+  }
+  if (typeof value === "object") {
+    const asAny = value as { toDate?: () => Date; seconds?: number };
+    if (typeof asAny.toDate === "function") {
+      return toDateInputValue(asAny.toDate());
+    }
+    if (typeof asAny.seconds === "number") {
+      return toDateInputValue(new Date(asAny.seconds * 1000));
+    }
+  }
+  return "";
+};
 
 export default function FormEditProfile({
   user,
@@ -66,8 +93,41 @@ export default function FormEditProfile({
       username: user.username,
       oldUsername: user.username,
       role: user.role,
+      planId: user.planId ?? "free",
+      billingCycle: user.billingCycle ?? "monthly",
+      nextBillingAt: toDateInputValue(user.nextBillingAt),
     },
   });
+
+  const cycleValue = form.watch("billingCycle");
+  const selectedCycle: BillingCycle =
+    cycleValue === "annual" || cycleValue === "monthly"
+      ? (cycleValue as BillingCycle)
+      : "monthly";
+  const currentPlanId = (user.planId as PlanId) ?? "free";
+  const upgradePrice =
+    selectedCycle === "annual"
+      ? PLANS.pro.annualPrice - PLANS.starter.annualPrice
+      : PLANS.pro.monthlyPrice - PLANS.starter.monthlyPrice;
+  const proUpgradeLabel =
+    currentPlanId === "starter"
+      ? `Pro (upgrade +Rp ${Math.max(0, upgradePrice).toLocaleString(
+          "id-ID",
+        )}/${selectedCycle === "annual" ? "yr" : "mo"})`
+      : "Pro";
+  const planOptions =
+    currentPlanId === "pro"
+      ? [{ value: "pro", label: "Pro" }]
+      : currentPlanId === "starter"
+        ? [
+            { value: "starter", label: "Starter" },
+            { value: "pro", label: proUpgradeLabel },
+          ]
+        : [
+            { value: "free", label: "Free" },
+            { value: "starter", label: "Starter" },
+            { value: "pro", label: "Pro" },
+          ];
 
   useEffect(() => {
     if (open) {
@@ -76,6 +136,9 @@ export default function FormEditProfile({
         username: user.username,
         oldUsername: user.username,
         role: user.role,
+        planId: user.planId ?? "free",
+        billingCycle: user.billingCycle ?? "monthly",
+        nextBillingAt: toDateInputValue(user.nextBillingAt),
       });
     }
   }, [open]);
@@ -124,7 +187,11 @@ export default function FormEditProfile({
                 name={fieldName as keyof typeof formSchema.shape} // Cast the fieldName to the specific keys defined in formSchema.shape
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{capitalize(fieldName)}</FormLabel>
+                    <FormLabel>
+                      {fieldName === "nextBillingAt"
+                        ? "Paid until"
+                        : capitalize(fieldName)}
+                    </FormLabel>
                     <FormControl>
                       <Switch>
                         <Match when={fieldName === "role"}>
@@ -141,7 +208,52 @@ export default function FormEditProfile({
                             </SelectContent>
                           </Select>
                         </Match>
-                        <Match when={fieldName !== "role"}>
+                        <Match when={fieldName === "planId"}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={planOptions.length === 1}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {planOptions.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Match>
+                        <Match when={fieldName === "billingCycle"}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="monthly">Monthly</SelectItem>
+                              <SelectItem value="annual">Annual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Match>
+                        <Match when={fieldName === "nextBillingAt"}>
+                          <Input type="date" {...field} />
+                        </Match>
+                        <Match
+                          when={
+                            fieldName !== "role" &&
+                            fieldName !== "planId" &&
+                            fieldName !== "billingCycle" &&
+                            fieldName !== "nextBillingAt"
+                          }
+                        >
                           <Input {...field} />
                         </Match>
                       </Switch>
@@ -152,12 +264,19 @@ export default function FormEditProfile({
               />
             ))}
           <div className="flex justify-end gap-2 pt-4 ">
-            <Button variant="default" className="flex px-4" type="submit">
+            <Button
+              variant="default"
+              className="flex px-4"
+              type="submit"
+              disabled={loading}
+            >
               <Loading loading={loading} size={20} className="-ml-2 mr-2" />
-              Edit
+              {loading ? "Saving..." : "Edit"}
             </Button>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" disabled={loading}>
+                Cancel
+              </Button>
             </DialogClose>
           </div>
         </form>

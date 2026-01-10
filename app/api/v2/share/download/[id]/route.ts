@@ -1,7 +1,8 @@
 import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
-import { getDriveClient } from "@/lib/gdrive";
+import gdrive, { getDriveClient } from "@/lib/gdrive";
 import { NextResponse } from "next/server";
 import { Readable } from "node:stream";
+import userServices from "@/services/userServices";
 
 const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
@@ -19,6 +20,31 @@ const ensureExtension = (name: string, extension: string) => {
   const lowerName = name.toLowerCase();
   const lowerExt = extension.toLowerCase();
   return lowerName.endsWith(lowerExt) ? name : `${name}${extension}`;
+};
+
+const parseOwnerUsername = (folderName: string) => {
+  if (folderName.startsWith("user-")) {
+    return folderName.slice(5);
+  }
+  return folderName;
+};
+
+const resolveOwnerFromParents = async (fileId: string) => {
+  const sharedRootId = process.env.SHARED_FOLDER_ID_DRIVE;
+  if (!sharedRootId) return null;
+
+  let currentId = fileId;
+  for (let i = 0; i < 20; i += 1) {
+    const parent = await gdrive.getAllParentsFolder(currentId);
+    if (!parent?.id) return null;
+    if (parent.id === sharedRootId) {
+      const ownerUsername = parseOwnerUsername(parent.currentName);
+      return ownerUsername || null;
+    }
+    currentId = parent.id;
+  }
+
+  return null;
 };
 
 type ParamsType = {
@@ -53,6 +79,22 @@ export async function GET(
   }
 
   try {
+    const ownerUsername = await resolveOwnerFromParents(id);
+    if (ownerUsername) {
+      const billing = await userServices.resolveBillingStatus(
+        ownerUsername,
+      );
+      if (billing.blocked) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Plan expired. Storage exceeds free limit.",
+          },
+          { status: 402 },
+        );
+      }
+    }
+
     const driveClient = await getDriveClient();
 
     const metadata = await driveClient.files.get({

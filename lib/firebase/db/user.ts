@@ -25,6 +25,12 @@ export interface FireStoreUser {
   billingCycle?: string | null;
   storageLimitBytes?: number;
   storageUsedBytes?: number;
+  lastPaymentAt?: Date | null;
+  lastPaymentAmount?: number | null;
+  lastPaymentOrderId?: string | null;
+  lastPaymentPlanId?: string | null;
+  lastPaymentCycle?: string | null;
+  nextBillingAt?: Date | null;
   rootFolderId?: string;
   sharedRootFolderIds?: string[];
   sharedWithUsernames?: string[];
@@ -98,6 +104,12 @@ export async function createUser(user: RegisterUser) {
     billingCycle: null,
     storageLimitBytes: PLANS[DEFAULT_PLAN_ID].storageLimitBytes,
     storageUsedBytes: 0,
+    lastPaymentAt: null,
+    lastPaymentAmount: null,
+    lastPaymentOrderId: null,
+    lastPaymentPlanId: null,
+    lastPaymentCycle: null,
+    nextBillingAt: null,
     rootFolderId: "",
     sharedRootFolderIds: [],
     sharedWithUsernames: [],

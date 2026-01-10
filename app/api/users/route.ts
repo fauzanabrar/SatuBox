@@ -1,5 +1,6 @@
 import { getUserSession } from "@/lib/next-auth/user-session";
 import userServices from "@/services/userServices";
+import { PLANS } from "@/lib/billing/plans";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -26,7 +27,15 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const { username, oldUsername, name, role } = await request.json();
+  const {
+    username,
+    oldUsername,
+    name,
+    role,
+    planId,
+    billingCycle,
+    nextBillingAt,
+  } = await request.json();
 
   if (!oldUsername || !role) {
     return NextResponse.json(
@@ -55,7 +64,83 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  const hasPlanUpdate = Boolean(planId);
+  const hasBillingDateUpdate = typeof nextBillingAt !== "undefined";
+  if ((hasPlanUpdate || hasBillingDateUpdate) && userSession.role !== "admin") {
+    return NextResponse.json(
+      {
+        status: 403,
+        message: "Forbidden",
+      },
+      {
+        status: 403,
+      },
+    );
+  }
+
   try {
+    const parsedNextBillingAt =
+      typeof nextBillingAt === "string"
+        ? nextBillingAt.trim() === ""
+          ? null
+          : new Date(nextBillingAt)
+        : nextBillingAt === null
+          ? null
+          : undefined;
+    if (
+      parsedNextBillingAt instanceof Date &&
+      Number.isNaN(parsedNextBillingAt.getTime())
+    ) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Invalid paid until date",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+    const billingUpdates =
+      typeof parsedNextBillingAt === "undefined"
+        ? {}
+        : { nextBillingAt: parsedNextBillingAt };
+
+    if (hasPlanUpdate) {
+      const nextPlanId = planId as keyof typeof PLANS;
+      if (!PLANS[nextPlanId]) {
+        return NextResponse.json(
+          {
+            status: 400,
+            message: "Invalid plan",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      const nextCycle =
+        nextPlanId === "free"
+          ? null
+          : billingCycle === "monthly" || billingCycle === "annual"
+            ? billingCycle
+            : null;
+
+      await userServices.updatePlan(
+        oldUsername,
+        nextPlanId,
+        nextCycle,
+        billingUpdates,
+      );
+    } else if (Object.keys(billingUpdates).length > 0) {
+      await userServices.updateBillingMeta(oldUsername, billingUpdates);
+    }
+
+    if (userSession.role === "admin") {
+      await userServices.resolveBillingStatus(oldUsername);
+    }
+
     await userServices.update({
       username: oldUsername,
       newUsername: username,

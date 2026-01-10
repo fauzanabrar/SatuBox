@@ -9,7 +9,7 @@ import {
   type FireStoreUser,
 } from "@/lib/firebase/db/user";
 import { ChangedUser, RegisterUser } from "@/types/userTypes";
-import { DEFAULT_PLAN_ID, PLANS } from "@/lib/billing/plans";
+import { DEFAULT_PLAN_ID, PLANS, type PlanId } from "@/lib/billing/plans";
 import gdrive from "@/lib/gdrive";
 
 async function list() {
@@ -22,6 +22,14 @@ async function list() {
         name: user.name,
         username: user.username,
         role: user.role,
+        planId: user.planId ?? DEFAULT_PLAN_ID,
+        billingCycle: user.billingCycle ?? null,
+        lastPaymentAt: user.lastPaymentAt ?? null,
+        lastPaymentAmount: user.lastPaymentAmount ?? null,
+        lastPaymentOrderId: user.lastPaymentOrderId ?? null,
+        lastPaymentPlanId: user.lastPaymentPlanId ?? null,
+        lastPaymentCycle: user.lastPaymentCycle ?? null,
+        nextBillingAt: user.nextBillingAt ?? null,
       };
     });
 
@@ -108,6 +116,7 @@ async function updatePlan(
   username: string,
   planId: keyof typeof PLANS,
   billingCycle: "monthly" | "annual" | null,
+  extraUpdates: Partial<FireStoreUser> = {},
 ) {
   const plan = PLANS[planId];
   if (!plan) throw new Error("Plan not found");
@@ -116,9 +125,64 @@ async function updatePlan(
     planId,
     billingCycle,
     storageLimitBytes: plan.storageLimitBytes,
+    ...extraUpdates,
   });
 
   return plan;
+}
+
+const parseBillingDate = (value: unknown) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  if (typeof value === "object") {
+    const asAny = value as { toDate?: () => Date; seconds?: number };
+    if (typeof asAny.toDate === "function") {
+      return asAny.toDate();
+    }
+    if (typeof asAny.seconds === "number") {
+      return new Date(asAny.seconds * 1000);
+    }
+  }
+  return null;
+};
+
+async function resolveBillingStatus(username: string) {
+  const profile = await ensureProfile(username);
+  const planId = (profile.planId as PlanId) ?? DEFAULT_PLAN_ID;
+  if (planId === "free") {
+    return { profile, blocked: false, expired: false };
+  }
+
+  const paidUntil = parseBillingDate(profile.nextBillingAt);
+  if (!paidUntil || paidUntil.getTime() >= Date.now()) {
+    return { profile, blocked: false, expired: false };
+  }
+
+  const usedBytes = profile.storageUsedBytes ?? 0;
+  const freeLimit = PLANS.free.storageLimitBytes;
+
+  if (usedBytes <= freeLimit) {
+    await updatePlan(username, "free", null, { nextBillingAt: null });
+    return {
+      profile: {
+        ...profile,
+        planId: "free",
+        billingCycle: null,
+        storageLimitBytes: PLANS.free.storageLimitBytes,
+        nextBillingAt: null,
+      },
+      blocked: false,
+      expired: true,
+    };
+  }
+
+  return { profile, blocked: true, expired: true };
 }
 
 async function updateStorageUsage(username: string, nextUsedBytes: number) {
@@ -181,6 +245,13 @@ async function removeSharedWithUsername(
   return nextShared;
 }
 
+async function updateBillingMeta(
+  username: string,
+  updates: Partial<FireStoreUser>,
+) {
+  await updateUserByUsername(username, updates);
+}
+
 async function add(registerUser: RegisterUser) {
   try {
     const user = await createUser(registerUser);
@@ -234,6 +305,8 @@ const userServices = {
   ensureProfile,
   ensureRootFolder,
   updatePlan,
+  resolveBillingStatus,
+  updateBillingMeta,
   updateStorageUsage,
   incrementStorageUsage,
   addSharedRootFolder,

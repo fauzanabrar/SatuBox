@@ -139,11 +139,17 @@ const getStorageStatus = async (
   );
   if (!ownerUsername) return null;
 
-  const ownerProfile = await userServices.ensureProfile(ownerUsername);
+  const billing = await userServices.resolveBillingStatus(ownerUsername);
+  const ownerProfile = billing.profile;
   const usedBytes = ownerProfile.storageUsedBytes ?? 0;
   const limitBytes = ownerProfile.storageLimitBytes ?? 0;
 
-  return { ownerUsername, usedBytes, limitBytes };
+  return {
+    ownerUsername,
+    usedBytes,
+    limitBytes,
+    blocked: billing.blocked,
+  };
 };
 
 
@@ -414,6 +420,15 @@ export async function POST(
           { status: 403 },
         );
       }
+      if (storage.blocked) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Plan expired. Storage exceeds free limit.",
+          },
+          { status: 402 },
+        );
+      }
 
       const contentLength = response.headers.get("content-length");
       const contentSize = contentLength ? Number(contentLength) : null;
@@ -502,6 +517,15 @@ export async function POST(
             message: "Forbidden",
           },
           { status: 403 },
+        );
+      }
+      if (storage.blocked) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Plan expired. Storage exceeds free limit.",
+          },
+          { status: 402 },
         );
       }
 

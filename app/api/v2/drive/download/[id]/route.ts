@@ -10,6 +10,13 @@ const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
 const googleExportMime = "application/pdf";
 
+const parseOwnerUsername = (folderName: string) => {
+  if (folderName.startsWith("user-")) {
+    return folderName.slice(5);
+  }
+  return folderName;
+};
+
 const sanitizeFilename = (name: string) => {
   const sanitized = name
     .replace(/[^\x20-\x7E]+/g, "_")
@@ -75,9 +82,11 @@ export async function GET(
     ].filter(Boolean);
 
     let canAccess = false;
+    let accessRootId: string | null = null;
     for (const rootId of allowedRootFolderIds) {
       if (await driveServices.isDescendantOf(id, rootId)) {
         canAccess = true;
+        accessRootId = rootId;
         break;
       }
     }
@@ -89,6 +98,27 @@ export async function GET(
           message: "Forbidden",
         },
         { status: 403 },
+      );
+    }
+
+    const ownerUsername =
+      accessRootId === rootFolderId
+        ? userSession.username
+        : accessRootId
+          ? parseOwnerUsername(
+              await driveServices.folderName(accessRootId),
+            ) || userSession.username
+          : userSession.username;
+    const billing = await userServices.resolveBillingStatus(
+      ownerUsername,
+    );
+    if (billing.blocked) {
+      return NextResponse.json(
+        {
+          status: 402,
+          message: "Plan expired. Storage exceeds free limit.",
+        },
+        { status: 402 },
       );
     }
   }
