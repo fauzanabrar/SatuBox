@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import Script from "next/script";
+import { useAtom } from "jotai";
+import { userAtom } from "@/lib/jotai/user-atom";
 import {
   PLANS,
   PLAN_ORDER,
@@ -45,6 +47,8 @@ export default function BillingPage() {
   const { toast } = useToast();
   const { data, isLoading, mutate } = useSWR("/api/v2/billing", fetcher);
   const billing = data?.data;
+  const [userSession] = useAtom(userAtom);
+  const isAdmin = userSession?.role === "admin";
 
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [verifyOrderId, setVerifyOrderId] = useState("");
@@ -161,13 +165,16 @@ export default function BillingPage() {
       }
 
       window.snap.pay(snapToken, {
-        onSuccess: () => {
+        onSuccess: async () => {
           toast({
             variant: "success",
             title: "Payment completed",
-            description: "Use Verify Payment if plan does not update.",
-            duration: 4000,
+            description: "Verifying your payment...",
+            duration: 3000,
           });
+          if (orderId) {
+            await handleVerifyPayment(orderId, planId, cycle);
+          }
         },
         onPending: () => {
           toast({
@@ -204,8 +211,14 @@ export default function BillingPage() {
     }
   };
 
-  const handleVerifyPayment = async () => {
-    const orderId = verifyOrderId.trim();
+  const handleVerifyPayment = async (
+    orderOverride?: string,
+    planOverride?: PlanId,
+    cycleOverride?: BillingCycle,
+  ) => {
+    const orderId = orderOverride ?? verifyOrderId.trim();
+    const planId = planOverride ?? verifyPlanId;
+    const selectedCycle = cycleOverride ?? cycle;
     if (!orderId) {
       toast({
         variant: "destructive",
@@ -225,8 +238,8 @@ export default function BillingPage() {
         },
         body: JSON.stringify({
           orderId,
-          planId: verifyPlanId,
-          billingCycle: cycle,
+          planId,
+          billingCycle: selectedCycle,
         }),
       });
 
@@ -250,7 +263,9 @@ export default function BillingPage() {
         description: "Your plan is updated.",
         duration: 3000,
       });
-      setVerifyOrderId("");
+      if (!orderOverride) {
+        setVerifyOrderId("");
+      }
       await mutate();
     } catch (error: any) {
       toast({
@@ -277,8 +292,8 @@ export default function BillingPage() {
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="afterInteractive"
       />
-      <div className="h-full px-4 py-4 lg:px-8">
-        <div className="flex flex-col gap-6">
+      <div className="min-h-screen px-4 py-8 lg:px-8">
+        <div className="flex min-h-[calc(100vh-4rem)] flex-col justify-center gap-6">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Billing</h2>
             <p className="text-sm text-muted-foreground">
@@ -397,68 +412,70 @@ export default function BillingPage() {
             })}
           </div>
 
-          <Card className="max-w-3xl">
-            <CardHeader>
-              <CardTitle>Manual payment verification</CardTitle>
-              <CardDescription>
-                Use this if Midtrans webhooks are not available yet.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {latestOrderId && (
-                <p className="text-xs text-muted-foreground">
-                  Last order ID: {latestOrderId}
-                </p>
-              )}
-              <div className="grid gap-3 md:grid-cols-[1fr_180px_160px]">
-                <Input
-                  placeholder="Midtrans order ID"
-                  value={verifyOrderId}
-                  onChange={(event) => setVerifyOrderId(event.target.value)}
-                />
-                <Select
-                  value={verifyPlanId}
-                  onValueChange={(value) =>
-                    setVerifyPlanId(value as PlanId)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Plan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="starter">Starter</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={cycle}
-                  onValueChange={(value) =>
-                    setCycle(value as BillingCycle)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Cycle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="annual">Annual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
-                  Make sure the plan and billing cycle match the payment.
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={handleVerifyPayment}
-                  disabled={verifyLoading}
-                >
-                  {verifyLoading ? "Verifying..." : "Verify payment"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {isAdmin && (
+            <Card className="max-w-3xl">
+              <CardHeader>
+                <CardTitle>Manual payment verification</CardTitle>
+                <CardDescription>
+                  Use this if Midtrans webhooks are not available yet.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {latestOrderId && (
+                  <p className="text-xs text-muted-foreground">
+                    Last order ID: {latestOrderId}
+                  </p>
+                )}
+                <div className="grid gap-3 md:grid-cols-[1fr_180px_160px]">
+                  <Input
+                    placeholder="Midtrans order ID"
+                    value={verifyOrderId}
+                    onChange={(event) => setVerifyOrderId(event.target.value)}
+                  />
+                  <Select
+                    value={verifyPlanId}
+                    onValueChange={(value) =>
+                      setVerifyPlanId(value as PlanId)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="starter">Starter</SelectItem>
+                      <SelectItem value="pro">Pro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={cycle}
+                    onValueChange={(value) =>
+                      setCycle(value as BillingCycle)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Cycle" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="annual">Annual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Make sure the plan and billing cycle match the payment.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={handleVerifyPayment}
+                    disabled={verifyLoading}
+                  >
+                    {verifyLoading ? "Verifying..." : "Verify payment"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

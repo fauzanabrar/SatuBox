@@ -13,7 +13,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100" />
         <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
           <span className="text-lg font-semibold tracking-tight">
-            ShareVault
+            Satubox
           </span>
           <div className="flex items-center gap-3">
             <Link
@@ -126,47 +126,53 @@ export default async function HomePage() {
               return (
                 <div
                   key={plan.id}
-                  className="rounded-2xl border bg-white p-6 shadow-sm"
+                  className="flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm"
                 >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{plan.name}</h3>
-                    <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                      {plan.storageLabel}
-                    </span>
+                  <div className="flex flex-1 flex-col gap-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-lg font-semibold">{plan.name}</h3>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        {plan.storageLabel}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {plan.description}
+                    </p>
+                    <div className="space-y-1 text-sm">
+                      {planId === "free" ? (
+                        <p className="text-2xl font-semibold">Free</p>
+                      ) : (
+                        <>
+                          <p className="text-2xl font-semibold">
+                            Rp {plan.monthlyPrice.toLocaleString("id-ID")}/mo
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Or Rp {plan.annualPrice.toLocaleString("id-ID")}/yr
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>Public share links</li>
+                      <li>
+                        {plan.adFree
+                          ? "Ad-free downloads"
+                          : "Downloads show ads"}
+                      </li>
+                      <li>{plan.storageLabel} storage</li>
+                    </ul>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {plan.description}
-                  </p>
-                  <div className="mt-4 space-y-1 text-sm">
-                    {planId === "free" ? (
-                      <p className="text-2xl font-semibold">Free</p>
-                    ) : (
-                      <>
-                        <p className="text-2xl font-semibold">
-                          Rp {plan.monthlyPrice.toLocaleString("id-ID")}/mo
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Or Rp {plan.annualPrice.toLocaleString("id-ID")}/yr
-                        </p>
-                      </>
-                    )}
+                  <div className="mt-auto pt-6">
+                    <Button
+                      className="w-full"
+                      variant={planId === "free" ? "outline" : "default"}
+                      asChild
+                    >
+                      <Link href={isSignedIn ? "/billing" : "/register"}>
+                        {planId === "free" ? "Start free" : "Upgrade"}
+                      </Link>
+                    </Button>
                   </div>
-                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                    <li>Public share links</li>
-                    <li>
-                      {plan.adFree ? "Ad-free downloads" : "Downloads show ads"}
-                    </li>
-                    <li>{plan.storageLabel} storage</li>
-                  </ul>
-                  <Button
-                    className="mt-6 w-full"
-                    variant={planId === "free" ? "outline" : "default"}
-                    asChild
-                  >
-                    <Link href={isSignedIn ? "/billing" : "/register"}>
-                      {planId === "free" ? "Start free" : "Upgrade"}
-                    </Link>
-                  </Button>
                 </div>
               );
             })}
