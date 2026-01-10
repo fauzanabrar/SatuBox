@@ -10,7 +10,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="relative overflow-hidden border-b">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-background to-muted/40" />
         <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
           <span className="text-lg font-semibold tracking-tight">
             Satubox
@@ -31,7 +31,7 @@ export default async function HomePage() {
         </header>
         <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               New SaaS Storage
             </div>
             <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
@@ -59,7 +59,7 @@ export default async function HomePage() {
               <div>Ad-free downloads for members</div>
             </div>
           </div>
-          <div className="rounded-3xl border bg-white p-6 shadow-sm">
+          <div className="rounded-3xl border bg-card p-6 shadow-sm">
             <div className="space-y-4">
               <h2 className="text-lg font-semibold">What you get</h2>
               <div className="space-y-3 text-sm text-muted-foreground">
@@ -76,7 +76,7 @@ export default async function HomePage() {
                   Storage plans from 5 GB to 10 TB.
                 </div>
               </div>
-              <div className="rounded-2xl border border-dashed bg-slate-50 p-4 text-xs text-slate-500">
+              <div className="rounded-2xl border border-dashed bg-muted/40 p-4 text-xs text-muted-foreground">
                 Payments are mocked in-app for now. Connect a gateway later.
               </div>
             </div>
@@ -86,21 +86,21 @@ export default async function HomePage() {
 
       <section className="mx-auto w-full max-w-6xl px-6 py-14">
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold">Fast sharing</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Generate share links with preview, download, and file size in one
               click.
             </p>
           </div>
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold">Permissioned folders</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Each user gets a private root folder and can grant access to
               collaborators.
             </p>
           </div>
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold">Monetize downloads</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Free tier shows ads (coming soon). Paid members enjoy ad-free
@@ -110,7 +110,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-t bg-slate-50">
+      <section className="border-t bg-muted/40">
         <div className="mx-auto w-full max-w-6xl px-6 py-16">
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-semibold tracking-tight">
@@ -126,12 +126,12 @@ export default async function HomePage() {
               return (
                 <div
                   key={plan.id}
-                  className="flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm"
+                  className="flex h-full flex-col rounded-2xl border bg-card p-6 shadow-sm"
                 >
                   <div className="flex flex-1 flex-col gap-4">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-lg font-semibold">{plan.name}</h3>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                         {plan.storageLabel}
                       </span>
                     </div>

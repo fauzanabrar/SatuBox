@@ -78,7 +78,7 @@ export function SidebarMenu({
     <div>
       {/* Account Profile */}
       <div className="flex flex-row items-center gap-3 px-4 py-4">
-        <LucideCircleUserRound className="h-10 w-10 font-semibold text-gray-700" />
+        <LucideCircleUserRound className="h-10 w-10 font-semibold text-muted-foreground" />
         <div className="">
           <div className="flex items-center gap-2">
             <p className="font-semibold">{user.name}</p>
@@ -89,7 +89,7 @@ export function SidebarMenu({
               {plan.name}
             </Badge>
           </div>
-          <p className="py-0 text-sm text-gray-600">
+          <p className="py-0 text-sm text-muted-foreground">
             @{user.username} ({user.role})
           </p>
         </div>

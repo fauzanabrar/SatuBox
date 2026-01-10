@@ -29,7 +29,7 @@ const buildPreview = (id: string, mimeType: string) => {
       <img
         src={`/api/v2/share/media/${id}`}
         alt="Shared file preview"
-        className="h-auto w-full rounded-xl border border-slate-200 object-contain"
+        className="h-auto w-full rounded-xl border border-border object-contain"
       />
     );
   }
@@ -39,14 +39,14 @@ const buildPreview = (id: string, mimeType: string) => {
       <video
         controls
         preload="metadata"
-        className="w-full rounded-xl border border-slate-200"
+        className="w-full rounded-xl border border-border"
         src={`/api/v2/share/media/${id}`}
       />
     );
   }
 
   return (
-    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500">
+    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/40 text-sm text-muted-foreground">
       Preview is not available for this file type.
     </div>
   );
@@ -66,15 +66,15 @@ export default async function ShareFilePage({
   const restrict = await getRestrictByFileId(id);
   if (restrict) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12">
-        <div className="max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <div className="flex min-h-screen items-center justify-center bg-muted/40 px-6 py-12">
+        <div className="max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Access Restricted
           </p>
-          <h1 className="mt-3 text-2xl font-semibold text-slate-900">
+          <h1 className="mt-3 text-2xl font-semibold text-foreground">
             This file is private
           </h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-muted-foreground">
             The owner restricted access to this file.
           </p>
         </div>
@@ -106,18 +106,18 @@ export default async function ShareFilePage({
   const sizeLabel = formatBytes(size);
   const downloadLabel = `Download (${sizeLabel})`;
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900">
+    <div className="min-h-screen bg-muted/40 px-4 py-10 text-foreground">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Shared file
               </p>
-              <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
+              <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
                 {fileName}
               </h1>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 {`Size: ${sizeLabel}`}
               </p>
             </div>
@@ -134,7 +134,7 @@ export default async function ShareFilePage({
             {buildPreview(id, mimeType)}
           </div>
         </div>
-        <div className="text-center text-xs text-slate-400">
+        <div className="text-center text-xs text-muted-foreground">
           Shared with a public link.
         </div>
       </div>

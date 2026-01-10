@@ -10,6 +10,7 @@ import FormChangeEmail from "./form-change-email";
 import FormChangePassword from "./form-change-password";
 import FormEditUser from "./form-edit-user";
 import FolderShare from "./folder-share";
+import ThemeToggle from "@/components/theme-toggle";
 
 export const metadata = {
   title: "Settings",
@@ -93,6 +94,30 @@ export default async function SettingsPage() {
                       "billingCycle",
                     ]}
                   />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
+              value="appearance"
+              className={accordionItemClassName}
+            >
+              <AccordionTrigger className={accordionTriggerClassName}>
+                <div className="flex flex-col text-left">
+                  <span>Appearance</span>
+                  <span className="text-xs text-muted-foreground">
+                    Switch between light and dark mode.
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4">
+                <div className="flex items-center justify-between rounded-xl bg-muted/30 p-4">
+                  <div>
+                    <p className="text-sm font-medium">Theme</p>
+                    <p className="text-xs text-muted-foreground">
+                      Default is light.
+                    </p>
+                  </div>
+                  <ThemeToggle />
                 </div>
               </AccordionContent>
             </AccordionItem>
