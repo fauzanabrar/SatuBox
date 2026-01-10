@@ -3,12 +3,31 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function FolderShare() {
+type FolderShareProps = {
+  className?: string;
+  showHeading?: boolean;
+};
+
+export default function FolderShare({
+  className,
+  showHeading = true,
+}: FolderShareProps) {
   const { toast } = useToast();
   const { data, isLoading, mutate } = useSWR(
     "/api/v2/folder-share",
@@ -18,6 +37,7 @@ export default function FolderShare() {
 
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingRemoval, setPendingRemoval] = useState<string | null>(null);
 
   const handleShare = async () => {
     const target = username.trim();
@@ -89,14 +109,34 @@ export default function FolderShare() {
     }
   };
 
+  const handleConfirmRevoke = async () => {
+    if (!pendingRemoval) return;
+    await handleRevoke(pendingRemoval);
+    setPendingRemoval(null);
+  };
+
   return (
-    <div className="mt-4 rounded-2xl border p-4 md:w-1/2 lg:w-1/3">
-      <h3 className="text-md mb-4 font-semibold tracking-tight">
-        Folder Sharing
-      </h3>
-      <p className="mb-3 text-sm text-muted-foreground">
-        Grant another user access to your root folder by username.
-      </p>
+    <div
+      className={cn(
+        "rounded-2xl border p-4",
+        showHeading && "mt-4 md:w-1/2 lg:w-1/3",
+        className,
+      )}
+    >
+      {showHeading ? (
+        <>
+          <h3 className="text-md mb-4 font-semibold tracking-tight">
+            Folder Sharing
+          </h3>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Grant another user access to your root folder by username.
+          </p>
+        </>
+      ) : (
+        <p className="mb-3 text-sm text-muted-foreground">
+          Grant another user access to your root folder by username.
+        </p>
+      )}
       <div className="flex gap-2">
         <Input
           placeholder="username"
@@ -121,16 +161,43 @@ export default function FolderShare() {
           >
             <span>@{name}</span>
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               disabled={busy}
-              onClick={() => handleRevoke(name)}
+              onClick={() => setPendingRemoval(name)}
             >
               Remove
             </Button>
           </div>
         ))}
       </div>
+      <AlertDialog
+        open={Boolean(pendingRemoval)}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoval(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove access?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingRemoval
+                ? `@${pendingRemoval} will lose access to your folder.`
+                : "This user will lose access to your folder."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={busy}
+              onClick={handleConfirmRevoke}
+            >
+              Remove access
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
