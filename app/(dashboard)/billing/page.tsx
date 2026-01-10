@@ -119,7 +119,7 @@ export default function BillingPage() {
   }, [billing?.storageUsedBytes, billing?.storageLimitBytes]);
 
   const currentPlanId = (billing?.planId as PlanId) || "free";
-  const availablePlanIds = useMemo(() => {
+  const availablePlanIds = useMemo<PlanId[]>(() => {
     if (currentPlanId === "pro") {
       return ["pro"];
     }
@@ -612,7 +612,7 @@ export default function BillingPage() {
                   </p>
                   <Button
                     variant="outline"
-                    onClick={handleVerifyPayment}
+                    onClick={() => handleVerifyPayment()}
                     disabled={verifyLoading}
                   >
                     {verifyLoading ? "Verifying..." : "Verify payment"}
