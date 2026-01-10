@@ -21,8 +21,8 @@ export const PLANS = {
     description: "For creators who need more room and ad-free links.",
     storageLimitBytes: tb(1),
     storageLabel: "1 TB",
-    monthlyPrice: 5,
-    annualPrice: 50,
+    monthlyPrice: 50000,
+    annualPrice: 500000,
     adFree: true,
   },
   pro: {
@@ -31,8 +31,8 @@ export const PLANS = {
     description: "For teams managing large video libraries.",
     storageLimitBytes: tb(10),
     storageLabel: "10 TB",
-    monthlyPrice: 10,
-    annualPrice: 100,
+    monthlyPrice: 100000,
+    annualPrice: 1000000,
     adFree: true,
   },
 } as const;

@@ -12,7 +12,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import Script from "next/script";
 import {
   PLANS,
   PLAN_ORDER,
@@ -24,12 +33,29 @@ import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+declare global {
+  interface Window {
+    snap?: {
+      pay: (token: string, options?: Record<string, unknown>) => void;
+    };
+  }
+}
+
 export default function BillingPage() {
   const { toast } = useToast();
   const { data, isLoading, mutate } = useSWR("/api/v2/billing", fetcher);
   const billing = data?.data;
 
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [verifyOrderId, setVerifyOrderId] = useState("");
+  const [verifyPlanId, setVerifyPlanId] = useState<PlanId>("starter");
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(
+    null,
+  );
+  const [latestOrderId, setLatestOrderId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     if (
@@ -87,10 +113,170 @@ export default function BillingPage() {
     }
   };
 
+  const handleCheckout = async (planId: PlanId) => {
+    if (planId === "free") {
+      await handlePlanChange(planId);
+      return;
+    }
+
+    if (!window.snap) {
+      toast({
+        variant: "destructive",
+        title: "Midtrans not ready",
+        description: "Snap script is not loaded yet.",
+        duration: 4000,
+      });
+      return;
+    }
+
+    try {
+      setCheckoutLoading(planId);
+      const response = await fetch("/api/payments/midtrans/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          planId,
+          billingCycle: cycle,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to create payment");
+      }
+
+      const snapToken = result?.data?.snapToken as string;
+      const orderId = result?.data?.orderId as string;
+
+      if (!snapToken) {
+        throw new Error("Missing Snap token");
+      }
+
+      if (orderId) {
+        setLatestOrderId(orderId);
+        setVerifyOrderId(orderId);
+        setVerifyPlanId(planId);
+      }
+
+      window.snap.pay(snapToken, {
+        onSuccess: () => {
+          toast({
+            variant: "success",
+            title: "Payment completed",
+            description: "Use Verify Payment if plan does not update.",
+            duration: 4000,
+          });
+        },
+        onPending: () => {
+          toast({
+            title: "Payment pending",
+            description: "Complete payment then verify it.",
+            duration: 4000,
+          });
+        },
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Payment failed",
+            description: "Please try again.",
+            duration: 4000,
+          });
+        },
+        onClose: () => {
+          toast({
+            title: "Payment closed",
+            description: "You can verify later with the order ID.",
+            duration: 3000,
+          });
+        },
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Checkout failed",
+        description: error?.message || "Something went wrong.",
+        duration: 5000,
+      });
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
+  const handleVerifyPayment = async () => {
+    const orderId = verifyOrderId.trim();
+    if (!orderId) {
+      toast({
+        variant: "destructive",
+        title: "Order ID required",
+        description: "Enter the Midtrans order ID to verify.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      setVerifyLoading(true);
+      const response = await fetch("/api/payments/midtrans/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          planId: verifyPlanId,
+          billingCycle: cycle,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.status === 202) {
+        toast({
+          title: "Payment pending",
+          description: result?.transaction_status || "Awaiting settlement.",
+          duration: 4000,
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Verification failed");
+      }
+
+      toast({
+        variant: "success",
+        title: "Payment verified",
+        description: "Your plan is updated.",
+        duration: 3000,
+      });
+      setVerifyOrderId("");
+      await mutate();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Verification failed",
+        description: error?.message || "Something went wrong.",
+        duration: 5000,
+      });
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
   const currentPlanId = (billing?.planId as PlanId) || "free";
 
   return (
     <div className="col-span-3 lg:col-span-4">
+      <Script
+        src={
+          process.env.NEXT_PUBLIC_MIDTRANS_ENV === "production"
+            ? "https://app.midtrans.com/snap/snap.js"
+            : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="afterInteractive"
+      />
       <div className="h-full px-4 py-4 lg:px-8">
         <div className="flex flex-col gap-6">
           <div>
@@ -148,8 +334,8 @@ export default function BillingPage() {
                 planId === "free"
                   ? "Free"
                   : cycle === "monthly"
-                    ? `$${plan.monthlyPrice}/mo`
-                    : `$${plan.annualPrice}/yr`;
+                    ? `Rp ${plan.monthlyPrice.toLocaleString("id-ID")}/mo`
+                    : `Rp ${plan.annualPrice.toLocaleString("id-ID")}/yr`;
 
               const isCurrent = currentPlanId === planId;
 
@@ -186,16 +372,93 @@ export default function BillingPage() {
                     <Button
                       className="w-full"
                       variant={isCurrent ? "outline" : "default"}
-                      onClick={() => handlePlanChange(planId)}
-                      disabled={isLoading}
+                      onClick={() =>
+                        isCurrent
+                          ? undefined
+                          : planId === "free"
+                            ? handlePlanChange(planId)
+                            : handleCheckout(planId)
+                      }
+                      disabled={
+                        isLoading || checkoutLoading === planId || isCurrent
+                      }
                     >
-                      {isCurrent ? "Current plan" : "Choose plan"}
+                      {isCurrent
+                        ? "Current plan"
+                        : planId === "free"
+                          ? "Choose plan"
+                          : checkoutLoading === planId
+                            ? "Processing..."
+                            : "Pay with Midtrans"}
                     </Button>
                   </CardFooter>
                 </Card>
               );
             })}
           </div>
+
+          <Card className="max-w-3xl">
+            <CardHeader>
+              <CardTitle>Manual payment verification</CardTitle>
+              <CardDescription>
+                Use this if Midtrans webhooks are not available yet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {latestOrderId && (
+                <p className="text-xs text-muted-foreground">
+                  Last order ID: {latestOrderId}
+                </p>
+              )}
+              <div className="grid gap-3 md:grid-cols-[1fr_180px_160px]">
+                <Input
+                  placeholder="Midtrans order ID"
+                  value={verifyOrderId}
+                  onChange={(event) => setVerifyOrderId(event.target.value)}
+                />
+                <Select
+                  value={verifyPlanId}
+                  onValueChange={(value) =>
+                    setVerifyPlanId(value as PlanId)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="starter">Starter</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={cycle}
+                  onValueChange={(value) =>
+                    setCycle(value as BillingCycle)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Cycle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="annual">Annual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Make sure the plan and billing cycle match the payment.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleVerifyPayment}
+                  disabled={verifyLoading}
+                >
+                  {verifyLoading ? "Verifying..." : "Verify payment"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

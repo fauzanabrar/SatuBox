@@ -143,10 +143,10 @@ export default async function HomePage() {
                     ) : (
                       <>
                         <p className="text-2xl font-semibold">
-                          ${plan.monthlyPrice}/mo
+                          Rp {plan.monthlyPrice.toLocaleString("id-ID")}/mo
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Or ${plan.annualPrice}/yr
+                          Or Rp {plan.annualPrice.toLocaleString("id-ID")}/yr
                         </p>
                       </>
                     )}
