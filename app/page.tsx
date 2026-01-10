@@ -1,7 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { PLAN_ORDER, PLANS } from "@/lib/billing/plans";
+
+export const metadata: Metadata = {
+  title: "Storage + sharing",
+  description:
+    "Share files fast, control access, and manage storage in one place.",
+};
 
 export default async function HomePage() {
   const userSession = await getUserSession();
@@ -14,14 +21,9 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-muted/60 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -right-28 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-          <span className="text-lg font-semibold tracking-tight">
-            Satubox
-          </span>
+          <span className="text-lg font-semibold tracking-tight">Satubox</span>
           <div className="flex items-center gap-3">
-            <Link
-              href={isSignedIn ? "/list" : "/login"}
-              className="link-ghost"
-            >
+            <Link href={isSignedIn ? "/list" : "/login"} className="link-ghost">
               {isSignedIn ? "Open app" : "Login"}
             </Link>
             {!isSignedIn && (

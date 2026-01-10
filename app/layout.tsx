@@ -5,10 +5,15 @@ import Providers from "@/components/jotai/providers";
 import Toaster from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
+const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Satubox",
-  description: "Satubox",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "Satubox",
+    template: "%s | Satubox",
+  },
+  description: "Share files fast, control access, and manage storage.",
 };
 
 const themeScript = `

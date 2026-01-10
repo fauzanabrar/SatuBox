@@ -7,7 +7,7 @@
     "dev:turbo": "next dev --turbo",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {

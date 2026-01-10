@@ -33,11 +33,7 @@ export async function POST(request: NextRequest) {
   }
 
   const paidDownload = await getPaidDownload(fileId);
-  if (
-    !paidDownload ||
-    !paidDownload.enabled ||
-    paidDownload.price < 1000
-  ) {
+  if (!paidDownload || !paidDownload.enabled || paidDownload.price < 1000) {
     return NextResponse.json(
       {
         status: 400,
@@ -111,14 +107,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-  await createDownloadOrder({
-    orderId,
-    fileId,
-    ownerUsername: paidDownload.ownerUsername,
-    amount: grossAmount,
-    currency: paidDownload.currency ?? "IDR",
-    status: "pending",
-    token: null,
+    await createDownloadOrder({
+      orderId,
+      fileId,
+      ownerUsername: paidDownload.ownerUsername,
+      amount: grossAmount,
+      currency: paidDownload.currency ?? "IDR",
+      status: "pending",
+      token: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

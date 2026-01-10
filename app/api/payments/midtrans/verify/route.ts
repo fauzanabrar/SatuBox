@@ -131,11 +131,8 @@ export async function POST(request: NextRequest) {
         : undefined;
 
     const grossAmount = Number(data.gross_amount);
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
-    const currentPlanId =
-      (userProfile.planId as PlanId) ?? DEFAULT_PLAN_ID;
+    const userProfile = await userServices.ensureProfile(userSession.username);
+    const currentPlanId = (userProfile.planId as PlanId) ?? DEFAULT_PLAN_ID;
     const isUpgrade = currentPlanId === "starter" && planId === "pro";
 
     let resolvedCycle = expectedCycle;
@@ -143,8 +140,7 @@ export async function POST(request: NextRequest) {
       if (isUpgrade) {
         const monthlyUpgrade =
           PLANS.pro.monthlyPrice - PLANS.starter.monthlyPrice;
-        const annualUpgrade =
-          PLANS.pro.annualPrice - PLANS.starter.annualPrice;
+        const annualUpgrade = PLANS.pro.annualPrice - PLANS.starter.annualPrice;
         if (grossAmount === monthlyUpgrade) {
           resolvedCycle = "monthly";
         } else if (grossAmount === annualUpgrade) {
@@ -218,19 +214,14 @@ export async function POST(request: NextRequest) {
     const paidAt = getPaymentDate(data.transaction_time);
     const nextBillingAt = addBillingCycle(paidAt, resolvedCycle);
 
-    await userServices.updatePlan(
-      userSession.username,
-      planId,
-      resolvedCycle,
-      {
-        lastPaymentAt: paidAt,
-        lastPaymentAmount: grossAmount,
-        lastPaymentOrderId: orderId,
-        lastPaymentPlanId: planId,
-        lastPaymentCycle: resolvedCycle,
-        nextBillingAt,
-      },
-    );
+    await userServices.updatePlan(userSession.username, planId, resolvedCycle, {
+      lastPaymentAt: paidAt,
+      lastPaymentAmount: grossAmount,
+      lastPaymentOrderId: orderId,
+      lastPaymentPlanId: planId,
+      lastPaymentCycle: resolvedCycle,
+      nextBillingAt,
+    });
 
     return NextResponse.json({
       status: 200,

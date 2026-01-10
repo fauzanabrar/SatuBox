@@ -205,8 +205,8 @@ export default function ListUser({
               const lastPaymentDate = formatDateTime(user.lastPaymentAt);
               const hasPaymentHistory = Boolean(
                 user.lastPaymentAt ||
-                  user.lastPaymentAmount ||
-                  user.lastPaymentOrderId,
+                user.lastPaymentAmount ||
+                user.lastPaymentOrderId,
               );
               const planVariant =
                 planId === "pro"

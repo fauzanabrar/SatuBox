@@ -1,6 +1,11 @@
 "use client";
 import { LucideMenu } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { UserSession } from "@/types/api/auth";
 import { SidebarMenu } from "./sidebar-menu";
 import { useState } from "react";

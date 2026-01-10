@@ -31,10 +31,7 @@ export default function SharedFoldersSidebar({
   toggle?: () => void;
 }) {
   const { toast } = useToast();
-  const { data, isLoading, mutate } = useSWR(
-    "/api/v2/shared-folders",
-    fetcher,
-  );
+  const { data, isLoading, mutate } = useSWR("/api/v2/shared-folders", fetcher);
   const sharedFolders = (data?.data as SharedFolder[]) || [];
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -105,9 +102,7 @@ export default function SharedFoldersSidebar({
             </div>
             <AlertDialog
               open={confirmId === folder.id}
-              onOpenChange={(open) =>
-                setConfirmId(open ? folder.id : null)
-              }
+              onOpenChange={(open) => setConfirmId(open ? folder.id : null)}
             >
               <AlertDialogTrigger asChild>
                 <Button

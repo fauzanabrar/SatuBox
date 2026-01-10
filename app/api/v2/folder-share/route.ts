@@ -15,9 +15,7 @@ export async function GET() {
   }
 
   try {
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
+    const userProfile = await userServices.ensureProfile(userSession.username);
 
     return NextResponse.json({
       status: 200,
@@ -89,10 +87,7 @@ export async function POST(request: NextRequest) {
     );
 
     await userServices.addSharedRootFolder(username, rootFolderId);
-    await userServices.addSharedWithUsername(
-      userSession.username,
-      username,
-    );
+    await userServices.addSharedWithUsername(userSession.username, username);
 
     return NextResponse.json({
       status: 200,
@@ -140,10 +135,7 @@ export async function DELETE(request: NextRequest) {
     );
 
     await userServices.removeSharedRootFolder(username, rootFolderId);
-    await userServices.removeSharedWithUsername(
-      userSession.username,
-      username,
-    );
+    await userServices.removeSharedWithUsername(userSession.username, username);
 
     return NextResponse.json({
       status: 200,

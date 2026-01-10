@@ -23,9 +23,7 @@ export async function GET() {
   }
 
   try {
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
+    const userProfile = await userServices.ensureProfile(userSession.username);
     const sharedRootFolderIds = userProfile.sharedRootFolderIds ?? [];
 
     const sharedFolders = await Promise.all(
@@ -85,18 +83,12 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    await userServices.removeSharedRootFolder(
-      userSession.username,
-      folderId,
-    );
+    await userServices.removeSharedRootFolder(userSession.username, folderId);
 
     try {
       const folderName = await driveServices.folderName(folderId);
       const ownerUsername = parseOwnerUsername(folderName);
-      if (
-        ownerUsername &&
-        ownerUsername !== userSession.username
-      ) {
+      if (ownerUsername && ownerUsername !== userSession.username) {
         await userServices.removeSharedWithUsername(
           ownerUsername,
           userSession.username,

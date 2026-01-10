@@ -5,6 +5,24 @@ import { Readable } from "node:stream";
 
 const fileTypes: Record<string, string> = {
   "application/vnd.google-apps.folder": "folder",
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "doc",
+  "application/vnd.google-apps.document": "doc",
+  "application/vnd.ms-excel": "sheet",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "sheet",
+  "application/vnd.google-apps.spreadsheet": "sheet",
+  "application/vnd.ms-powerpoint": "slide",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "slide",
+  "application/vnd.google-apps.presentation": "slide",
+  "application/zip": "archive",
+  "application/x-zip-compressed": "archive",
+  "application/x-7z-compressed": "archive",
+  "application/x-rar-compressed": "archive",
+  "application/x-tar": "archive",
+  "application/gzip": "archive",
   "image/jpeg": "image",
   "image/gif": "image",
   "image/png": "image",
@@ -43,7 +61,11 @@ async function list(
             ? "image"
             : mimeType.startsWith("video/")
               ? "video"
-              : "file");
+              : mimeType.startsWith("audio/")
+                ? "audio"
+                : mimeType.startsWith("text/")
+                  ? "text"
+                  : "file");
 
         // set the media (deprecated)
         // if (newfile.fileType === "image") {
@@ -73,8 +95,7 @@ async function list(
 
     // skip the restrict if the user is user
     const files = (await listFiles).filter(
-      (file) =>
-        !(file.isRestrict && !file.whitelist?.includes(user.username)),
+      (file) => !(file.isRestrict && !file.whitelist?.includes(user.username)),
     );
 
     if (user.role === "user") return files;

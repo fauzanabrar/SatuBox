@@ -45,8 +45,7 @@ export async function GET(
       fields: "id, name, mimeType, size",
     });
 
-    const mimeType =
-      metadata.data.mimeType || "application/octet-stream";
+    const mimeType = metadata.data.mimeType || "application/octet-stream";
 
     if (mimeType === folderMimeType) {
       return NextResponse.json(

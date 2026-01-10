@@ -24,9 +24,7 @@ export const urlKey: string = "/api/v2/drive";
 const getListUrls = (folderId?: string) => {
   const id = folderId || "";
 
-  return id
-    ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`]
-    : [urlKey];
+  return id ? [`${urlKey}/${id}`, `${urlKey}/${id}?parents=true`] : [urlKey];
 };
 
 export default function useSWRList({

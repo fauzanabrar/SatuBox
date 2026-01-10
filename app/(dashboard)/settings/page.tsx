@@ -40,10 +40,7 @@ export default async function SettingsPage() {
         <FolderShare />
         <div className="mt-8 max-w-xl rounded-2xl border bg-background p-4">
           <Accordion type="single" collapsible defaultValue="password">
-            <AccordionItem
-              value="password"
-              className={accordionItemClassName}
-            >
+            <AccordionItem value="password" className={accordionItemClassName}>
               <AccordionTrigger className={accordionTriggerClassName}>
                 <div className="flex flex-col text-left">
                   <span>Change password</span>

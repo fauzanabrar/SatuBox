@@ -78,11 +78,14 @@ export default function EarningsPage() {
   const [userSession] = useAtom(userAtom);
   const isAdmin = userSession?.role === "admin";
   const [mounted, setMounted] = useState(false);
-  const { data: adminWithdrawalsData, mutate: mutateAdminWithdrawals } =
-    useSWR(isAdmin ? "/api/v2/withdrawals" : null, fetcher);
+  const { data: adminWithdrawalsData, mutate: mutateAdminWithdrawals } = useSWR(
+    isAdmin ? "/api/v2/withdrawals" : null,
+    fetcher,
+  );
   const earnings = (data?.data?.earnings ?? []) as DownloadEarning[];
   const withdrawals = (data?.data?.withdrawals ?? []) as WithdrawRequest[];
-  const adminWithdrawals = (adminWithdrawalsData?.data ?? []) as WithdrawRequest[];
+  const adminWithdrawals = (adminWithdrawalsData?.data ??
+    []) as WithdrawRequest[];
   const totals = data?.data?.totals ?? {};
   const minWithdrawAmount = data?.data?.minWithdrawAmount ?? 50000;
 
@@ -261,9 +264,7 @@ export default function EarningsPage() {
     <div className="col-span-3 lg:col-span-4">
       <div className="px-4 py-6 lg:px-8">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Pendapatan
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Pendapatan</h2>
           <p className="text-sm text-muted-foreground">
             Lacak pemasukan unduhan berbayar dan ajukan penarikan saldo.
           </p>
@@ -319,35 +320,25 @@ export default function EarningsPage() {
                 <TableBody>
                   {isLoading && (
                     <TableRow>
-                      <TableCell colSpan={6}>
-                        Memuat data...
-                      </TableCell>
+                      <TableCell colSpan={6}>Memuat data...</TableCell>
                     </TableRow>
                   )}
                   {!isLoading && sortedEarnings.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6}>
-                        Belum ada transaksi.
-                      </TableCell>
+                      <TableCell colSpan={6}>Belum ada transaksi.</TableCell>
                     </TableRow>
                   )}
                   {sortedEarnings.map((earning) => (
                     <TableRow key={earning.orderId}>
-                      <TableCell>
-                        {formatDateTime(earning.createdAt)}
-                      </TableCell>
+                      <TableCell>{formatDateTime(earning.createdAt)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {earning.fileId}
                       </TableCell>
                       <TableCell>
                         {formatCurrency(earning.grossAmount)}
                       </TableCell>
-                      <TableCell>
-                        {formatCurrency(earning.feeAmount)}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(earning.netAmount)}
-                      </TableCell>
+                      <TableCell>{formatCurrency(earning.feeAmount)}</TableCell>
+                      <TableCell>{formatCurrency(earning.netAmount)}</TableCell>
                       <TableCell>{earning.status}</TableCell>
                     </TableRow>
                   ))}
@@ -360,9 +351,7 @@ export default function EarningsPage() {
             <CardHeader>
               <CardTitle>Ajukan penarikan</CardTitle>
               <CardDescription>
-                Minimum penarikan Rp {minWithdrawAmount.toLocaleString(
-                  "id-ID",
-                )}
+                Minimum penarikan Rp {minWithdrawAmount.toLocaleString("id-ID")}
                 .
               </CardDescription>
             </CardHeader>
@@ -390,7 +379,10 @@ export default function EarningsPage() {
                   <SelectItem value="ewallet">E-wallet</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={provider} onValueChange={(value) => setProvider(value)}>
+              <Select
+                value={provider}
+                onValueChange={(value) => setProvider(value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih penyedia" />
                 </SelectTrigger>
@@ -462,9 +454,7 @@ export default function EarningsPage() {
                 <TableBody>
                   {!isLoading && filteredWithdrawals.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5}>
-                        Belum ada penarikan.
-                      </TableCell>
+                      <TableCell colSpan={5}>Belum ada penarikan.</TableCell>
                     </TableRow>
                   )}
                   {filteredWithdrawals.map((withdraw) => (
@@ -473,16 +463,13 @@ export default function EarningsPage() {
                         {formatDateTime(withdraw.createdAt)}
                       </TableCell>
                       <TableCell className="capitalize">
-                        {withdraw.method === "ewallet"
-                          ? "E-wallet"
-                          : "Bank"}
+                        {withdraw.method === "ewallet" ? "E-wallet" : "Bank"}
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate">
-                        {withdraw.provider || withdraw.bankName} - {withdraw.accountNumber}
+                        {withdraw.provider || withdraw.bankName} -{" "}
+                        {withdraw.accountNumber}
                       </TableCell>
-                      <TableCell>
-                        {formatCurrency(withdraw.amount)}
-                      </TableCell>
+                      <TableCell>{formatCurrency(withdraw.amount)}</TableCell>
                       <TableCell>{withdraw.status}</TableCell>
                     </TableRow>
                   ))}
@@ -547,9 +534,7 @@ export default function EarningsPage() {
                   <TableBody>
                     {filteredAdminWithdrawals.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7}>
-                          Tidak ada permintaan.
-                        </TableCell>
+                        <TableCell colSpan={7}>Tidak ada permintaan.</TableCell>
                       </TableRow>
                     )}
                     {filteredAdminWithdrawals.map((withdraw, index) => {
@@ -557,69 +542,68 @@ export default function EarningsPage() {
                         withdraw.id ?? `${withdraw.username}-${index}`;
                       return (
                         <TableRow key={withdrawKey}>
-                      <TableCell>
-                        {formatDateTime(withdraw.createdAt)}
-                      </TableCell>
-                        <TableCell>{withdraw.username}</TableCell>
-                        <TableCell className="capitalize">
-                          {withdraw.method === "ewallet"
-                            ? "E-wallet"
-                            : "Bank"}
-                        </TableCell>
-                        <TableCell className="max-w-[160px] truncate">
-                          {withdraw.provider || withdraw.bankName} - {withdraw.accountNumber}
-                        </TableCell>
-                        <TableCell>
-                          {formatCurrency(withdraw.amount)}
-                        </TableCell>
-                        <TableCell>{withdraw.status}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                if (!withdraw.id) return;
-                                handleAdminStatus(withdraw.id, "approved");
-                              }}
-                              disabled={
-                                withdraw.status !== "pending" ||
-                                !withdraw.id
-                              }
-                            >
-                              Setujui
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                if (!withdraw.id) return;
-                                handleAdminStatus(withdraw.id, "paid");
-                              }}
-                              disabled={
-                                withdraw.status !== "approved" ||
-                                !withdraw.id
-                              }
-                            >
-                              Tandai dibayar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => {
-                                if (!withdraw.id) return;
-                                handleAdminStatus(withdraw.id, "rejected");
-                              }}
-                              disabled={
-                                withdraw.status === "paid" ||
-                                withdraw.status === "rejected" ||
-                                !withdraw.id
-                              }
-                            >
-                              Tolak
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                          <TableCell>
+                            {formatDateTime(withdraw.createdAt)}
+                          </TableCell>
+                          <TableCell>{withdraw.username}</TableCell>
+                          <TableCell className="capitalize">
+                            {withdraw.method === "ewallet"
+                              ? "E-wallet"
+                              : "Bank"}
+                          </TableCell>
+                          <TableCell className="max-w-[160px] truncate">
+                            {withdraw.provider || withdraw.bankName} -{" "}
+                            {withdraw.accountNumber}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(withdraw.amount)}
+                          </TableCell>
+                          <TableCell>{withdraw.status}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (!withdraw.id) return;
+                                  handleAdminStatus(withdraw.id, "approved");
+                                }}
+                                disabled={
+                                  withdraw.status !== "pending" || !withdraw.id
+                                }
+                              >
+                                Setujui
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  if (!withdraw.id) return;
+                                  handleAdminStatus(withdraw.id, "paid");
+                                }}
+                                disabled={
+                                  withdraw.status !== "approved" || !withdraw.id
+                                }
+                              >
+                                Tandai dibayar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  if (!withdraw.id) return;
+                                  handleAdminStatus(withdraw.id, "rejected");
+                                }}
+                                disabled={
+                                  withdraw.status === "paid" ||
+                                  withdraw.status === "rejected" ||
+                                  !withdraw.id
+                                }
+                              >
+                                Tolak
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
                   </TableBody>

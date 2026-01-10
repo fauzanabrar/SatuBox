@@ -110,9 +110,7 @@ export async function GET(
 
     const ownerUsername = await resolveOwnerFromParents(id);
     if (ownerUsername) {
-      const billing = await userServices.resolveBillingStatus(
-        ownerUsername,
-      );
+      const billing = await userServices.resolveBillingStatus(ownerUsername);
       if (billing.blocked) {
         return NextResponse.json(
           {
@@ -131,8 +129,7 @@ export async function GET(
       fields: "id, name, mimeType",
     });
 
-    const mimeType =
-      metadata.data.mimeType || "application/octet-stream";
+    const mimeType = metadata.data.mimeType || "application/octet-stream";
 
     if (mimeType === folderMimeType) {
       return NextResponse.json(

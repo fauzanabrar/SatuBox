@@ -53,7 +53,5 @@ export const formatBytes = (size?: number | null) => {
     units.length - 1,
   );
   const value = size / Math.pow(1024, power);
-  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${
-    units[power]
-  }`;
+  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
 };

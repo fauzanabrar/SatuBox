@@ -125,12 +125,8 @@ export default function BillingPage() {
   const [verifyOrderId, setVerifyOrderId] = useState("");
   const [verifyPlanId, setVerifyPlanId] = useState<PlanId>("starter");
   const [verifyLoading, setVerifyLoading] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(
-    null,
-  );
-  const [latestOrderId, setLatestOrderId] = useState<string | null>(
-    null,
-  );
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
+  const [latestOrderId, setLatestOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (
@@ -416,12 +412,8 @@ export default function BillingPage() {
             </CardHeader>
             <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
               <div>
-                <p className="text-xs uppercase text-muted-foreground">
-                  Tier
-                </p>
-                <p className="text-base font-semibold">
-                  {currentPlan.name}
-                </p>
+                <p className="text-xs uppercase text-muted-foreground">Tier</p>
+                <p className="text-base font-semibold">{currentPlan.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {currentPriceLabel}
                 </p>
@@ -430,9 +422,7 @@ export default function BillingPage() {
                 <p className="text-xs uppercase text-muted-foreground">
                   Billing cycle
                 </p>
-                <p className="text-base font-semibold">
-                  {currentCycleLabel}
-                </p>
+                <p className="text-base font-semibold">{currentCycleLabel}</p>
                 <p className="text-xs text-muted-foreground">
                   Paid until {nextBillingLabel}
                 </p>
@@ -441,9 +431,7 @@ export default function BillingPage() {
                 <p className="text-xs uppercase text-muted-foreground">
                   Last payment
                 </p>
-                <p className="text-base font-semibold">
-                  {lastPaymentLabel}
-                </p>
+                <p className="text-base font-semibold">{lastPaymentLabel}</p>
                 <p className="text-xs text-muted-foreground">
                   {lastPaymentDate}
                 </p>
@@ -507,8 +495,7 @@ export default function BillingPage() {
           <div className="grid gap-4 lg:grid-cols-3">
             {availablePlanIds.map((planId) => {
               const plan = PLANS[planId];
-              const isUpgrade =
-                currentPlanId === "starter" && planId === "pro";
+              const isUpgrade = currentPlanId === "starter" && planId === "pro";
               const displayUpgrade = isUpgrade && upgradeAmount !== null;
               const price =
                 planId === "free"
@@ -614,9 +601,7 @@ export default function BillingPage() {
                   />
                   <Select
                     value={verifyPlanId}
-                    onValueChange={(value) =>
-                      setVerifyPlanId(value as PlanId)
-                    }
+                    onValueChange={(value) => setVerifyPlanId(value as PlanId)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Plan" />
@@ -628,9 +613,7 @@ export default function BillingPage() {
                   </Select>
                   <Select
                     value={cycle}
-                    onValueChange={(value) =>
-                      setCycle(value as BillingCycle)
-                    }
+                    onValueChange={(value) => setCycle(value as BillingCycle)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Cycle" />

@@ -118,11 +118,7 @@ export default function FormChangePassword() {
             <FormItem>
               <FormLabel>New password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="new-password"
-                  {...field}
-                />
+                <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -135,11 +131,7 @@ export default function FormChangePassword() {
             <FormItem>
               <FormLabel>Confirm new password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="new-password"
-                  {...field}
-                />
+                <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

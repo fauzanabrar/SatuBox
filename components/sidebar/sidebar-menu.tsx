@@ -66,8 +66,7 @@ export function SidebarMenu({
     userSession?.username ? "/api/v2/billing" : null,
     (url: string) => fetch(url).then((res) => res.json()),
   );
-  const planId =
-    (billingData?.data?.planId as PlanId) ?? DEFAULT_PLAN_ID;
+  const planId = (billingData?.data?.planId as PlanId) ?? DEFAULT_PLAN_ID;
   const plan = PLANS[planId] ?? PLANS[DEFAULT_PLAN_ID];
   const planVariant =
     planId === "pro"

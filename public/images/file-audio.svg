@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22 8h52l32 32v80a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8V16a8 8 0 0 1 8-8z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+  <path d="M74 8v26a6 6 0 0 0 6 6h26L74 8z" fill="#cbd5e1"/>
+  <rect x="28" y="80" width="72" height="26" rx="6" fill="#14b8a6"/>
+  <text x="64" y="93" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">MP3</text>
+</svg>

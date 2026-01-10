@@ -58,10 +58,7 @@ export async function GET(
 
   if (userSession.role !== "admin") {
     const restrict = await getRestrictByFileId(id);
-    if (
-      restrict &&
-      !restrict.whitelist?.includes(userSession.username)
-    ) {
+    if (restrict && !restrict.whitelist?.includes(userSession.username)) {
       return NextResponse.json({
         status: 403,
         message: "Forbidden",
@@ -70,9 +67,7 @@ export async function GET(
   }
 
   if (userSession.role !== "admin") {
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
+    const userProfile = await userServices.ensureProfile(userSession.username);
     const rootFolderId = await userServices.ensureRootFolder(
       userSession.username,
     );
@@ -105,13 +100,10 @@ export async function GET(
       accessRootId === rootFolderId
         ? userSession.username
         : accessRootId
-          ? parseOwnerUsername(
-              await driveServices.folderName(accessRootId),
-            ) || userSession.username
+          ? parseOwnerUsername(await driveServices.folderName(accessRootId)) ||
+            userSession.username
           : userSession.username;
-    const billing = await userServices.resolveBillingStatus(
-      ownerUsername,
-    );
+    const billing = await userServices.resolveBillingStatus(ownerUsername);
     if (billing.blocked) {
       return NextResponse.json(
         {
@@ -131,8 +123,7 @@ export async function GET(
       fields: "id, name, mimeType",
     });
 
-    const mimeType =
-      metadata.data.mimeType || "application/octet-stream";
+    const mimeType = metadata.data.mimeType || "application/octet-stream";
 
     if (mimeType === folderMimeType) {
       return NextResponse.json({

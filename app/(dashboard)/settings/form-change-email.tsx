@@ -85,11 +85,7 @@ export default function FormChangeEmail({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="name@company.com"
-                  {...field}
-                />
+                <Input type="email" placeholder="name@company.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

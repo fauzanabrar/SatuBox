@@ -85,8 +85,7 @@ export default function InputFile({}: InputFileProps) {
       }
     } catch (error) {
       const message = axios.isAxiosError(error)
-        ? (error.response?.data?.message as string) ||
-          "Failed to upload file."
+        ? (error.response?.data?.message as string) || "Failed to upload file."
         : "Failed to upload file.";
       console.error("Failed to upload file", error);
       setErrorMessage(message);
@@ -135,8 +134,7 @@ export default function InputFile({}: InputFileProps) {
         setFileUrl("");
       } else {
         const data = await response.json().catch(() => null);
-        const message =
-          data?.message || "Failed to upload file from URL.";
+        const message = data?.message || "Failed to upload file from URL.";
         console.error("Failed to upload file from url");
         setErrorMessage(message);
       }
@@ -155,9 +153,7 @@ export default function InputFile({}: InputFileProps) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-5">
         <form
-          onSubmit={
-            uploadMode === "file" ? handleFileSubmit : handleUrlSubmit
-          }
+          onSubmit={uploadMode === "file" ? handleFileSubmit : handleUrlSubmit}
         >
           <div className="my-2 flex w-full max-w-sm items-center space-x-2">
             {uploadMode === "file" ? (
@@ -207,9 +203,7 @@ export default function InputFile({}: InputFileProps) {
               </DropdownMenu>
             </div>
           </div>
-          {uploadMode === "file" && loading && (
-            <Progress value={progress} />
-          )}
+          {uploadMode === "file" && loading && <Progress value={progress} />}
           {errorMessage && (
             <p className="text-sm font-medium text-destructive">
               {errorMessage}

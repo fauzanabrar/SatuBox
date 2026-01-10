@@ -4,10 +4,21 @@ import { getDriveClient } from "@/lib/gdrive";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import Link from "next/link";
+import type { Metadata } from "next";
+import Image from "next/image";
 import PaidDownloadActions from "@/components/share/paid-download-actions";
 import ShareLinkCard from "@/components/share/share-link-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Shared file",
+  description: "Download a shared file from Satubox.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const folderMimeType = "application/vnd.google-apps.folder";
 
@@ -24,17 +35,18 @@ const formatBytes = (size?: number | null) => {
     units.length - 1,
   );
   const value = size / Math.pow(1024, power);
-  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${
-    units[power]
-  }`;
+  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
 };
 
 const buildPreview = (id: string, mimeType: string) => {
   if (mimeType.startsWith("image/")) {
     return (
-      <img
+      <Image
         src={`/api/v2/share/media/${id}`}
         alt="Shared file preview"
+        width={1200}
+        height={1200}
+        sizes="(min-width: 1024px) 60vw, 100vw"
         className="h-auto w-full rounded-xl border border-border object-contain"
       />
     );
@@ -88,9 +100,11 @@ export default async function ShareFilePage({
     );
   }
 
-  let file:
-    | { name?: string | null; mimeType?: string | null; size?: string | null }
-    | null = null;
+  let file: {
+    name?: string | null;
+    mimeType?: string | null;
+    size?: string | null;
+  } | null = null;
   try {
     const driveClient = await getDriveClient();
     const response = await driveClient.files.get({
@@ -180,7 +194,8 @@ export default async function ShareFilePage({
               </p>
               {paidPrice > 0 && (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Bayar sekali untuk membuka unduhan tanpa batas di perangkat ini.
+                  Bayar sekali untuk membuka unduhan tanpa batas di perangkat
+                  ini.
                 </p>
               )}
               <div className="mt-5">

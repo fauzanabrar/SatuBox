@@ -82,8 +82,7 @@ export async function getRestrictByFileIdWithDocId(
   const q = query(restrictsCol, where("fileId", "==", fileId), limit(1));
   const restrictsSnapshot = await getDocs(q);
   const restrictDoc = restrictsSnapshot.docs[0];
-  if (!restrictDoc)
-    return undefined as FireStoreRestrictWithDocId | undefined;
+  if (!restrictDoc) return undefined as FireStoreRestrictWithDocId | undefined;
   const restrict = restrictDoc.data() as FireStoreRestrictWithDocId;
   restrict.id = restrictDoc.id;
   return restrict;

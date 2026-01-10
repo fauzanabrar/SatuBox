@@ -114,9 +114,7 @@ export default function SharedFolders() {
               </Button>
               <AlertDialog
                 open={confirmId === folder.id}
-                onOpenChange={(open) =>
-                  setConfirmId(open ? folder.id : null)
-                }
+                onOpenChange={(open) => setConfirmId(open ? folder.id : null)}
               >
                 <AlertDialogTrigger asChild>
                   <Button

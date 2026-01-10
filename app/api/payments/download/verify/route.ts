@@ -126,8 +126,7 @@ export async function POST(request: NextRequest) {
     await updateDownloadOrder(orderId, { status: "paid", token });
 
     const paidDownload = await getPaidDownload(order.fileId);
-    const ownerUsername =
-      order.ownerUsername || paidDownload?.ownerUsername;
+    const ownerUsername = order.ownerUsername || paidDownload?.ownerUsername;
     if (!ownerUsername) {
       return NextResponse.json(
         {

@@ -56,13 +56,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const {
-    amount,
-    methodType,
-    provider,
-    accountName,
-    accountNumber,
-  } =
+  const { amount, methodType, provider, accountName, accountNumber } =
     await request.json();
 
   const numericAmount = Number(amount);

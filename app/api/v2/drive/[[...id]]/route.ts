@@ -20,8 +20,9 @@ const getFilenameFromContentDisposition = (
 ) => {
   if (!contentDisposition) return "";
 
-  const filenameStarMatch =
-    /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+  const filenameStarMatch = /filename\*=UTF-8''([^;]+)/i.exec(
+    contentDisposition,
+  );
   if (filenameStarMatch?.[1]) {
     try {
       return decodeURIComponent(filenameStarMatch[1]);
@@ -30,9 +31,7 @@ const getFilenameFromContentDisposition = (
     }
   }
 
-  const filenameMatch = /filename=\"?([^\";]+)\"?/i.exec(
-    contentDisposition,
-  );
+  const filenameMatch = /filename=\"?([^\";]+)\"?/i.exec(contentDisposition);
   return filenameMatch?.[1] ?? "";
 };
 
@@ -60,29 +59,26 @@ type UserAccessContext = {
   allowedRootFolderIds: string[];
 };
 
-const getUserAccessContext =
-  async (): Promise<UserAccessContext | null> => {
-    const userSession = await getUserSession();
-    if (!userSession?.username) return null;
+const getUserAccessContext = async (): Promise<UserAccessContext | null> => {
+  const userSession = await getUserSession();
+  if (!userSession?.username) return null;
 
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
-    const rootFolderId = await userServices.ensureRootFolder(
-      userSession.username,
-    );
-    const allowedRootFolderIds = [
-      rootFolderId,
-      ...(userProfile.sharedRootFolderIds ?? []),
-    ].filter(Boolean);
+  const userProfile = await userServices.ensureProfile(userSession.username);
+  const rootFolderId = await userServices.ensureRootFolder(
+    userSession.username,
+  );
+  const allowedRootFolderIds = [
+    rootFolderId,
+    ...(userProfile.sharedRootFolderIds ?? []),
+  ].filter(Boolean);
 
-    return {
-      userSession,
-      userProfile,
-      rootFolderId,
-      allowedRootFolderIds,
-    };
+  return {
+    userSession,
+    userProfile,
+    rootFolderId,
+    allowedRootFolderIds,
   };
+};
 
 const getAccessRootId = async (
   folderId: string,
@@ -133,10 +129,7 @@ const getStorageStatus = async (
   folderId: string,
   context: UserAccessContext,
 ) => {
-  const ownerUsername = await getStorageOwnerUsername(
-    folderId,
-    context,
-  );
+  const ownerUsername = await getStorageOwnerUsername(folderId, context);
   if (!ownerUsername) return null;
 
   const billing = await userServices.resolveBillingStatus(ownerUsername);
@@ -151,7 +144,6 @@ const getStorageStatus = async (
     blocked: billing.blocked,
   };
 };
-
 
 /**
  *
@@ -331,10 +323,7 @@ export async function POST(
     }
 
     try {
-      const folder = await driveServices.addFolder(
-        folderName,
-        targetFolderId,
-      );
+      const folder = await driveServices.addFolder(folderName, targetFolderId);
 
       return NextResponse.json({
         status: 201,
@@ -396,8 +385,7 @@ export async function POST(
       }
 
       const contentType =
-        response.headers.get("content-type") ||
-        "application/octet-stream";
+        response.headers.get("content-type") || "application/octet-stream";
       const headerName = getFilenameFromContentDisposition(
         response.headers.get("content-disposition"),
       );
@@ -447,10 +435,7 @@ export async function POST(
         );
       }
 
-      const uploaded = await driveServices.addFile(
-        newFile,
-        targetFolderId,
-      );
+      const uploaded = await driveServices.addFile(newFile, targetFolderId);
 
       let uploadedSize =
         contentSize !== null && !Number.isNaN(contentSize)
@@ -529,10 +514,7 @@ export async function POST(
         );
       }
 
-      const totalBytes = files.reduce(
-        (sum, file) => sum + (file.size || 0),
-        0,
-      );
+      const totalBytes = files.reduce((sum, file) => sum + (file.size || 0), 0);
       if (
         storage.limitBytes > 0 &&
         storage.usedBytes + totalBytes > storage.limitBytes

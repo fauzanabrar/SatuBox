@@ -1,5 +1,10 @@
 import { User } from "@/types/userTypes";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { ReactNode, useState } from "react";
 
 import FormEditProfile from "@/components/form-edit-profile";

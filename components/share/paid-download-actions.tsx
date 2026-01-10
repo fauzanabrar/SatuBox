@@ -118,7 +118,8 @@ export default function PaidDownloadActions({
       toast({
         variant: "success",
         title: "Pembayaran terverifikasi",
-        description: "Anda bisa mengunduh file ini kapan saja di perangkat ini.",
+        description:
+          "Anda bisa mengunduh file ini kapan saja di perangkat ini.",
         duration: 4000,
       });
     } catch (error: any) {
@@ -153,9 +154,7 @@ export default function PaidDownloadActions({
       });
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(
-          result?.message || "Gagal memulai pembayaran",
-        );
+        throw new Error(result?.message || "Gagal memulai pembayaran");
       }
 
       const snapToken = result?.data?.snapToken as string;

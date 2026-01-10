@@ -165,8 +165,8 @@ const DialogItemPaidDownload = ({
       <DialogTitle>Paid Download</DialogTitle>
       <div className="grid gap-4 py-2 text-sm text-muted-foreground">
         <p>
-          Require payment before anyone can download this file from the
-          share page.
+          Require payment before anyone can download this file from the share
+          page.
         </p>
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
@@ -180,9 +180,7 @@ const DialogItemPaidDownload = ({
             onChange={(event) => setPrice(event.target.value)}
             disabled={loading || saving}
           />
-          <p className="text-xs text-muted-foreground">
-            Minimum Rp 1.000.
-          </p>
+          <p className="text-xs text-muted-foreground">Minimum Rp 1.000.</p>
         </div>
         {enabled && (
           <p className="text-xs text-muted-foreground">

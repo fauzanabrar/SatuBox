@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,18 +11,18 @@ type Props = {
 
 export default function ShareLinkCard({ fileId }: Props) {
   const { toast } = useToast();
-  const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    setShareUrl(`${window.location.origin}/share/${fileId}`);
-  }, [fileId]);
+  const sharePath = `/share/${fileId}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const shareUrl = baseUrl ? `${baseUrl}${sharePath}` : sharePath;
 
   const handleCopy = async () => {
-    if (!shareUrl) return;
+    const absoluteUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${sharePath}`
+        : shareUrl;
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(absoluteUrl);
       setCopied(true);
       toast({
         variant: "success",
@@ -31,7 +31,7 @@ export default function ShareLinkCard({ fileId }: Props) {
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (error: any) {
-      window.prompt("Salin tautan ini", shareUrl);
+      window.prompt("Salin tautan ini", absoluteUrl);
     }
   };
 

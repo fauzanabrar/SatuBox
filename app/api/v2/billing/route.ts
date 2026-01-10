@@ -20,7 +20,8 @@ export async function GET() {
       userSession.username,
     );
     const userProfile = billingStatus.profile;
-    const planId = (userProfile.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
+    const planId =
+      (userProfile.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
     const plan = PLANS[planId] ?? PLANS[DEFAULT_PLAN_ID];
 
     return NextResponse.json({
@@ -77,15 +78,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const isCycleValid =
-    billingCycle === "monthly" || billingCycle === "annual";
+  const isCycleValid = billingCycle === "monthly" || billingCycle === "annual";
   const nextBillingCycle =
     nextPlanId === "free" ? null : isCycleValid ? billingCycle : null;
 
   try {
-    const userProfile = await userServices.ensureProfile(
-      userSession.username,
-    );
+    const userProfile = await userServices.ensureProfile(userSession.username);
     const currentPlanId =
       (userProfile.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
 

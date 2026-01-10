@@ -79,6 +79,17 @@ export default function GridItemSWR({
   const dropdownTriggerRef = useRef<null | HTMLButtonElement>(null);
   const focusRef = useRef<null | HTMLButtonElement>(null);
 
+  const fileIcons: Record<string, string> = {
+    pdf: "/images/file-pdf.svg",
+    doc: "/images/file-doc.svg",
+    sheet: "/images/file-sheet.svg",
+    slide: "/images/file-slide.svg",
+    archive: "/images/file-zip.svg",
+    audio: "/images/file-audio.svg",
+    text: "/images/file-text.svg",
+    file: "/images/file.svg",
+  };
+
   const image = (item: FileDrive) => {
     if (item.fileType === "folder") {
       return "/images/folder.svg";
@@ -87,7 +98,7 @@ export default function GridItemSWR({
     } else if (item.fileType === "video") {
       return "/images/play.svg";
     } else {
-      return "/images/file.svg";
+      return fileIcons[item.fileType] ?? fileIcons.file;
     }
   };
 

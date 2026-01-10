@@ -29,10 +29,7 @@ export default function FolderShare({
   showHeading = true,
 }: FolderShareProps) {
   const { toast } = useToast();
-  const { data, isLoading, mutate } = useSWR(
-    "/api/v2/folder-share",
-    fetcher,
-  );
+  const { data, isLoading, mutate } = useSWR("/api/v2/folder-share", fetcher);
   const sharedUsers = (data?.data?.sharedWithUsernames as string[]) || [];
 
   const [username, setUsername] = useState("");
