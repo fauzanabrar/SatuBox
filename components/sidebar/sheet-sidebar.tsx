@@ -1,6 +1,6 @@
 "use client";
 import { LucideMenu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { UserSession } from "@/types/api/auth";
 import { SidebarMenu } from "./sidebar-menu";
 import { useState } from "react";
@@ -26,6 +26,7 @@ export default function SheetSidebar({
           <LucideMenu className={"ml-1 h-6 w-6"} />
         </SheetTrigger>
         <SheetContent side={"right"} className={"w-80 pt-10"}>
+          <SheetTitle className="sr-only">Sidebar</SheetTitle>
           <SidebarMenu userSession={userSession} toggle={toggle} />
         </SheetContent>
       </Sheet>
