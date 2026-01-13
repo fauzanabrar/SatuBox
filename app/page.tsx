@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { PLAN_ORDER, PLANS } from "@/lib/billing/plans";
+import MarketingHeader from "@/components/marketing/marketing-header";
+import MarketingFooter from "@/components/marketing/marketing-footer";
 
 export const metadata: Metadata = {
   title: "Storage + sharing",
@@ -20,19 +22,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-background to-muted/40" />
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-muted/60 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -right-28 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-          <span className="text-lg font-semibold tracking-tight">Satubox</span>
-          <div className="flex items-center gap-3">
-            <Link href={isSignedIn ? "/list" : "/login"} className="link-ghost">
-              {isSignedIn ? "Open app" : "Login"}
-            </Link>
-            {!isSignedIn && (
-              <Button asChild>
-                <Link href="/register">Get started</Link>
-              </Button>
-            )}
-          </div>
-        </header>
+        <MarketingHeader isSignedIn={isSignedIn} />
         <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-16 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div className="space-y-7">
             <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -160,7 +150,7 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="mt-5 rounded-2xl border border-dashed bg-muted/40 p-4 text-xs text-muted-foreground">
-                Payments are mocked in-app for now. Connect a gateway later.
+                Payments are processed securely via Midtrans.
               </div>
             </div>
           </div>
@@ -276,6 +266,7 @@ export default async function HomePage() {
           </Link>
         </Button>
       </section>
+      <MarketingFooter />
     </div>
   );
 }

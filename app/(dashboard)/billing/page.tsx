@@ -206,7 +206,7 @@ export default function BillingPage() {
       toast({
         variant: "success",
         title: "Plan updated",
-        description: "This is a mock checkout flow.",
+        description: "Your plan has been updated.",
         duration: 3000,
       });
       await mutate();
@@ -398,8 +398,7 @@ export default function BillingPage() {
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Billing</h2>
             <p className="text-sm text-muted-foreground">
-              Mock membership plans for ad-free downloads and higher storage
-              limits.
+              Membership plans for ad-free downloads and higher storage limits.
             </p>
           </div>
 
