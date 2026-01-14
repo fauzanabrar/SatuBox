@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import PaidDownloadActions from "@/components/share/paid-download-actions";
 import ShareLinkCard from "@/components/share/share-link-card";
+import TextPreview from "@/components/share/text-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -38,12 +39,16 @@ const formatBytes = (size?: number | null) => {
   return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
 };
 
-const buildPreview = (id: string, mimeType: string) => {
+const isTextLike = (mimeType: string) => mimeType.startsWith("text/");
+
+const buildPreview = (id: string, mimeType: string, fileName: string) => {
+  const mediaUrl = `/api/v2/share/media/${id}`;
+
   if (mimeType.startsWith("image/")) {
     return (
       <Image
-        src={`/api/v2/share/media/${id}`}
-        alt="Shared file preview"
+        src={mediaUrl}
+        alt={`Preview of ${fileName}`}
         width={1200}
         height={1200}
         sizes="(min-width: 1024px) 60vw, 100vw"
@@ -58,9 +63,34 @@ const buildPreview = (id: string, mimeType: string) => {
         controls
         preload="metadata"
         className="w-full rounded-xl border border-border"
-        src={`/api/v2/share/media/${id}`}
+        src={mediaUrl}
       />
     );
+  }
+
+  if (mimeType.startsWith("audio/")) {
+    return (
+      <audio
+        controls
+        preload="metadata"
+        className="w-full rounded-xl border border-border"
+        src={mediaUrl}
+      />
+    );
+  }
+
+  if (mimeType === "application/pdf") {
+    return (
+      <iframe
+        title={`PDF preview for ${fileName}`}
+        src={mediaUrl}
+        className="h-[70vh] w-full rounded-xl border border-border"
+      />
+    );
+  }
+
+  if (isTextLike(mimeType)) {
+    return <TextPreview fileId={id} mimeType={mimeType} />;
   }
 
   return (
@@ -184,7 +214,7 @@ export default async function ShareFilePage({
                 <Badge variant={paidBadgeVariant}>{paidBadgeLabel}</Badge>
               </div>
             </div>
-            <div className="mt-5">{buildPreview(id, mimeType)}</div>
+            <div className="mt-5">{buildPreview(id, mimeType, fileName)}</div>
           </div>
 
           <div className="flex flex-col gap-5">
