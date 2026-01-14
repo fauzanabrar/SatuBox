@@ -18,4 +18,4 @@ const nextConfig = {
   transpilePackages: ["lucide-react"],
 };
 
-module.exports = million.next(nextConfig, { auto: { rsc: true } });
+module.exports = nextConfig;

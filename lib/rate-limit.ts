@@ -23,11 +23,11 @@ export function rateLimit(
   const max = Math.max(1, options.max);
 
   if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
-    for (const [entryKey, entry] of store.entries()) {
+    store.forEach((entry, entryKey) => {
       if (entry.resetAt <= now) {
         store.delete(entryKey);
       }
-    }
+    });
     lastCleanup = now;
   }
 

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // million-ignore
 function LoginForm() {
@@ -79,6 +80,14 @@ function LoginForm() {
             onChange={handleChange}
             value={formValues.password}
           />
+        </div>
+        <div className="flex items-center justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Forgot password?
+          </Link>
         </div>
         <Button className="w-full" disabled={loading}>
           {loading ? "Loading..." : "Login"}

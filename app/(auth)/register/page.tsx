@@ -22,19 +22,39 @@ export default function RegisterPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>
-            Enter your email below to create your account
+            Enter your details below to create your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <RegisterForm />
         </CardContent>
         <CardFooter>
-          <CardDescription>
-            Already have an account?{" "}
-            <Link href={"/login"} className="font-bold text-card-foreground">
-              Login
-            </Link>
-          </CardDescription>
+          <div className="flex-1">
+            <CardDescription>
+              Already have an account?{" "}
+              <Link href="/login" className="font-bold text-card-foreground">
+                Login
+              </Link>
+            </CardDescription>
+            <CardDescription className="mt-2 text-xs">
+              By signing up, you agree to{" "}
+              <Link href="/terms" className="font-bold text-card-foreground">
+                Terms
+              </Link>
+              ,{" "}
+              <Link href="/privacy" className="font-bold text-card-foreground">
+                Privacy
+              </Link>
+              , and{" "}
+              <Link
+                href="/refund-policy"
+                className="font-bold text-card-foreground"
+              >
+                Refunds
+              </Link>
+              .
+            </CardDescription>
+          </div>
         </CardFooter>
       </Card>
     </div>

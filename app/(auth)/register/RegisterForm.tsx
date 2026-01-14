@@ -19,6 +19,7 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [formValues, setFormValues] = useState({
     username: "",
+    email: "",
     password: "",
     name: "",
   });
@@ -35,6 +36,7 @@ function RegisterForm() {
 
         const user: RegisterUser = {
           username: formValues.username,
+          email: formValues.email,
           password: formValues.password,
           name: formValues.name,
         };
@@ -50,7 +52,7 @@ function RegisterForm() {
           action: <LoginButton />,
         });
         setLoading(false);
-        setFormValues({ username: "", password: "", name: "" });
+        setFormValues({ username: "", email: "", password: "", name: "" });
       } catch (error: any) {
         setLoading(false);
         setError(error.message);
@@ -91,6 +93,18 @@ function RegisterForm() {
             name="username"
             onChange={handleChange}
             value={formValues.username}
+            required
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            name="email"
+            onChange={handleChange}
+            value={formValues.email}
+            autoComplete="email"
             required
           />
         </div>

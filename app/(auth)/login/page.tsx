@@ -23,7 +23,7 @@ export default function AuthenticationPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email and password below to login
+            Enter your username and password below to login
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -38,6 +38,24 @@ export default function AuthenticationPage() {
               <Link href="/register" className="font-bold text-card-foreground">
                 Register
               </Link>
+            </CardDescription>
+            <CardDescription className="mt-2 text-xs">
+              By continuing, you agree to{" "}
+              <Link href="/terms" className="font-bold text-card-foreground">
+                Terms
+              </Link>
+              ,{" "}
+              <Link href="/privacy" className="font-bold text-card-foreground">
+                Privacy
+              </Link>
+              , and{" "}
+              <Link
+                href="/refund-policy"
+                className="font-bold text-card-foreground"
+              >
+                Refunds
+              </Link>
+              .
             </CardDescription>
           </div>
         </CardFooter>
