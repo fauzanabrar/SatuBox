@@ -152,7 +152,6 @@ async function addFile(file: FileUpload, folderId?: string) {
       folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
     ]);
   } catch (error: any) {
-    console.log(error);
     throw new Error(error);
   }
 }

@@ -13,8 +13,60 @@ import TextPreview from "@/components/share/text-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { getDownloadToken } from "@/lib/supabase/db/paid-download";
 import userServices from "@/services/userServices";
+
+const friendlyMimeTypeLabels: Record<string, string> = {
+  "application/pdf": "PDF document",
+  "application/msword": "Word document (DOC)",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "Word document (DOCX)",
+  "application/vnd.google-apps.document": "Google Docs",
+  "application/vnd.ms-excel": "Excel spreadsheet (XLS)",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    "Excel spreadsheet (XLSX)",
+  "application/vnd.google-apps.spreadsheet": "Google Sheets",
+  "application/vnd.ms-powerpoint": "PowerPoint presentation (PPT)",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "PowerPoint presentation (PPTX)",
+  "application/vnd.google-apps.presentation": "Google Slides",
+  "application/zip": "ZIP archive",
+  "application/x-zip-compressed": "ZIP archive",
+  "application/x-7z-compressed": "7z archive",
+  "application/x-rar-compressed": "RAR archive",
+};
+
+const simplifyMimeSubtype = (subtype: string) => {
+  const cleaned = subtype
+    .replace(/^vnd\./, "")
+    .replace(/^x-/, "")
+    .replace(/openxmlformats-officedocument\./g, "")
+    .replace(/google-apps\./g, "")
+    .replace(/\+/g, " ")
+    .split(/[\.\-]/)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+  return cleaned;
+};
+
+const simplifyMimeType = (mimeType?: string) => {
+  if (!mimeType) return "Unknown file";
+
+  const friendlyLabel = friendlyMimeTypeLabels[mimeType];
+  if (friendlyLabel) return friendlyLabel;
+
+  const [type, subtype] = mimeType.split("/");
+  if (!subtype) {
+    return type ? `${type.charAt(0).toUpperCase() + type.slice(1)} file` : mimeType;
+  }
+
+  const normalizedSubtype = simplifyMimeSubtype(subtype);
+  if (normalizedSubtype) return normalizedSubtype;
+
+  return type
+    ? `${type.charAt(0).toUpperCase() + type.slice(1)} file`
+    : mimeType;
+};
 
 export const metadata: Metadata = {
   title: "Shared file",
@@ -331,7 +383,9 @@ export default async function ShareFilePage({
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
                   <span className="text-sm text-muted-foreground">Tipe File</span>
-                  <span className="text-sm font-medium text-foreground">{mimeType}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {simplifyMimeType(mimeType)}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
                   <span className="text-sm text-muted-foreground">Ukuran</span>
