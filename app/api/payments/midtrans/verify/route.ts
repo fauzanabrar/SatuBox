@@ -58,8 +58,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { orderId, planId, billingCycle } =
-    (await request.json()) as VerifyRequest;
+  let requestBody: VerifyRequest = {};
+  try {
+    requestBody = (await request.json()) as VerifyRequest;
+  } catch (error) {
+    console.debug(
+      "Failed to parse request body for Midtrans verify route",
+      error,
+    );
+    requestBody = {};
+  }
+
+  const { orderId, planId, billingCycle } = requestBody;
 
   if (!orderId) {
     return NextResponse.json(
