@@ -4,8 +4,7 @@ import { Readable } from "stream";
 import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
-let parsedCredentials: Parameters<typeof auth.GoogleAuth>[0]["credentials"] | null =
-  null;
+let parsedCredentials: auth.GoogleAuthOptions["credentials"] | null = null;
 
 const getCredentials = () => {
   if (parsedCredentials) return parsedCredentials;
