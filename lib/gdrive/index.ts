@@ -4,15 +4,34 @@ import { Readable } from "stream";
 import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
+let parsedCredentials: Parameters<typeof auth.GoogleAuth>[0]["credentials"] | null =
+  null;
 
-const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT as string);
+const getCredentials = () => {
+  if (parsedCredentials) return parsedCredentials;
+
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT;
+  if (!raw) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT is not defined");
+  }
+
+  try {
+    parsedCredentials = JSON.parse(raw);
+  } catch (error: any) {
+    throw new Error(
+      `Failed to parse GOOGLE_SERVICE_ACCOUNT: ${error?.message ?? error}`,
+    );
+  }
+
+  return parsedCredentials;
+};
 
 export async function getDriveClient() {
   if (!dClient) {
     dClient = drive({
       version: "v3",
       auth: new auth.GoogleAuth({
-        credentials,
+        credentials: getCredentials(),
         scopes: "https://www.googleapis.com/auth/drive",
       }),
     });
