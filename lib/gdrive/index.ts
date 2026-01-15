@@ -1,10 +1,11 @@
 import { auth, drive } from "@googleapis/drive";
+import type { JWTInput } from "google-auth-library";
 import { Buffer } from "buffer";
 import { Readable } from "stream";
 import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
-let parsedCredentials: auth.GoogleAuthOptions["credentials"] | null = null;
+let parsedCredentials: JWTInput | null = null;
 
 const getCredentials = () => {
   if (parsedCredentials) return parsedCredentials;
