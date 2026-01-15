@@ -7,6 +7,7 @@ import gdrive, { getDriveClient } from "@/lib/gdrive";
 import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "node:stream";
 import userServices from "@/services/userServices";
+import { getUserSession } from "@/lib/next-auth/user-session";
 
 const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
@@ -39,13 +40,18 @@ const resolveOwnerFromParents = async (fileId: string) => {
 
   let currentId = fileId;
   for (let i = 0; i < 20; i += 1) {
-    const parent = await gdrive.getAllParentsFolder(currentId);
-    if (!parent?.id) return null;
-    if (parent.id === sharedRootId) {
-      const ownerUsername = parseOwnerUsername(parent.currentName);
-      return ownerUsername || null;
+    try {
+      const parent = await gdrive.getAllParentsFolder(currentId);
+      if (!parent?.id) return null;
+      if (parent.id === sharedRootId) {
+        const ownerUsername = parseOwnerUsername(parent.currentName);
+        return ownerUsername || null;
+      }
+      currentId = parent.id;
+    } catch (error) {
+      console.error(`Error resolving parent folder for ${currentId}:`, error);
+      return null;
     }
-    currentId = parent.id;
   }
 
   return null;
@@ -83,8 +89,36 @@ export async function GET(
   }
 
   try {
+    const userSession = await getUserSession();
     const paidDownload = await getPaidDownload(id);
-    if (paidDownload?.enabled && paidDownload.price > 0) {
+
+    // Check if the user is the owner of the file using multiple methods
+    let isOwner = false;
+    if (userSession) {
+      const driveClient = await getDriveClient();
+      try {
+        const fileInfo = await driveClient.files.get({
+          fileId: id,
+          fields: "owners",
+        });
+
+        // Check by email
+        isOwner = fileInfo.data.owners?.some(owner =>
+          userSession.email && owner.emailAddress?.toLowerCase() === userSession.email.toLowerCase()
+        ) || false;
+
+        // Also check by username against stored owner in paid_downloads table
+        if (!isOwner && paidDownload?.ownerUsername) {
+          isOwner = userSession.username?.toLowerCase() === paidDownload.ownerUsername.toLowerCase();
+        }
+      } catch (error) {
+        console.error("Error checking file ownership:", error);
+        // If we can't check ownership, continue with normal flow
+      }
+    }
+
+    // If user is the owner, allow download without payment
+    if (!isOwner && paidDownload?.enabled && paidDownload.price > 0) {
       const token = request.nextUrl.searchParams.get("token");
       if (!token) {
         return NextResponse.json(

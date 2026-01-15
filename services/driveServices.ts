@@ -51,6 +51,7 @@ async function list(
           id: file.id,
           fileType: file.mimeType,
           name: file.name,
+          size: file.size,
         };
 
         // set the filetype

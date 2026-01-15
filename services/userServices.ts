@@ -120,14 +120,41 @@ async function ensureRootFolder(username: string) {
 
   if (!user) throw new Error("User not found");
 
-  if (user.rootFolderId) {
-    return user.rootFolderId;
-  }
-
   const parentId = process.env.SHARED_FOLDER_ID_DRIVE as string;
 
   if (!parentId) {
     throw new Error("Root folder is not configured");
+  }
+
+  // If user already has a root folder, check if it's under the correct parent
+  if (user.rootFolderId) {
+    try {
+      // Get the current folder's parents to check if it's under the correct root
+      const currentParent = await gdrive.getAllParentsFolder(user.rootFolderId);
+
+      if (currentParent && currentParent.id !== parentId) {
+        // The user's folder is under the wrong root, so update it to the new root
+        console.log(`Moving user ${username}'s folder from ${currentParent.id} to ${parentId}`);
+
+        // Update the user's root folder ID to the new one
+        // Note: This doesn't physically move the folder in Google Drive,
+        // but updates the reference in our database
+        const folderName = `user-${username}`;
+        const newFolderId = await gdrive.createFolder(folderName, [parentId]);
+
+        // Update the user record with the new folder ID
+        await updateUserByUsername(username, { rootFolderId: newFolderId });
+
+        return newFolderId;
+      }
+
+      // Folder is already under the correct root
+      return user.rootFolderId;
+    } catch (error) {
+      console.error(`Error checking parent folder for user ${username}:`, error);
+      // If there's an error checking the parent, return the existing folder ID
+      return user.rootFolderId;
+    }
   }
 
   const folderName = `user-${username}`;

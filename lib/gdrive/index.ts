@@ -25,6 +25,7 @@ type FileGD = {
   id: string;
   mimeType: string;
   name: string;
+  size?: string;
 };
 
 async function listFiles(folderId: string): Promise<FileGD[]> {
@@ -39,7 +40,7 @@ async function listFiles(folderId: string): Promise<FileGD[]> {
       q: folderId
         ? `'${folderId}' in parents AND trashed = false`
         : "trashed = false",
-      fields: "files(id, mimeType, name, parents)",
+      fields: "files(id, mimeType, name, size, parents)",
     });
 
     if (

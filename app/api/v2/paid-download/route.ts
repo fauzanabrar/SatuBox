@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
         enabled: Boolean(paid?.enabled && paid?.price > 0),
         price: paid?.price ?? 0,
         currency: paid?.currency ?? "IDR",
+        previewEnabled: paid?.previewEnabled ?? true,
       },
     });
   } catch (error: any) {
@@ -71,7 +72,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { fileId, price } = await request.json();
+  // Handle both JSON and form data
+  let fileId, price, previewEnabled;
+
+  const contentType = request.headers.get("content-type");
+
+  if (contentType?.includes("application/json")) {
+    // Handle JSON request
+    const requestData = await request.json();
+    fileId = requestData.fileId;
+    price = requestData.price;
+    previewEnabled = requestData.previewEnabled !== undefined ? requestData.previewEnabled : true;
+  } else {
+    // Handle form data request
+    const formData = await request.formData();
+    fileId = formData.get("fileId") as string;
+    price = formData.get("price") as string;
+    // For checkboxes, if the checkbox is not checked, it won't be present in the form data
+    // So if previewEnabled is not in the form data, it means it was unchecked
+    const previewEnabledFormData = formData.get("previewEnabled");
+    previewEnabled = previewEnabledFormData !== null; // true if checkbox was checked, false if unchecked
+  }
+
   if (!fileId) {
     return NextResponse.json(
       {
@@ -132,6 +154,7 @@ export async function POST(request: NextRequest) {
       price: numericPrice,
       currency: "IDR",
       enabled: true,
+      previewEnabled,
     });
 
     return NextResponse.json({

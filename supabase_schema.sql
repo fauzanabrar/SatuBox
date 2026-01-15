@@ -113,6 +113,7 @@ CREATE TABLE paid_downloads (
   enabled BOOLEAN DEFAULT FALSE,
   price DECIMAL(10,2) DEFAULT 0,
   owner_username VARCHAR(255),
+  preview_enabled BOOLEAN DEFAULT TRUE, -- Whether preview is enabled for this paid file
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

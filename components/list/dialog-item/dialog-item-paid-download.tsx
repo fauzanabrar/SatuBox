@@ -5,6 +5,8 @@ import { DialogClose, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { DialogItem } from "./dialog-item";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import Loading from "../../loading";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -26,6 +28,7 @@ const DialogItemPaidDownload = ({
   const { toast } = useToast();
   const [price, setPrice] = useState("");
   const [enabled, setEnabled] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -42,6 +45,7 @@ const DialogItemPaidDownload = ({
           const nextPrice = Number(result?.data?.price ?? 0);
           setEnabled(Boolean(result?.data?.enabled));
           setPrice(nextPrice > 0 ? String(nextPrice) : "");
+          setPreviewEnabled(Boolean(result?.data?.previewEnabled ?? true));
         }
       } catch (error: any) {
         toast({
@@ -92,7 +96,7 @@ const DialogItemPaidDownload = ({
       const response = await fetch("/api/v2/paid-download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId, price: numericPrice }),
+        body: JSON.stringify({ fileId, price: numericPrice, previewEnabled }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -132,6 +136,7 @@ const DialogItemPaidDownload = ({
       }
       setEnabled(false);
       setPrice("");
+      setPreviewEnabled(true);
       toast({
         variant: "success",
         title: "Paid download disabled",
@@ -181,6 +186,17 @@ const DialogItemPaidDownload = ({
             disabled={loading || saving}
           />
           <p className="text-xs text-muted-foreground">Minimum Rp 1.000.</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="previewEnabled" className="text-sm font-medium text-foreground">
+            Enable Preview
+          </Label>
+          <Switch
+            id="previewEnabled"
+            checked={previewEnabled}
+            onCheckedChange={setPreviewEnabled}
+            disabled={loading || saving}
+          />
         </div>
         {enabled && (
           <p className="text-xs text-muted-foreground">

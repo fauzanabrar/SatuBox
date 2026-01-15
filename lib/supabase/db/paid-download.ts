@@ -12,6 +12,7 @@ export interface DatabasePaidDownload {
   enabled?: boolean;
   price?: number;
   ownerUsername?: string;
+  previewEnabled?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -57,6 +58,7 @@ export async function getPaidDownload(fileId: string): Promise<DatabasePaidDownl
       enabled,
       price,
       owner_username,
+      preview_enabled,
       created_at,
       updated_at
     `)
@@ -84,6 +86,7 @@ export async function getPaidDownload(fileId: string): Promise<DatabasePaidDownl
     enabled: data.enabled,
     price: data.price,
     ownerUsername: data.owner_username,
+    previewEnabled: data.preview_enabled,
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
@@ -137,7 +140,7 @@ export async function getDownloadToken(token: string): Promise<DownloadToken | n
   return mappedData as DownloadToken;
 }
 
-export async function setPaidDownload(fileId: string, data: { ownerUsername: string; price: number; currency: string; enabled: boolean }) {
+export async function setPaidDownload(fileId: string, data: { ownerUsername: string; price: number; currency: string; enabled: boolean; previewEnabled?: boolean }) {
   const supabase = createClient();
   const now = new Date();
 
@@ -157,6 +160,7 @@ export async function setPaidDownload(fileId: string, data: { ownerUsername: str
         price: data.price,
         currency: data.currency,
         enabled: data.enabled,
+        preview_enabled: data.previewEnabled ?? true, // Default to true if not specified
         updated_at: now
       })
       .eq('file_id', fileId)
@@ -183,6 +187,7 @@ export async function setPaidDownload(fileId: string, data: { ownerUsername: str
         price: data.price,
         currency: data.currency,
         enabled: data.enabled,
+        preview_enabled: data.previewEnabled ?? true, // Default to true if not specified
         created_at: now,
         updated_at: now
       }])

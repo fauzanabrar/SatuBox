@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
 
 type Props = {
   fileId: string;
   price: number;
   currency: string;
   sizeLabel: string;
+  isOwner?: boolean;
 };
 
 const STORAGE_KEY = "satubox_download_tokens";
@@ -41,15 +43,58 @@ declare global {
   }
 }
 
-export default function PaidDownloadActions({
-  fileId,
-  price,
-  currency,
-  sizeLabel,
-}: Props) {
+export default function PaidDownloadActions(props: Props) {
+  const { fileId, price, currency, sizeLabel } = props;
   const { toast } = useToast();
+  const { data: session } = useSession();
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [localIsOwner, setLocalIsOwner] = useState<boolean | null>(null); // null = not checked yet, boolean = result
+
+  // Determine the final owner status - use prop if provided, otherwise check via API
+  const finalIsOwner = props.isOwner !== undefined ? props.isOwner : localIsOwner;
+
+  // Check if user is the owner of the file (only if isOwner prop is not provided)
+  useEffect(() => {
+    if (props.isOwner !== undefined) {
+      // If isOwner prop is provided, use it directly
+      setLocalIsOwner(props.isOwner);
+      return;
+    }
+
+    const checkOwnership = async () => {
+      if (!session?.user?.email) {
+        setLocalIsOwner(false);
+        return;
+      }
+
+      try {
+        // Make an API call to check if the user is the owner of the file
+        const response = await fetch(`/api/v2/share/check-owner/${fileId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setLocalIsOwner(result.isOwner);
+        } else {
+          setLocalIsOwner(false);
+        }
+      } catch (error) {
+        console.error("Error checking file ownership:", error);
+        setLocalIsOwner(false);
+      }
+    };
+
+    if (session) {
+      checkOwnership();
+    } else {
+      setLocalIsOwner(false);
+    }
+  }, [session, fileId, props.isOwner]);
 
   useEffect(() => {
     const tokens = readTokens();
@@ -74,12 +119,22 @@ export default function PaidDownloadActions({
   }, [price, currency]);
 
   const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.rel = "noopener";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // If user is owner, download without token
+    if (finalIsOwner) {
+      const link = document.createElement("a");
+      link.href = `/api/v2/share/download/${fileId}`;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const storeToken = (token: string) => {
@@ -207,6 +262,20 @@ export default function PaidDownloadActions({
       setLoading(false);
     }
   };
+
+  // If user is the owner, show download button without payment
+  if (finalIsOwner) {
+    return (
+      <div className="flex w-full flex-col items-start gap-3 sm:w-auto sm:items-end">
+        <Button onClick={handleDownload} className="w-full sm:w-auto">
+          Unduh ({sizeLabel}) - Owner
+        </Button>
+        <p className="max-w-[260px] text-xs text-muted-foreground sm:text-right">
+          You are the owner of this file. You can download it without paying.
+        </p>
+      </div>
+    );
+  }
 
   if (!price || price <= 0) {
     return (

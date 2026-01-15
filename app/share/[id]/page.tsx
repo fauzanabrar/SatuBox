@@ -6,11 +6,14 @@ import Script from "next/script";
 import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
-import PaidDownloadActions from "@/components/share/paid-download-actions";
+import PaidDownloadActionsWrapper from "@/components/share/paid-download-actions-wrapper";
+import PaidDownloadSettings from "@/components/share/paid-download-settings";
 import ShareLinkCard from "@/components/share/share-link-card";
 import TextPreview from "@/components/share/text-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getUserSession } from "@/lib/next-auth/user-session";
+import { getDownloadToken } from "@/lib/supabase/db/paid-download";
 
 export const metadata: Metadata = {
   title: "Shared file",
@@ -111,6 +114,7 @@ export default async function ShareFilePage({
     notFound();
   }
 
+  const userSession = await getUserSession();
   const restrict = await getRestrictByFileId(id);
   if (restrict) {
     return (
@@ -134,12 +138,15 @@ export default async function ShareFilePage({
     name?: string | null;
     mimeType?: string | null;
     size?: string | null;
+    owners?: Array<{ displayName?: string; emailAddress?: string; permissionId?: string }> | null;
+    createdTime?: string | null;
+    webViewLink?: string | null;
   } | null = null;
   try {
     const driveClient = await getDriveClient();
     const response = await driveClient.files.get({
       fileId: id,
-      fields: "id, name, mimeType, size",
+      fields: "id, name, mimeType, size, owners, createdTime, webViewLink",
     });
     file = response.data;
   } catch (error: any) {
@@ -154,12 +161,28 @@ export default async function ShareFilePage({
   const fileName = file.name || "Untitled file";
   const size = file.size ? Number(file.size) : null;
   const sizeLabel = formatBytes(size);
+
+  // Check if user is the owner of the file using the email approach
+  const isOwner = userSession?.email && file.owners?.some(owner =>
+    owner.emailAddress?.toLowerCase() === userSession.email.toLowerCase()
+  ) || false;
+
   const paidDownload = await getPaidDownload(id);
-  const paidPrice =
-    paidDownload && paidDownload.enabled ? paidDownload.price : 0;
+  const paidPrice = paidDownload && paidDownload.enabled ? paidDownload.price : 0;
   const paidCurrency = paidDownload?.currency ?? "IDR";
   const paidBadgeLabel = paidPrice > 0 ? "Paid" : "Free";
   const paidBadgeVariant = paidPrice > 0 ? "default" : "outline";
+  const previewEnabled = paidDownload?.previewEnabled ?? true; // Default to true if not set
+
+  // Check if user has already purchased this file
+  let hasPurchased = false;
+  if (userSession && paidDownload && paidDownload.enabled && paidPrice > 0) {
+    // Check if there's a download token for this file and user
+    // This would require checking if the user has a valid download token
+    // For now, we'll check if there's any download order for this file that was paid by this user
+    // This would require additional database queries to check user's purchase history
+    // For now, we'll skip this check and just show the preview if it's the owner
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-teal-50 text-foreground">
@@ -189,12 +212,23 @@ export default async function ShareFilePage({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link href="/login">Masuk</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/register">Buat akun</Link>
-            </Button>
+            {userSession ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Welcome, {userSession.name || userSession.username}</span>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/login">Masuk</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href="/register">Buat akun</Link>
+                </Button>
+              </>
+            )}
           </div>
         </header>
 
@@ -212,43 +246,205 @@ export default async function ShareFilePage({
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Badge variant="secondary">{sizeLabel}</Badge>
                 <Badge variant={paidBadgeVariant}>{paidBadgeLabel}</Badge>
+                {isOwner && (
+                  <Badge variant="outline">Owner</Badge>
+                )}
               </div>
             </div>
-            <div className="mt-5">{buildPreview(id, mimeType, fileName)}</div>
+            <div className="mt-5">
+              {/* Show preview or download based on conditions */}
+              {isOwner ? (
+                // Owner can always download without paying
+                <div className="text-center py-8">
+                  <p className="text-lg mb-4">You are the owner of this file</p>
+                  <Button asChild>
+                    <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                      Download File
+                    </Link>
+                  </Button>
+                </div>
+              ) : paidPrice > 0 ? (
+                // For paid files, check preview setting but always allow owner access
+                <div>
+                  {isOwner ? (
+                    // Owner can always see preview/download regardless of preview setting
+                    <div className="text-center py-8">
+                      <p className="text-lg mb-4">You are the owner of this file</p>
+                      <Button asChild>
+                        <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                          Download File (Owner)
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : previewEnabled ? (
+                    // For non-owners, check preview setting
+                    <>
+                      {buildPreview(id, mimeType, fileName)}
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          This file requires payment to download. Sign in to link your purchase to your account.
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    // For non-owners with preview disabled
+                    <div className="text-center py-8">
+                      <p className="text-lg mb-4">This file has preview disabled</p>
+                      <p className="text-sm text-muted-foreground mb-6">
+                        The owner has disabled previews for this file. Pay to access it.
+                      </p>
+                      <div className="max-w-md mx-auto">
+                        <PaidDownloadActionsWrapper
+                          fileId={id}
+                          price={paidPrice}
+                          currency={paidCurrency}
+                          sizeLabel={sizeLabel}
+                          isOwner={isOwner}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // For free files, show preview
+                <div>
+                  {buildPreview(id, mimeType, fileName)}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col gap-5">
             <div className="rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Detail File
+              </p>
+              <div className="mt-4 space-y-3">
+                <div className="flex justify-between border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Nama File</span>
+                  <span className="text-sm font-medium text-foreground">{fileName}</span>
+                </div>
+                <div className="flex justify-between border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Tipe File</span>
+                  <span className="text-sm font-medium text-foreground">{mimeType}</span>
+                </div>
+                <div className="flex justify-between border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Ukuran</span>
+                  <span className="text-sm font-medium text-foreground">{sizeLabel}</span>
+                </div>
+                {file?.createdTime && (
+                  <div className="flex justify-between pb-3">
+                    <span className="text-sm text-muted-foreground">Tanggal Upload</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {new Date(file.createdTime).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {isOwner && (
+                <Button asChild className="mt-4 w-full">
+                  <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                    Download File
+                  </Link>
+                </Button>
+              )}
+            </div>
+
+            <div className="rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Akses unduhan
               </p>
-              {paidPrice > 0 && (
+              {paidPrice > 0 && !isOwner && (
                 <p className="mt-2 text-sm text-muted-foreground">
                   Bayar sekali untuk membuka unduhan tanpa batas di perangkat
                   ini.
                 </p>
               )}
+              {paidPrice > 0 && isOwner && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  You are the owner of this file. You can download it without paying.
+                </p>
+              )}
               <div className="mt-5">
-                <PaidDownloadActions
-                  fileId={id}
-                  price={paidPrice}
-                  currency={paidCurrency}
-                  sizeLabel={sizeLabel}
-                />
+                {paidPrice > 0 ? (
+                  <>
+                    {!isOwner ? (
+                      <PaidDownloadActionsWrapper
+                        fileId={id}
+                        price={paidPrice}
+                        currency={paidCurrency}
+                        sizeLabel={sizeLabel}
+                        isOwner={isOwner}
+                      />
+                    ) : (
+                      <div className="space-y-4">
+                        <Button asChild className="w-full">
+                          <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                            Download File (Owner)
+                          </Link>
+                        </Button>
+                        <PaidDownloadSettings
+                          fileId={id}
+                          currentPrice={paidPrice}
+                          currentPreviewEnabled={previewEnabled}
+                          onSettingsUpdated={() => window.location.reload()}
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : isOwner ? (
+                  <div className="space-y-4">
+                    <Button asChild className="w-full">
+                      <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                        Download File
+                      </Link>
+                    </Button>
+                    <PaidDownloadSettings
+                      fileId={id}
+                      currentPrice={0}
+                      currentPreviewEnabled={true}
+                      isSetupMode={true}
+                      onSettingsUpdated={() => window.location.reload()}
+                    />
+                  </div>
+                ) : (
+                  <Button asChild className="w-full">
+                    <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                      Download File
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
 
             <ShareLinkCard fileId={id} />
 
-            <div className="rounded-3xl border border-dashed border-border/70 bg-white/70 p-5 text-xs text-muted-foreground">
-              <p className="text-sm font-semibold text-foreground">
-                Masuk agar akses tersimpan
-              </p>
-              <p className="mt-2">
-                Masuk untuk menyinkronkan pembelian antar perangkat dan
-                menghindari hilangnya akses saat data browser dibersihkan.
-              </p>
-            </div>
+            {userSession ? (
+              <div className="rounded-3xl border border-dashed border-border/70 bg-white/70 p-5 text-xs text-muted-foreground">
+                <p className="text-sm font-semibold text-foreground">
+                  Signed in as {userSession.name || userSession.username}
+                </p>
+                <p className="mt-2">
+                  Your purchases will be linked to this account.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-dashed border-border/70 bg-white/70 p-5 text-xs text-muted-foreground">
+                <p className="text-sm font-semibold text-foreground">
+                  Masuk agar akses tersimpan
+                </p>
+                <p className="mt-2">
+                  Masuk untuk menyinkronkan pembelian antar perangkat dan
+                  menghindari hilangnya akses saat data browser dibersihkan.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

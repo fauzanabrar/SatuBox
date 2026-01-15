@@ -40,6 +40,13 @@ const DialogItemPaidDownload = dynamic(
   },
 );
 
+const DialogItemDetails = dynamic(
+  () => import("./dialog-item/dialog-item-details"),
+  {
+    ssr: false,
+  },
+);
+
 type GridItemSWRProps = {
   item: FileDrive;
   folderId: string;
@@ -72,6 +79,9 @@ export default function GridItemSWR({
 
   // Paid download
   const [isPaidDownload, setIsPaidDownload] = useState(false);
+
+  // Details
+  const [isDetails, setIsDetails] = useState(false);
 
   // Dropdown Dialog
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -326,6 +336,7 @@ export default function GridItemSWR({
     setIsRename(false);
     setIsDelete(false);
     setIsPaidDownload(false);
+    setIsDetails(false);
   };
 
   return (
@@ -414,6 +425,13 @@ export default function GridItemSWR({
                   >
                     Download
                   </DropdownMenuItem>
+                  <DialogItemDetails
+                    file={item}
+                    isOpen={isDetails}
+                    setIsOpen={setIsDetails}
+                    handleDialogItemSelect={handleDialogItemSelect}
+                    handleDialogItemOpenChange={handleDialogItemOpenChange}
+                  />
                   <DialogItemPaidDownload
                     fileId={item.id}
                     isOpen={isPaidDownload}

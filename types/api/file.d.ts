@@ -2,6 +2,7 @@ export type FileDrive = {
   id: string;
   name: string;
   fileType: string;
+  size?: string | number;
   parents?: string[];
   media?: string;
   isRestrict?: boolean;
