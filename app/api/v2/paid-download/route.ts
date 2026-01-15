@@ -6,7 +6,7 @@ import {
   deletePaidDownload,
   getPaidDownload,
   setPaidDownload,
-} from "@/lib/firebase/db/paid-download";
+} from "@/lib/supabase/db/paid-download";
 
 const ensureOwnerAccess = async (
   fileId: string,
@@ -21,6 +21,7 @@ const ensureOwnerAccess = async (
 export async function GET(request: NextRequest) {
   const fileId = request.nextUrl.searchParams.get("fileId");
   if (!fileId) {
+    console.log('GET /api/v2/paid-download: fileId is required'); // Debug log
     return NextResponse.json(
       {
         status: 400,
@@ -30,8 +31,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  console.log('GET /api/v2/paid-download: checking file', fileId); // Debug log
   try {
     const paid = await getPaidDownload(fileId);
+    console.log('GET /api/v2/paid-download: result for file', fileId, ':', paid); // Debug log
+
     return NextResponse.json({
       status: 200,
       message: "success",
@@ -42,6 +46,8 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    console.error('GET /api/v2/paid-download: error for file', fileId, error); // Debug log
+    console.error('Error stack:', error.stack); // Debug log
     return NextResponse.json(
       {
         status: 500,

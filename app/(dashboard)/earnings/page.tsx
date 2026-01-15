@@ -32,7 +32,7 @@ import { userAtom } from "@/lib/jotai/user-atom";
 import type {
   DownloadEarning,
   WithdrawRequest,
-} from "@/lib/firebase/db/earnings";
+} from "@/lib/supabase/db/earnings";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -329,7 +329,7 @@ export default function EarningsPage() {
                     </TableRow>
                   )}
                   {sortedEarnings.map((earning) => (
-                    <TableRow key={earning.orderId}>
+                    <TableRow key={earning.id}>
                       <TableCell>{formatDateTime(earning.createdAt)}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {earning.fileId}

@@ -4,7 +4,7 @@ import { getUserSession } from "@/lib/next-auth/user-session";
 import {
   getUserByUsername,
   updateUserByUsername,
-} from "@/lib/firebase/db/user";
+} from "@/lib/supabase/db/users";
 
 export async function PUT(request: NextRequest) {
   const userSession = await getUserSession();

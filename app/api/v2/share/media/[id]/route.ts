@@ -1,4 +1,4 @@
-import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
+import { getRestrictByFileId } from "@/lib/supabase/db/restrict";
 import { getDriveClient } from "@/lib/gdrive";
 import { NextResponse } from "next/server";
 import { Readable } from "node:stream";

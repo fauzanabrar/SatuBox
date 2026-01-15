@@ -7,12 +7,13 @@ const fetcher = async (
 ) => {
   const response = await fetch(url);
 
-  const data = await response.json();
+  const result = await response.json();
 
   if (setLoading) setLoading(false);
 
-  return data;
-};
+  // Return the full response object
+  return result;
+}
 
 export const useSWRUser = (setLoading: (loading: boolean) => void) => {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
@@ -25,9 +26,9 @@ export const useSWRUser = (setLoading: (loading: boolean) => void) => {
     },
   );
 
-  const sortedData = data?.users.sort((a: User, b: User) => {
+  const sortedData = data?.users?.sort((a: User, b: User) => {
     return a.name.localeCompare(b.name);
-  });
+  }) || [];
 
   return {
     data: sortedData,

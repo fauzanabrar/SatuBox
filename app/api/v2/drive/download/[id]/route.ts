@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
+import { getRestrictByFileId } from "@/lib/supabase/db/restrict";
 import { getDriveClient } from "@/lib/gdrive";
 import { Readable } from "node:stream";
 import driveServices from "@/services/driveServices";

@@ -34,10 +34,10 @@ const formSchema = z.object({
   name: z.string().min(4, {
     message: "Name must be at least 4 characters.",
   }),
-  username: z.string(),
-  oldUsername: z.string().min(4, {
-    message: "Username must be at least 4 characters.",
+  username: z.string().min(1, {
+    message: "Username is required.",
   }),
+  oldUsername: z.string(),
   role: z.string(),
   planId: z.string().optional(),
   billingCycle: z.string().optional(),
@@ -149,10 +149,16 @@ export default function FormEditProfile({
     try {
       const response = await fetch("/api/users", {
         method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(values),
       });
 
-      if (!response.ok) throw new Error("Something went wrong");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error ${response.status}: Something went wrong`);
+      }
 
       mutate();
       toast({
@@ -161,13 +167,13 @@ export default function FormEditProfile({
         duration: 3000,
       });
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         variant: "destructive",
         title: "Error edit user!",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         duration: 5000,
       });
-      console.log(error.message);
     } finally {
       setLoading(false);
       setOpen(false);
@@ -179,7 +185,7 @@ export default function FormEditProfile({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           {Object.entries(formSchema.shape)
-            .filter((schema) => !hidden.includes(schema[0]))
+            .filter((schema) => !hidden.includes(schema[0]) && schema[0] !== "oldUsername")
             .map(([fieldName, _]) => (
               <FormField
                 key={fieldName}

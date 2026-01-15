@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { updateUserByUsername } from "@/lib/firebase/db/user";
+import { updateUserByUsername } from "@/lib/supabase/db/users";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

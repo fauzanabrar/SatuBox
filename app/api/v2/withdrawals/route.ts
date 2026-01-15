@@ -6,7 +6,7 @@ import {
   listWithdrawRequestsByUsername,
   listWithdrawRequests,
   updateWithdrawRequestStatus,
-} from "@/lib/firebase/db/earnings";
+} from "@/lib/supabase/db/earnings";  // Updated import
 
 const MIN_WITHDRAW_AMOUNT = 50000;
 

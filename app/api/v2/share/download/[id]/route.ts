@@ -1,8 +1,8 @@
-import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
+import { getRestrictByFileId } from "@/lib/supabase/db/restrict";
 import {
   getDownloadToken,
   getPaidDownload,
-} from "@/lib/firebase/db/paid-download";
+} from "@/lib/supabase/db/paid-download";
 import gdrive, { getDriveClient } from "@/lib/gdrive";
 import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "node:stream";

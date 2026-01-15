@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { FireStoreUser, getUserByUsername } from "@/lib/firebase/db/user";
+import { DatabaseUser, getUserByUsername } from "@/lib/supabase/db/users";
 import { compare } from "bcryptjs";
 import { SessionType } from "@/types/api/auth";
 

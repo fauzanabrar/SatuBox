@@ -1,5 +1,5 @@
-import { getRestrictByFileId } from "@/lib/firebase/db/restrict";
-import { getPaidDownload } from "@/lib/firebase/db/paid-download";
+import { getRestrictByFileId } from "@/lib/supabase/db/restrict";
+import { getPaidDownload } from "@/lib/supabase/db/paid-download";
 import { getDriveClient } from "@/lib/gdrive";
 import { notFound } from "next/navigation";
 import Script from "next/script";

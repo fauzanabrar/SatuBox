@@ -3,7 +3,7 @@ import { Buffer } from "buffer";
 import {
   createDownloadOrder,
   getPaidDownload,
-} from "@/lib/firebase/db/paid-download";
+} from "@/lib/supabase/db/paid-download";
 
 const getMidtransSnapUrl = () =>
   process.env.MIDTRANS_ENV === "production"
@@ -20,9 +20,12 @@ const buildOrderId = (fileId: string) => {
 };
 
 export async function POST(request: NextRequest) {
+  console.log('Starting payment creation request'); // Debug log
+
   const { fileId } = await request.json();
 
   if (!fileId) {
+    console.log('File ID is missing'); // Debug log
     return NextResponse.json(
       {
         status: 400,
@@ -32,8 +35,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  console.log('Getting paid download info for file:', fileId); // Debug log
   const paidDownload = await getPaidDownload(fileId);
+  console.log('Paid download info:', paidDownload); // Debug log
+
   if (!paidDownload || !paidDownload.enabled || paidDownload.price < 1000) {
+    console.log('Paid download is not enabled or price is too low:', {
+      exists: !!paidDownload,
+      enabled: paidDownload?.enabled,
+      price: paidDownload?.price
+    }); // Debug log
     return NextResponse.json(
       {
         status: 400,
@@ -43,6 +54,7 @@ export async function POST(request: NextRequest) {
     );
   }
   if (!paidDownload.ownerUsername) {
+    console.log('Paid download owner is missing'); // Debug log
     return NextResponse.json(
       {
         status: 400,
@@ -53,6 +65,7 @@ export async function POST(request: NextRequest) {
   }
 
   const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  console.log('Server key exists:', !!serverKey); // Debug log
   if (!serverKey) {
     return NextResponse.json(
       {
@@ -65,6 +78,7 @@ export async function POST(request: NextRequest) {
 
   const grossAmount = paidDownload.price;
   const orderId = buildOrderId(fileId);
+  console.log('Creating order with ID:', orderId, 'and amount:', grossAmount); // Debug log
 
   const body = {
     transaction_details: {
@@ -86,6 +100,7 @@ export async function POST(request: NextRequest) {
   const authHeader = Buffer.from(`${serverKey}:`).toString("base64");
 
   try {
+    console.log('Making request to Midtrans API'); // Debug log
     const response = await fetch(getMidtransSnapUrl(), {
       method: "POST",
       headers: {
@@ -96,8 +111,10 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
+    console.log('Midtrans response:', { status: response.status, data }); // Debug log
 
     if (!response.ok) {
+      console.log('Midtrans request failed'); // Debug log
       return NextResponse.json(
         {
           status: response.status,
@@ -107,6 +124,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Creating download order in database'); // Debug log
     await createDownloadOrder({
       orderId,
       fileId,
@@ -118,6 +136,7 @@ export async function POST(request: NextRequest) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    console.log('Download order created successfully'); // Debug log
 
     return NextResponse.json({
       status: 200,
@@ -129,6 +148,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    console.error('Payment creation error:', error); // Debug log
+    console.error('Error stack:', error.stack); // Debug log
     return NextResponse.json(
       {
         status: 500,

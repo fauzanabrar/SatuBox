@@ -41,7 +41,7 @@ function RegisterForm() {
           name: formValues.name,
         };
 
-        const createUser = (await import("@/lib/firebase/db/user")).createUser;
+        const createUser = (await import("@/lib/supabase/db/users")).createUser;
         await createUser(user);
 
         toast({

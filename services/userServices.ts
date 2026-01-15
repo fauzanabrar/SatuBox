@@ -2,12 +2,12 @@ import {
   createUser,
   deleteUser,
   getUserByUsername,
-  getUserByUsernameWithDocId,
+  getUserByUsernameWithId,
   getUsers,
   updateUserByUsername,
   updateUser,
-  type FireStoreUser,
-} from "@/lib/firebase/db/user";
+  type DatabaseUser,
+} from "@/lib/supabase/db/users";
 
 import { ChangedUser, RegisterUser } from "@/types/userTypes";
 
@@ -66,11 +66,11 @@ async function getByUsername(username: string) {
 }
 
 async function ensureProfile(username: string) {
-  const user = await getUserByUsernameWithDocId(username);
+  const user = await getUserByUsernameWithId(username);
 
   if (!user) throw new Error("User not found");
 
-  const updates: Partial<FireStoreUser> = {};
+  const updates: Partial<DatabaseUser> = {};
 
   const planId = (user.planId as keyof typeof PLANS) ?? DEFAULT_PLAN_ID;
 
@@ -116,7 +116,7 @@ async function ensureProfile(username: string) {
 }
 
 async function ensureRootFolder(username: string) {
-  const user = await getUserByUsernameWithDocId(username);
+  const user = await getUserByUsernameWithId(username);
 
   if (!user) throw new Error("User not found");
 
@@ -347,26 +347,31 @@ async function add(registerUser: RegisterUser) {
 
 async function update(registerUser: ChangedUser) {
   try {
-    // check if the user exist
+    console.log('Updating user:', registerUser); // Debug log
 
+    // check if the user exist
     const user = await getUserByUsername(registerUser.username);
 
     if (!user) throw new Error("User not found");
 
+    console.log('Found user to update:', user); // Debug log
+
     const changedUser = {
       name: registerUser.name ?? user.name,
-
       username: registerUser.username,
-
       newUsername: registerUser.newUsername,
-
       role: registerUser.role,
     };
 
+    console.log('Calling database updateUser with:', changedUser); // Debug log
+
     const updatedUser = await updateUser(changedUser);
+
+    console.log('User updated successfully:', updatedUser); // Debug log
 
     return updatedUser;
   } catch (error: any) {
+    console.error('Error updating user in service:', error); // Debug log
     throw new Error(error);
   }
 }

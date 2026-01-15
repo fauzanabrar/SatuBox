@@ -1,4 +1,4 @@
-import { getUserByUsername } from "@/lib/firebase/db/user";
+import { getUserByUsername } from "@/lib/supabase/db/users";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import Link from "next/link";
 import {

@@ -3,7 +3,7 @@ import { getUserSession } from "@/lib/next-auth/user-session";
 import {
   listDownloadEarningsByUsername,
   listWithdrawRequestsByUsername,
-} from "@/lib/firebase/db/earnings";
+} from "@/lib/supabase/db/earnings";
 
 export async function GET() {
   const userSession = await getUserSession();

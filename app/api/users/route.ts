@@ -141,12 +141,21 @@ export async function PUT(request: NextRequest) {
       await userServices.resolveBillingStatus(oldUsername);
     }
 
+    console.log('About to call userServices.update with:', {
+      username: oldUsername,
+      newUsername: username,
+      name,
+      role,
+    }); // Debug log
+
     await userServices.update({
       username: oldUsername,
       newUsername: username,
       name,
       role,
     });
+
+    console.log('userServices.update completed successfully'); // Debug log
 
     return NextResponse.json({
       status: 200,

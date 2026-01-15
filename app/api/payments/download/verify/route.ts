@@ -6,8 +6,11 @@ import {
   getDownloadOrder,
   updateDownloadOrder,
   getPaidDownload,
-} from "@/lib/firebase/db/paid-download";
-import { createDownloadEarning } from "@/lib/firebase/db/earnings";
+} from "@/lib/supabase/db/paid-download";
+
+import {
+  createDownloadEarning,
+} from "@/lib/supabase/db/earnings";
 
 const getMidtransBaseUrl = () =>
   process.env.MIDTRANS_ENV === "production"
@@ -114,6 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Creating download token'); // Debug log
     const token = crypto.randomUUID();
     await createDownloadToken({
       token,
@@ -123,11 +127,15 @@ export async function POST(request: NextRequest) {
       currency: order.currency,
       createdAt: new Date(),
     });
+    console.log('Download token created, updating download order'); // Debug log
     await updateDownloadOrder(orderId, { status: "paid", token });
+    console.log('Download order updated'); // Debug log
 
     const paidDownload = await getPaidDownload(order.fileId);
+    console.log('Paid download info:', paidDownload); // Debug log
     const ownerUsername = order.ownerUsername || paidDownload?.ownerUsername;
     if (!ownerUsername) {
+      console.log('Owner not found for file:', order.fileId); // Debug log
       return NextResponse.json(
         {
           status: 400,
@@ -137,20 +145,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Creating download earning'); // Debug log
     const feeAmount = Math.round(order.amount * 0.01);
     const netAmount = Math.max(0, order.amount - feeAmount);
-    await createDownloadEarning({
-      orderId: order.orderId,
-      fileId: order.fileId,
-      ownerUsername,
-      grossAmount: order.amount,
-      feeAmount,
-      netAmount,
-      currency: order.currency,
-      status: "available",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    try {
+      await createDownloadEarning({
+        username: ownerUsername,  // Changed from ownerUsername to username
+        fileId: order.fileId,
+        orderId: order.orderId,  // Add orderId for the frontend
+        amount: order.amount,  // Use the order amount as the base amount
+        netAmount,
+        grossAmount: order.amount,
+        feeAmount: feeAmount,  // Add feeAmount for the frontend
+        status: "available",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      console.log('Download earning created'); // Debug log
+    } catch (error) {
+      console.error('Error creating download earning:', error); // Debug log
+      throw error;
+    }
 
     return NextResponse.json({
       status: 200,

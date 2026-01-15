@@ -5,12 +5,12 @@ import {
   getRestrictByFileId,
   getRestricts,
   removeWhitelistRestrict,
-} from "@/lib/firebase/db/restrict";
-import { FireStoreRestrict } from "@/types/api/restrict";
+} from "@/lib/supabase/db/restrict";
+import { DatabaseRestriction } from "@/lib/supabase/db/restrict";
 import driveServices from "@/services/driveServices";
 import userServices from "./userServices";
 
-async function list(): Promise<FireStoreRestrict[]> {
+async function list(): Promise<DatabaseRestriction[]> {
   try {
     const restricts = await getRestricts();
 
@@ -20,7 +20,7 @@ async function list(): Promise<FireStoreRestrict[]> {
   }
 }
 
-async function getById(id: string): Promise<FireStoreRestrict> {
+async function getById(id: string): Promise<DatabaseRestriction> {
   try {
     // check if the file is exist in drive
     const file = await driveServices.checkId(id);
