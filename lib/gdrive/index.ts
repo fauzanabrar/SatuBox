@@ -205,11 +205,16 @@ async function renameFileOrFolder(id: string, name: string, parents: string[]) {
   return file.data as { id: string; name: string };
 }
 
+type UploadFileOptions = {
+  resumable?: boolean;
+};
+
 async function uploadFile(
   name: string,
   mimeType: string,
   content: Readable,
   parent?: string[],
+  options?: UploadFileOptions,
 ) {
   const driveClient = await getDriveClient();
 
@@ -223,10 +228,13 @@ async function uploadFile(
     body: content,
   };
 
+  const useResumable = options?.resumable ?? true;
+
   const response = await driveClient.files.create({
     requestBody: fileMetadata,
     media,
     fields: "id, size",
+    uploadType: useResumable ? "resumable" : undefined,
   });
 
   deleteCaches((parent as string[]) ?? [process.env.GOOGLE_SERVICE_ACCOUNT]);
