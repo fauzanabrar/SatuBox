@@ -29,7 +29,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { planId, billingCycle } = (await request.json()) as CreateRequest;
+  let requestBody: CreateRequest = {};
+  try {
+    requestBody = (await request.json()) as CreateRequest;
+  } catch (error) {
+    console.debug(
+      "Failed to parse request body for Midtrans create route",
+      error,
+    );
+    requestBody = {};
+  }
+
+  const { planId, billingCycle } = requestBody;
 
   if (!planId || !PLANS[planId]) {
     return NextResponse.json(
