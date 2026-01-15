@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { DialogItem } from "@/components/list/dialog-item/dialog-item";
+import { Edit3 } from "lucide-react";
 
 type Props = {
   handleDialogItemSelect: () => void;
@@ -31,7 +32,7 @@ const DialogItemRename = ({
     <div>
       <DialogItem
         className={"w-96"}
-        triggerChildren={<span>Rename</span>}
+        triggerChildren={<span className="flex items-center gap-2"><Edit3 className="w-4 h-4" /> Rename</span>}
         isOpen={isOpen}
         onSelect={() => {
           setIsRename(true);

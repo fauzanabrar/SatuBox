@@ -1,6 +1,6 @@
 import { getUsers } from '@/lib/supabase/db/users';
 import { updateUserByUsername } from '@/lib/supabase/db/users';
-import { gdrive } from '@/lib/gdrive';
+import gdrive from '@/lib/gdrive';
 
 async function migrateUserFolders() {
   try {
@@ -27,7 +27,7 @@ async function migrateUserFolders() {
 
           // Update the user's root folder ID in the database
           await updateUserByUsername(user.username, {
-            rootFolderId: newFolderId
+            root_folder_id: newFolderId
           });
 
           console.log(`Updated user ${user.username} to new folder: ${newFolderId}`);

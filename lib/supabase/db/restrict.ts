@@ -6,6 +6,7 @@ export interface DatabaseRestriction {
   userId?: string;
   isRestricted: boolean;
   restrictionType?: string;
+  whitelist?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -13,7 +14,8 @@ export interface DatabaseRestriction {
 export async function getRestrictByFileId(fileId: string): Promise<DatabaseRestriction | null> {
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  // First, get the restriction record
+  const { data: restrictionData, error: restrictionError } = await supabase
     .from('restrictions')
     .select(`
       id,
@@ -27,23 +29,40 @@ export async function getRestrictByFileId(fileId: string): Promise<DatabaseRestr
     .eq('file_id', fileId)
     .single();
 
-  if (error) {
-    if (error.code === 'PGRST116') { // Record not found
+  if (restrictionError) {
+    if (restrictionError.code === 'PGRST116') { // Record not found
       return null;
     }
-    console.error('Error getting restriction by file ID:', error);
-    throw error;
+    console.error('Error getting restriction by file ID:', restrictionError);
+    throw restrictionError;
+  }
+
+  // Then, get the associated whitelist entries
+  let whitelist: string[] = [];
+  if (restrictionData) {
+    const { data: whitelistData, error: whitelistError } = await supabase
+      .from('restriction_whitelists')
+      .select('username')
+      .eq('file_id', fileId);
+
+    if (whitelistError) {
+      console.warn('Error getting whitelist for restriction:', whitelistError);
+      // Continue without whitelist data
+    } else {
+      whitelist = whitelistData?.map(item => item.username) || [];
+    }
   }
 
   // Map snake_case database columns to camelCase JavaScript properties
   const mappedData = {
-    id: data.id,
-    fileId: data.file_id,
-    userId: data.user_id,
-    isRestricted: data.is_restricted,
-    restrictionType: data.restriction_type,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at
+    id: restrictionData.id,
+    fileId: restrictionData.file_id,
+    userId: restrictionData.user_id,
+    isRestricted: restrictionData.is_restricted,
+    restrictionType: restrictionData.restriction_type,
+    whitelist,
+    createdAt: restrictionData.created_at,
+    updatedAt: restrictionData.updated_at
   };
 
   return mappedData as DatabaseRestriction;

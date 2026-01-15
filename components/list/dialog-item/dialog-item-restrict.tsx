@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LucidePlus, LucideTrash2 } from "lucide-react";
+import { LucidePlus, LucideTrash2, Shield } from "lucide-react";
 import { DialogItem } from "./dialog-item";
 import Loading from "../../loading";
 import { useEffect, type Dispatch, type SetStateAction } from "react";
@@ -50,7 +50,7 @@ const DialogItemRestrict = ({
   return (
     <DialogItem
       isOpen={isOpen}
-      triggerChildren={<span>Restrict</span>}
+      triggerChildren={<span className="flex items-center gap-2"><Shield className="w-4 h-4" /> Restrict</span>}
       onSelect={() => {
         setIsOpen(true);
         handleDialogItemSelect();

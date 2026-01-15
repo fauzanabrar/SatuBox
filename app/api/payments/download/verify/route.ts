@@ -7,6 +7,7 @@ import {
   updateDownloadOrder,
   getPaidDownload,
 } from "@/lib/supabase/db/paid-download";
+import { getUserByUsername } from "@/lib/supabase/db/users";
 
 import {
   createDownloadEarning,
@@ -119,13 +120,16 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating download token'); // Debug log
     const token = crypto.randomUUID();
+    const user = await getUserByUsername(order.ownerUsername);
+    if (!user || !user.id) {
+      throw new Error(`User not found or missing ID: ${order.ownerUsername}`);
+    }
     await createDownloadToken({
       token,
       fileId: order.fileId,
-      orderId: order.orderId,
-      amount: order.amount,
-      currency: order.currency,
-      createdAt: new Date(),
+      userId: user.id,
+      isValid: true,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
     console.log('Download token created, updating download order'); // Debug log
     await updateDownloadOrder(orderId, { status: "paid", token });
@@ -158,8 +162,6 @@ export async function POST(request: NextRequest) {
         grossAmount: order.amount,
         feeAmount: feeAmount,  // Add feeAmount for the frontend
         status: "available",
-        createdAt: new Date(),
-        updatedAt: new Date(),
       });
       console.log('Download earning created'); // Debug log
     } catch (error) {

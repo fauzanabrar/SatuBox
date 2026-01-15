@@ -24,7 +24,7 @@ export async function GET() {
 
   try {
     const userProfile = await userServices.ensureProfile(userSession.username);
-    const sharedRootFolderIds = userProfile.sharedRootFolderIds ?? [];
+    const sharedRootFolderIds = userProfile.shared_root_folder_ids ?? [];
 
     const sharedFolders = await Promise.all(
       sharedRootFolderIds.map(async (folderId) => {

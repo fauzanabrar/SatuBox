@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDriveClient } from "@/lib/gdrive";
 import { getUserSession } from "@/lib/next-auth/user-session";
+import userServices from "@/services/userServices";
 
 type ParamsType = {
   params: Promise<{ id: string }>;
@@ -24,12 +25,25 @@ export async function GET(
 
   try {
     const userSession = await getUserSession();
-    
-    if (!userSession || !userSession.email) {
+
+    if (!userSession) {
       return NextResponse.json(
         {
           status: 401,
           message: "Unauthorized",
+          isOwner: false,
+        },
+        { status: 401 },
+      );
+    }
+
+    // Get user details from database to access email
+    const user = await userServices.getByUsername(userSession.username);
+    if (!user || !user.email) {
+      return NextResponse.json(
+        {
+          status: 401,
+          message: "Unauthorized - email not found",
           isOwner: false,
         },
         { status: 401 },
@@ -42,8 +56,8 @@ export async function GET(
       fields: "owners",
     });
 
-    const isOwner = fileInfo.data.owners?.some(owner => 
-      userSession.email && owner.emailAddress?.toLowerCase() === userSession.email.toLowerCase()
+    const isOwner = fileInfo.data.owners?.some(owner =>
+      user.email && owner.emailAddress?.toLowerCase() === user.email.toLowerCase()
     ) || false;
 
     return NextResponse.json({

@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       message: "success",
       data: {
-        enabled: Boolean(paid?.enabled && paid?.price > 0),
+        enabled: Boolean(paid?.enabled && (paid?.price ?? 0) > 0),
         price: paid?.price ?? 0,
         currency: paid?.currency ?? "IDR",
         previewEnabled: paid?.previewEnabled ?? true,

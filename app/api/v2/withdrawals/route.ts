@@ -141,8 +141,6 @@ export async function POST(request: NextRequest) {
       provider,
       accountName,
       accountNumber,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     return NextResponse.json({

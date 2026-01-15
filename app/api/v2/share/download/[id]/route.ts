@@ -95,6 +95,9 @@ export async function GET(
     // Check if the user is the owner of the file using multiple methods
     let isOwner = false;
     if (userSession) {
+      // Get user details from database to access email
+      const user = await userServices.getByUsername(userSession.username);
+
       const driveClient = await getDriveClient();
       try {
         const fileInfo = await driveClient.files.get({
@@ -104,7 +107,7 @@ export async function GET(
 
         // Check by email
         isOwner = fileInfo.data.owners?.some(owner =>
-          userSession.email && owner.emailAddress?.toLowerCase() === userSession.email.toLowerCase()
+          user?.email && owner.emailAddress?.toLowerCase() === user.email.toLowerCase()
         ) || false;
 
         // Also check by username against stored owner in paid_downloads table
@@ -118,7 +121,7 @@ export async function GET(
     }
 
     // If user is the owner, allow download without payment
-    if (!isOwner && paidDownload?.enabled && paidDownload.price > 0) {
+    if (!isOwner && paidDownload?.enabled && (paidDownload.price ?? 0) > 0) {
       const token = request.nextUrl.searchParams.get("token");
       if (!token) {
         return NextResponse.json(

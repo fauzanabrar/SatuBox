@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Loading from "../../loading";
 import { useToast } from "@/components/ui/use-toast";
+import { CreditCard } from "lucide-react";
 
 type Props = {
   fileId: string;
@@ -159,7 +160,7 @@ const DialogItemPaidDownload = ({
   return (
     <DialogItem
       isOpen={isOpen}
-      triggerChildren={<span>Paid download</span>}
+      triggerChildren={<span className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> Paid download</span>}
       onSelect={() => {
         setIsOpen(true);
         handleDialogItemSelect();

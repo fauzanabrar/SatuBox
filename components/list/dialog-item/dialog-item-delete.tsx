@@ -2,6 +2,7 @@ import { DialogClose, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { DialogItem } from "@/components/list/dialog-item/dialog-item";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   handleDialogItemSelect: () => void;
@@ -27,7 +28,7 @@ const DialogItemDelete = ({
       <DialogItem
         isOpen={isOpen}
         className={"w-96"}
-        triggerChildren={<span className="text-destructive">Delete</span>}
+        triggerChildren={<span className="flex items-center gap-2 text-destructive"><Trash2 className="w-4 h-4" /> Delete</span>}
         onSelect={() => {
           setIsOpen(true);
           handleDialogItemSelect();

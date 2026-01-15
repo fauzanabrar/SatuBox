@@ -21,7 +21,7 @@ export async function GET() {
       status: 200,
       message: "success",
       data: {
-        sharedWithUsernames: userProfile.sharedWithUsernames ?? [],
+        sharedWithUsernames: userProfile.shared_with_usernames ?? [],
       },
     });
   } catch (error: any) {

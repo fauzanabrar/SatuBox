@@ -33,19 +33,19 @@ async function list() {
 
         planId: user.planId ?? DEFAULT_PLAN_ID,
 
-        billingCycle: user.billingCycle ?? null,
+        billingCycle: user.billing_cycle ?? null,
 
-        lastPaymentAt: user.lastPaymentAt ?? null,
+        lastPaymentAt: user.last_payment_at ?? null,
 
-        lastPaymentAmount: user.lastPaymentAmount ?? null,
+        lastPaymentAmount: user.last_payment_amount ?? null,
 
-        lastPaymentOrderId: user.lastPaymentOrderId ?? null,
+        lastPaymentOrderId: user.last_payment_order_id ?? null,
 
-        lastPaymentPlanId: user.lastPaymentPlanId ?? null,
+        lastPaymentPlanId: user.last_payment_plan_id ?? null,
 
-        lastPaymentCycle: user.lastPaymentCycle ?? null,
+        lastPaymentCycle: user.last_payment_cycle ?? null,
 
-        nextBillingAt: user.nextBillingAt ?? null,
+        nextBillingAt: user.next_billing_at ?? null,
       };
     });
 
@@ -79,29 +79,29 @@ async function ensureProfile(username: string) {
   }
 
   if (
-    user.storageLimitBytes === undefined ||
-    user.storageLimitBytes === null ||
-    user.storageLimitBytes <= 0
+    user.storage_limit_bytes === undefined ||
+    user.storage_limit_bytes === null ||
+    user.storage_limit_bytes <= 0
   ) {
     const plan = PLANS[planId] ?? PLANS[DEFAULT_PLAN_ID];
 
-    updates.storageLimitBytes = plan.storageLimitBytes;
+    updates.storage_limit_bytes = plan.storageLimitBytes;
   }
 
   if (
-    user.storageUsedBytes === undefined ||
-    user.storageUsedBytes === null ||
-    user.storageUsedBytes < 0
+    user.storage_used_bytes === undefined ||
+    user.storage_used_bytes === null ||
+    user.storage_used_bytes < 0
   ) {
-    updates.storageUsedBytes = 0;
+    updates.storage_used_bytes = 0;
   }
 
-  if (!Array.isArray(user.sharedRootFolderIds)) {
-    updates.sharedRootFolderIds = [];
+  if (!Array.isArray(user.shared_root_folder_ids)) {
+    updates.shared_root_folder_ids = [];
   }
 
-  if (!Array.isArray(user.sharedWithUsernames)) {
-    updates.sharedWithUsernames = [];
+  if (!Array.isArray(user.shared_with_usernames)) {
+    updates.shared_with_usernames = [];
   }
 
   if (Object.keys(updates).length > 0) {
@@ -127,10 +127,10 @@ async function ensureRootFolder(username: string) {
   }
 
   // If user already has a root folder, check if it's under the correct parent
-  if (user.rootFolderId) {
+  if (user.root_folder_id) {
     try {
       // Get the current folder's parents to check if it's under the correct root
-      const currentParent = await gdrive.getAllParentsFolder(user.rootFolderId);
+      const currentParent = await gdrive.getAllParentsFolder(user.root_folder_id);
 
       if (currentParent && currentParent.id !== parentId) {
         // The user's folder is under the wrong root, so update it to the new root
@@ -143,17 +143,17 @@ async function ensureRootFolder(username: string) {
         const newFolderId = await gdrive.createFolder(folderName, [parentId]);
 
         // Update the user record with the new folder ID
-        await updateUserByUsername(username, { rootFolderId: newFolderId });
+        await updateUserByUsername(username, { root_folder_id: newFolderId });
 
         return newFolderId;
       }
 
       // Folder is already under the correct root
-      return user.rootFolderId;
+      return user.root_folder_id;
     } catch (error) {
       console.error(`Error checking parent folder for user ${username}:`, error);
       // If there's an error checking the parent, return the existing folder ID
-      return user.rootFolderId;
+      return user.root_folder_id;
     }
   }
 
@@ -161,7 +161,7 @@ async function ensureRootFolder(username: string) {
 
   const folderId = await gdrive.createFolder(folderName, [parentId]);
 
-  await updateUserByUsername(username, { rootFolderId: folderId });
+  await updateUserByUsername(username, { root_folder_id: folderId });
 
   return folderId;
 }
@@ -173,7 +173,7 @@ async function updatePlan(
 
   billingCycle: "monthly" | "annual" | null,
 
-  extraUpdates: Partial<FireStoreUser> = {},
+  extraUpdates: Partial<DatabaseUser> = {},
 ) {
   const plan = PLANS[planId];
 
@@ -182,9 +182,9 @@ async function updatePlan(
   await updateUserByUsername(username, {
     planId,
 
-    billingCycle,
+    billing_cycle: billingCycle,
 
-    storageLimitBytes: plan.storageLimitBytes,
+    storage_limit_bytes: plan.storageLimitBytes,
 
     ...extraUpdates,
   });
@@ -229,18 +229,18 @@ async function resolveBillingStatus(username: string) {
     return { profile, blocked: false, expired: false };
   }
 
-  const paidUntil = parseBillingDate(profile.nextBillingAt);
+  const paidUntil = parseBillingDate(profile.next_billing_at);
 
   if (!paidUntil || paidUntil.getTime() >= Date.now()) {
     return { profile, blocked: false, expired: false };
   }
 
-  const usedBytes = profile.storageUsedBytes ?? 0;
+  const usedBytes = profile.storage_used_bytes ?? 0;
 
   const freeLimit = PLANS.free.storageLimitBytes;
 
   if (usedBytes <= freeLimit) {
-    await updatePlan(username, "free", null, { nextBillingAt: null });
+    await updatePlan(username, "free", null, { next_billing_at: null });
 
     return {
       profile: {
@@ -248,11 +248,11 @@ async function resolveBillingStatus(username: string) {
 
         planId: "free",
 
-        billingCycle: null,
+        billing_cycle: null,
 
-        storageLimitBytes: PLANS.free.storageLimitBytes,
+        storage_limit_bytes: PLANS.free.storageLimitBytes,
 
-        nextBillingAt: null,
+        next_billing_at: null,
       },
 
       blocked: false,
@@ -267,7 +267,7 @@ async function resolveBillingStatus(username: string) {
 async function updateStorageUsage(username: string, nextUsedBytes: number) {
   const safeBytes = Math.max(0, nextUsedBytes);
 
-  await updateUserByUsername(username, { storageUsedBytes: safeBytes });
+  await updateUserByUsername(username, { storage_used_bytes: safeBytes });
 
   return safeBytes;
 }
@@ -277,7 +277,7 @@ async function incrementStorageUsage(username: string, deltaBytes: number) {
 
   if (!user) throw new Error("User not found");
 
-  const used = user.storageUsedBytes ?? 0;
+  const used = user.storage_used_bytes ?? 0;
 
   const nextUsed = used + deltaBytes;
 
@@ -289,12 +289,12 @@ async function addSharedRootFolder(username: string, folderId: string) {
 
   if (!user) throw new Error("User not found");
 
-  const shared = user.sharedRootFolderIds ?? [];
+  const shared = user.shared_root_folder_ids ?? [];
 
   if (!shared.includes(folderId)) {
     shared.push(folderId);
 
-    await updateUserByUsername(username, { sharedRootFolderIds: shared });
+    await updateUserByUsername(username, { shared_root_folder_ids: shared });
   }
 
   return shared;
@@ -305,11 +305,11 @@ async function removeSharedRootFolder(username: string, folderId: string) {
 
   if (!user) throw new Error("User not found");
 
-  const shared = user.sharedRootFolderIds ?? [];
+  const shared = user.shared_root_folder_ids ?? [];
 
   const nextShared = shared.filter((id) => id !== folderId);
 
-  await updateUserByUsername(username, { sharedRootFolderIds: nextShared });
+  await updateUserByUsername(username, { shared_root_folder_ids: nextShared });
 
   return nextShared;
 }
@@ -323,12 +323,12 @@ async function addSharedWithUsername(
 
   if (!user) throw new Error("User not found");
 
-  const shared = user.sharedWithUsernames ?? [];
+  const shared = user.shared_with_usernames ?? [];
 
   if (!shared.includes(targetUsername)) {
     shared.push(targetUsername);
 
-    await updateUserByUsername(ownerUsername, { sharedWithUsernames: shared });
+    await updateUserByUsername(ownerUsername, { shared_with_usernames: shared });
   }
 
   return shared;
@@ -343,12 +343,12 @@ async function removeSharedWithUsername(
 
   if (!user) throw new Error("User not found");
 
-  const shared = user.sharedWithUsernames ?? [];
+  const shared = user.shared_with_usernames ?? [];
 
   const nextShared = shared.filter((name) => name !== targetUsername);
 
   await updateUserByUsername(ownerUsername, {
-    sharedWithUsernames: nextShared,
+    shared_with_usernames: nextShared,
   });
 
   return nextShared;
@@ -357,7 +357,7 @@ async function removeSharedWithUsername(
 async function updateBillingMeta(
   username: string,
 
-  updates: Partial<FireStoreUser>,
+  updates: Partial<DatabaseUser>,
 ) {
   await updateUserByUsername(username, updates);
 }

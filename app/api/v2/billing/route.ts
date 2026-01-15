@@ -29,16 +29,16 @@ export async function GET() {
       message: "success",
       data: {
         planId: plan.id,
-        billingCycle: userProfile.billingCycle ?? null,
+        billingCycle: userProfile.billing_cycle ?? null,
         storageLimitBytes:
-          userProfile.storageLimitBytes ?? plan.storageLimitBytes,
-        storageUsedBytes: userProfile.storageUsedBytes ?? 0,
-        lastPaymentAt: userProfile.lastPaymentAt ?? null,
-        lastPaymentAmount: userProfile.lastPaymentAmount ?? null,
-        lastPaymentOrderId: userProfile.lastPaymentOrderId ?? null,
-        lastPaymentPlanId: userProfile.lastPaymentPlanId ?? null,
-        lastPaymentCycle: userProfile.lastPaymentCycle ?? null,
-        nextBillingAt: userProfile.nextBillingAt ?? null,
+          userProfile.storage_limit_bytes ?? plan.storageLimitBytes,
+        storageUsedBytes: userProfile.storage_used_bytes ?? 0,
+        lastPaymentAt: userProfile.last_payment_at ?? null,
+        lastPaymentAmount: userProfile.last_payment_amount ?? null,
+        lastPaymentOrderId: userProfile.last_payment_order_id ?? null,
+        lastPaymentPlanId: userProfile.last_payment_plan_id ?? null,
+        lastPaymentCycle: userProfile.last_payment_cycle ?? null,
+        nextBillingAt: userProfile.next_billing_at ?? null,
       },
     });
   } catch (error: any) {

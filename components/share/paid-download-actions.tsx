@@ -14,6 +14,12 @@ type Props = {
 };
 
 const STORAGE_KEY = "satubox_download_tokens";
+const TOKEN_CHANGE_EVENT = "satubox:download-token-change";
+
+type TokenChangeDetail = {
+  fileId: string;
+  token?: string | null;
+};
 
 const readTokens = () => {
   if (typeof window === "undefined") return {};
@@ -33,6 +39,11 @@ const readTokens = () => {
 const writeTokens = (tokens: Record<string, string>) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+};
+
+const emitTokenChange = (detail: TokenChangeDetail) => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(TOKEN_CHANGE_EVENT, { detail }));
 };
 
 declare global {
@@ -142,7 +153,25 @@ export default function PaidDownloadActions(props: Props) {
     tokens[fileId] = token;
     writeTokens(tokens);
     setDownloadToken(token);
+    emitTokenChange({ fileId, token });
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleTokenChangeEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<TokenChangeDetail>;
+      const detail = customEvent.detail;
+      if (!detail) return;
+      if (detail.fileId !== fileId) return;
+      setDownloadToken(detail.token ?? null);
+    };
+
+    window.addEventListener(TOKEN_CHANGE_EVENT, handleTokenChangeEvent);
+    return () => {
+      window.removeEventListener(TOKEN_CHANGE_EVENT, handleTokenChangeEvent);
+    };
+  }, [fileId]);
 
   const handleVerify = async (orderId: string) => {
     try {

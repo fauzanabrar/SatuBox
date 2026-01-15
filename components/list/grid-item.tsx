@@ -1,5 +1,5 @@
 import { FileDrive } from "@/types/api/file";
-import { LucideLock, LucideMoreVertical } from "lucide-react";
+import { LucideLock, LucideMoreVertical, Link, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -408,22 +408,22 @@ export default function GridItemSWR({
                 </Show>
                 <Show when={item.fileType !== "folder"}>
                   <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="cursor-pointer flex items-center gap-2"
                     onSelect={(event) => {
                       event.preventDefault();
                       handleShare();
                     }}
                   >
-                    Share link
+                    <Link className="w-4 h-4" /> Share link
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="cursor-pointer flex items-center gap-2"
                     onSelect={(event) => {
                       event.preventDefault();
                       handleDownload();
                     }}
                   >
-                    Download
+                    <Download className="w-4 h-4" /> Download
                   </DropdownMenuItem>
                   <DialogItemDetails
                     file={item}

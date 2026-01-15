@@ -327,7 +327,12 @@ export async function updateWithdrawRequestStatus(id: string, status: string) {
 
 
 // Functions for download earnings
-export async function createDownloadEarning(earning: Omit<DownloadEarning, 'id' | 'createdAt' | 'updatedAt'>) {
+// Extended type for creating download earnings with additional fields
+type CreateDownloadEarningInput = Omit<DownloadEarning, 'id' | 'createdAt' | 'updatedAt'> & {
+  ownerUsername?: string;
+};
+
+export async function createDownloadEarning(earning: CreateDownloadEarningInput) {
   const supabase = createClient();
   const now = new Date();
 

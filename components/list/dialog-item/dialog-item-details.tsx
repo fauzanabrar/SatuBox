@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { FileDrive } from "@/types/api/file";
+import { Eye } from "lucide-react";
 
 type Props = {
   file: FileDrive;
@@ -85,7 +86,7 @@ const DialogItemDetails = ({
   return (
     <DialogItem
       isOpen={isOpen}
-      triggerChildren={<span>View Details</span>}
+      triggerChildren={<span className="flex items-center gap-2"><Eye className="w-4 h-4" /> View Details</span>}
       onSelect={() => {
         setIsOpen(true);
         handleDialogItemSelect();

@@ -69,7 +69,7 @@ const getUserAccessContext = async (): Promise<UserAccessContext | null> => {
   );
   const allowedRootFolderIds = [
     rootFolderId,
-    ...(userProfile.sharedRootFolderIds ?? []),
+    ...(userProfile.shared_root_folder_ids ?? []),
   ].filter(Boolean);
 
   return {
@@ -134,8 +134,8 @@ const getStorageStatus = async (
 
   const billing = await userServices.resolveBillingStatus(ownerUsername);
   const ownerProfile = billing.profile;
-  const usedBytes = ownerProfile.storageUsedBytes ?? 0;
-  const limitBytes = ownerProfile.storageLimitBytes ?? 0;
+  const usedBytes = ownerProfile.storage_used_bytes ?? 0;
+  const limitBytes = ownerProfile.storage_limit_bytes ?? 0;
 
   return {
     ownerUsername,

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import { getDownloadToken } from "@/lib/supabase/db/paid-download";
+import userServices from "@/services/userServices";
 
 export const metadata: Metadata = {
   title: "Shared file",
@@ -138,7 +139,7 @@ export default async function ShareFilePage({
     name?: string | null;
     mimeType?: string | null;
     size?: string | null;
-    owners?: Array<{ displayName?: string; emailAddress?: string; permissionId?: string }> | null;
+    owners?: Array<{ displayName?: string | null; emailAddress?: string | null; permissionId?: string | null }> | null;
     createdTime?: string | null;
     webViewLink?: string | null;
   } | null = null;
@@ -163,12 +164,16 @@ export default async function ShareFilePage({
   const sizeLabel = formatBytes(size);
 
   // Check if user is the owner of the file using the email approach
-  const isOwner = userSession?.email && file.owners?.some(owner =>
-    owner.emailAddress?.toLowerCase() === userSession.email.toLowerCase()
-  ) || false;
+  let isOwner = false;
+  if (userSession) {
+    const user = await userServices.getByUsername(userSession.username);
+    isOwner = user?.email && file.owners?.some(owner =>
+      owner.emailAddress?.toLowerCase() === user.email?.toLowerCase()
+    ) || false;
+  }
 
   const paidDownload = await getPaidDownload(id);
-  const paidPrice = paidDownload && paidDownload.enabled ? paidDownload.price : 0;
+  const paidPrice = (paidDownload && paidDownload.enabled ? paidDownload.price : 0) ?? 0;
   const paidCurrency = paidDownload?.currency ?? "IDR";
   const paidBadgeLabel = paidPrice > 0 ? "Paid" : "Free";
   const paidBadgeVariant = paidPrice > 0 ? "default" : "outline";
@@ -448,9 +453,6 @@ export default async function ShareFilePage({
           </div>
         </div>
 
-        <div className="text-center text-xs text-muted-foreground">
-          Dibagikan lewat tautan publik.
-        </div>
       </div>
     </div>
   );

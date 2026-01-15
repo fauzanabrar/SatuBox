@@ -215,12 +215,12 @@ export async function POST(request: NextRequest) {
     const nextBillingAt = addBillingCycle(paidAt, resolvedCycle);
 
     await userServices.updatePlan(userSession.username, planId, resolvedCycle, {
-      lastPaymentAt: paidAt,
-      lastPaymentAmount: grossAmount,
-      lastPaymentOrderId: orderId,
-      lastPaymentPlanId: planId,
-      lastPaymentCycle: resolvedCycle,
-      nextBillingAt,
+      last_payment_at: paidAt,
+      last_payment_amount: grossAmount,
+      last_payment_order_id: orderId,
+      last_payment_plan_id: planId,
+      last_payment_cycle: resolvedCycle,
+      next_billing_at: nextBillingAt,
     });
 
     return NextResponse.json({

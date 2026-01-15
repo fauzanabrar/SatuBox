@@ -104,7 +104,7 @@ export async function PUT(request: NextRequest) {
     const billingUpdates =
       typeof parsedNextBillingAt === "undefined"
         ? {}
-        : { nextBillingAt: parsedNextBillingAt };
+        : { next_billing_at: parsedNextBillingAt };
 
     if (hasPlanUpdate) {
       const nextPlanId = planId as keyof typeof PLANS;

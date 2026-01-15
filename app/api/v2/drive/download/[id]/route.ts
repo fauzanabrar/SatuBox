@@ -73,7 +73,7 @@ export async function GET(
     );
     const allowedRootFolderIds = [
       rootFolderId,
-      ...(userProfile.sharedRootFolderIds ?? []),
+      ...(userProfile.shared_root_folder_ids ?? []),
     ].filter(Boolean);
 
     let canAccess = false;

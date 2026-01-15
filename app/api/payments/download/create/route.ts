@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
   const paidDownload = await getPaidDownload(fileId);
   console.log('Paid download info:', paidDownload); // Debug log
 
-  if (!paidDownload || !paidDownload.enabled || paidDownload.price < 1000) {
+  if (!paidDownload || !paidDownload.enabled || (paidDownload.price ?? 0) < 1000) {
     console.log('Paid download is not enabled or price is too low:', {
       exists: !!paidDownload,
       enabled: paidDownload?.enabled,
@@ -129,12 +129,10 @@ export async function POST(request: NextRequest) {
       orderId,
       fileId,
       ownerUsername: paidDownload.ownerUsername,
-      amount: grossAmount,
+      amount: grossAmount ?? 0,
       currency: paidDownload.currency ?? "IDR",
       status: "pending",
       token: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
     console.log('Download order created successfully'); // Debug log
 
