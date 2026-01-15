@@ -144,7 +144,7 @@ const DialogItemDetails = ({
               variant="default"
               className="flex-1"
             >
-              <Link href={`/api/v2/drive/${fileDetails.id}?download=true`} target="_blank" rel="noopener noreferrer">
+              <Link href={`/api/v2/drive/download/${fileDetails.id}`} target="_blank" rel="noopener noreferrer">
                 Download
               </Link>
             </Button>
