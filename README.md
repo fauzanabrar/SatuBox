@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Template customization
+
+This project is organized as a reusable template. Update the following files first:
+
+- `lib/config/site.ts` for brand name, support contacts, locale, and currency.
+- `lib/config/marketing.ts` for hero copy, preview cards, highlights, and CTAs.
+- `lib/billing/plans.ts` for pricing tiers and storage limits.
+- `app/terms/page.tsx`, `app/privacy/page.tsx`, and `app/refund-policy/page.tsx` for legal copy.
+
 ## Getting Started
 
 First, run the development server:
