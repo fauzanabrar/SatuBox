@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import Loading from "../loading";
 import { mutateList } from "@/hooks/useSWRList";
-import axios from "axios";
 import { Progress } from "../ui/progress";
 import {
   DropdownMenu,
@@ -17,6 +16,8 @@ import {
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
+
+const CHUNK_SIZE = 100 * 1024 * 1024;
 
 export default function InputFile({}: InputFileProps) {
   const [files, setFiles] = useState<File[]>([]);
@@ -44,6 +45,78 @@ export default function InputFile({}: InputFileProps) {
     setErrorMessage("");
   };
 
+  const parseRangeEnd = (range: string | null | undefined) => {
+    if (!range) return null;
+    const match = /bytes(?:=| )0-(\d+)/i.exec(range);
+    if (!match) return null;
+    const parsed = Number(match[1]);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const startResumableUpload = async (file: File) => {
+    const startUrl = folderId
+      ? `/api/v2/drive/resumable/${folderId}`
+      : "/api/v2/drive/resumable";
+    const response = await fetch(startUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: file.name,
+        mimeType: file.type || "application/octet-stream",
+        size: file.size,
+      }),
+    });
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.status !== 200 || !data?.uploadId) {
+      const message =
+        data?.error || data?.message || "Failed to start upload session.";
+      throw new Error(message);
+    }
+
+    return data.uploadId as string;
+  };
+
+  const uploadChunk = async (
+    uploadId: string,
+    chunk: Blob,
+    start: number,
+    end: number,
+    total: number,
+  ) => {
+    const chunkUrl = `/api/v2/drive/chunk/${uploadId}`;
+    const response = await fetch(chunkUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "x-upload-start": start.toString(),
+        "x-upload-end": end.toString(),
+        "x-upload-total": total.toString(),
+        "x-upload-size": chunk.size.toString(),
+      },
+      body: chunk,
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (response.status === 308) {
+      return {
+        completed: false,
+        rangeEnd: parseRangeEnd(data?.range),
+      };
+    }
+
+    if (!response.ok || data?.status !== 200) {
+      const message =
+        data?.error || data?.message || "Failed to upload chunk.";
+      throw new Error(message);
+    }
+
+    return { completed: true, rangeEnd: null };
+  };
+
   const handleFileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (files.length < 1) {
@@ -55,43 +128,52 @@ export default function InputFile({}: InputFileProps) {
     setLoading(true);
     setProgress(0);
 
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-
     try {
-      const uploadUrl = folderId
-        ? `/api/v2/drive/file/${folderId}`
-        : "/api/v2/drive/file";
-      const response = await axios.post(uploadUrl, formData, {
-        onUploadProgress: (progressEvent) => {
-          const { loaded, total } = progressEvent;
-          if (!total) return;
-          const percent = Math.min(100, Math.round((loaded / total) * 100));
+      const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+      let uploadedBytes = 0;
+
+      for (const file of files) {
+        const uploadId = await startResumableUpload(file);
+        let offset = 0;
+
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + CHUNK_SIZE);
+          const start = offset;
+          const end = offset + chunk.size - 1;
+
+          const result = await uploadChunk(
+            uploadId,
+            chunk,
+            start,
+            end,
+            file.size,
+          );
+
+          const nextOffset =
+            result.rangeEnd !== null ? result.rangeEnd + 1 : end + 1;
+          offset = Math.min(nextOffset, file.size);
+
+          const totalUploaded = uploadedBytes + offset;
+          const percent =
+            totalBytes > 0
+              ? Math.min(100, Math.round((totalUploaded / totalBytes) * 100))
+              : 0;
           setProgress(percent);
-        },
-      });
-      const apiStatus = response.data?.status ?? response.status;
-      if (apiStatus === 200) {
-        setProgress(100);
-        setFiles([]);
-        if (inputFileRef.current) {
-          inputFileRef.current.value = "";
         }
-      } else {
-        const message =
-          response.data?.error || response.data?.message || "Failed to upload file.";
-        setErrorMessage(message);
+
+        uploadedBytes += file.size;
+      }
+
+      setProgress(100);
+      setFiles([]);
+      if (inputFileRef.current) {
+        inputFileRef.current.value = "";
       }
     } catch (error) {
-      const message = axios.isAxiosError(error)
-        ? (error.response?.data?.error as string) ||
-          (error.response?.data?.message as string) ||
-          "Failed to upload file."
-        : "Failed to upload file.";
       console.error("Failed to upload file", error);
-      setErrorMessage(message);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to upload file.",
+      );
     } finally {
       setLoading(false);
       mutateList(folderId);

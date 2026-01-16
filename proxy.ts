@@ -23,7 +23,11 @@ const API_RATE_LIMIT_MAX = parseEnvNumber(
 
 const isUploadRoute = (pathname: string) =>
   pathname === "/api/v2/drive/file" ||
-  pathname.startsWith("/api/v2/drive/file/");
+  pathname.startsWith("/api/v2/drive/file/") ||
+  pathname === "/api/v2/drive/resumable" ||
+  pathname.startsWith("/api/v2/drive/resumable/") ||
+  pathname === "/api/v2/drive/chunk" ||
+  pathname.startsWith("/api/v2/drive/chunk/");
 
 const getClientKey = (request: NextRequest) => {
   const forwardedFor = request.headers.get("x-forwarded-for");

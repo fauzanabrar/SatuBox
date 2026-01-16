@@ -17,7 +17,7 @@ const nextConfig = {
   },
   transpilePackages: ["lucide-react"],
   experimental: {
-    proxyClientMaxBodySize: "10gb",
+    proxyClientMaxBodySize: "100gb",
   },
 };
 

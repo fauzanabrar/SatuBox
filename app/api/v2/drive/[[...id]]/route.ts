@@ -3,10 +3,12 @@ import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/file";
 import { UserSession } from "@/types/api/auth";
 import { getUserSession } from "@/lib/next-auth/user-session";
+import { randomUUID } from "node:crypto";
 import { Readable, Transform } from "node:stream";
 import Busboy from "busboy";
 import { deleteCache } from "@/lib/node-cache";
 import userServices from "@/services/userServices";
+import { getDriveAccessToken } from "@/lib/gdrive";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -24,6 +26,19 @@ type UploadResult = {
   size: number;
 };
 
+type ResumableUploadSession = {
+  uploadUrl: string;
+  targetFolderId: string;
+  uploaderUsername: string;
+  mimeType: string;
+  fileName: string;
+  totalBytes: number;
+  createdAt: number;
+};
+
+const RESUMABLE_UPLOAD_TTL_MS = 6 * 60 * 60 * 1000;
+const resumableUploads = new Map<string, ResumableUploadSession>();
+
 const createByteCounter = () => {
   let bytes = 0;
   const counter = new Transform({
@@ -34,6 +49,21 @@ const createByteCounter = () => {
   });
 
   return { counter, getBytes: () => bytes };
+};
+
+const cleanupResumableUploads = () => {
+  const now = Date.now();
+  for (const [key, session] of resumableUploads) {
+    if (now - session.createdAt > RESUMABLE_UPLOAD_TTL_MS) {
+      resumableUploads.delete(key);
+    }
+  }
+};
+
+const parseUploadHeaderNumber = (value: string | null) => {
+  if (!value) return NaN;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : NaN;
 };
 
 const streamUploadFiles = async (
@@ -251,6 +281,48 @@ const getStorageStatus = async (
   };
 };
 
+const createResumableSession = async (
+  name: string,
+  mimeType: string,
+  size: number,
+  folderId: string,
+) => {
+  const accessToken = await getDriveAccessToken();
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json; charset=UTF-8",
+    "X-Upload-Content-Type": mimeType,
+  };
+
+  if (Number.isFinite(size) && size > 0) {
+    headers["X-Upload-Content-Length"] = size.toString();
+  }
+
+  const response = await fetch(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,size",
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        name,
+        parents: [folderId],
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(errorText || "Failed to create resumable upload session");
+  }
+
+  const uploadUrl = response.headers.get("location");
+  if (!uploadUrl) {
+    throw new Error("Missing resumable upload session URL");
+  }
+
+  return uploadUrl;
+};
+
 /**
  *
  * @param request
@@ -402,9 +474,16 @@ export async function POST(
     });
   }
 
-  const targetFolderId = rawFolderId || context.rootFolderId;
+  const isChunkUpload = type === "chunk";
+  const targetFolderId = isChunkUpload
+    ? ""
+    : rawFolderId || context.rootFolderId;
 
-  if (targetFolderId && !(await canAccessFolder(targetFolderId, context))) {
+  if (
+    !isChunkUpload &&
+    targetFolderId &&
+    !(await canAccessFolder(targetFolderId, context))
+  ) {
     return NextResponse.json(
       {
         status: 403,
@@ -419,6 +498,309 @@ export async function POST(
       status: 400,
       message: "Bad Request! Type is required!",
     });
+  }
+
+  if (type === "resumable") {
+    const { name, mimeType, size } = await request.json();
+    const trimmedName = typeof name === "string" ? name.trim() : "";
+    const contentType =
+      typeof mimeType === "string" && mimeType
+        ? mimeType
+        : "application/octet-stream";
+    const totalBytes = Number(size);
+
+    if (!trimmedName) {
+      return NextResponse.json({
+        status: 400,
+        message: "Bad Request! File name is required!",
+      });
+    }
+
+    if (!Number.isFinite(totalBytes) || totalBytes <= 0) {
+      return NextResponse.json({
+        status: 400,
+        message: "Bad Request! File size is required!",
+      });
+    }
+
+    try {
+      const storage = await getStorageStatus(targetFolderId, context);
+      if (!storage) {
+        return NextResponse.json(
+          {
+            status: 403,
+            message: "Forbidden",
+          },
+          { status: 403 },
+        );
+      }
+      if (storage.blocked) {
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Plan expired. Storage exceeds free limit.",
+          },
+          { status: 402 },
+        );
+      }
+
+      if (
+        storage.limitBytes > 0 &&
+        storage.usedBytes + totalBytes > storage.limitBytes
+      ) {
+        return NextResponse.json(
+          {
+            status: 413,
+            message: "Storage limit exceeded",
+          },
+          { status: 413 },
+        );
+      }
+
+      cleanupResumableUploads();
+
+      const uploadUrl = await createResumableSession(
+        trimmedName,
+        contentType,
+        totalBytes,
+        targetFolderId,
+      );
+
+      const uploadId = randomUUID();
+      resumableUploads.set(uploadId, {
+        uploadUrl,
+        targetFolderId,
+        uploaderUsername: context.userSession.username,
+        mimeType: contentType,
+        fileName: trimmedName,
+        totalBytes,
+        createdAt: Date.now(),
+      });
+
+      return NextResponse.json({
+        status: 200,
+        message: "resumable upload created",
+        uploadId,
+      });
+    } catch (error: any) {
+      return NextResponse.json(
+        {
+          status: 500,
+          message: "error",
+          error: error.message,
+        },
+        { status: 500 },
+      );
+    }
+  }
+
+  if (type === "chunk") {
+    const uploadId = rawFolderId?.trim();
+    if (!uploadId) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Upload id is required!",
+        },
+        { status: 400 },
+      );
+    }
+
+    cleanupResumableUploads();
+    const session = resumableUploads.get(uploadId);
+    if (!session) {
+      return NextResponse.json(
+        {
+          status: 404,
+          message: "Upload session not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    if (session.uploaderUsername !== context.userSession.username) {
+      return NextResponse.json(
+        {
+          status: 403,
+          message: "Forbidden",
+        },
+        { status: 403 },
+      );
+    }
+
+    const start = parseUploadHeaderNumber(
+      request.headers.get("x-upload-start"),
+    );
+    const end = parseUploadHeaderNumber(request.headers.get("x-upload-end"));
+    const total = parseUploadHeaderNumber(
+      request.headers.get("x-upload-total"),
+    );
+    const declaredSize = parseUploadHeaderNumber(
+      request.headers.get("x-upload-size"),
+    );
+
+    if (!Number.isFinite(start) || !Number.isFinite(end) || !Number.isFinite(total)) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Invalid upload range headers!",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (total !== session.totalBytes) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Upload size mismatch!",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (start < 0 || end < start || end >= total) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Upload range is invalid!",
+        },
+        { status: 400 },
+      );
+    }
+
+    const chunkLength = end - start + 1;
+    if (Number.isFinite(declaredSize) && declaredSize !== chunkLength) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Chunk size mismatch!",
+        },
+        { status: 400 },
+      );
+    }
+
+    try {
+      const chunkBuffer = Buffer.from(await request.arrayBuffer());
+      if (chunkBuffer.length !== chunkLength) {
+        return NextResponse.json(
+          {
+            status: 400,
+            message: "Bad Request! Chunk payload is incomplete!",
+          },
+          { status: 400 },
+        );
+      }
+
+      const accessToken = await getDriveAccessToken();
+      const driveResponse = await fetch(session.uploadUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Length": chunkBuffer.length.toString(),
+          "Content-Range": `bytes ${start}-${end}/${total}`,
+          "Content-Type": session.mimeType || "application/octet-stream",
+        },
+        body: chunkBuffer,
+      });
+
+      if (driveResponse.status === 308) {
+        const range = driveResponse.headers.get("range");
+        return NextResponse.json(
+          {
+            status: 308,
+            message: "resume upload",
+            range,
+          },
+          { status: 308 },
+        );
+      }
+
+      if (!driveResponse.ok) {
+        const errorText = await driveResponse.text().catch(() => "");
+        return NextResponse.json(
+          {
+            status: driveResponse.status,
+            message: "Failed to upload chunk",
+            error: errorText,
+          },
+          { status: driveResponse.status },
+        );
+      }
+
+      const uploaded = await driveResponse.json().catch(() => ({}));
+      const sizeFromDrive = uploaded?.size ? Number(uploaded.size) : NaN;
+      const uploadedSize = Number.isFinite(sizeFromDrive)
+        ? sizeFromDrive
+        : session.totalBytes;
+
+      const storage = await getStorageStatus(session.targetFolderId, context);
+      if (!storage) {
+        return NextResponse.json(
+          {
+            status: 403,
+            message: "Forbidden",
+          },
+          { status: 403 },
+        );
+      }
+
+      if (storage.blocked) {
+        if (uploaded?.id) {
+          await driveServices.deleteFile(uploaded.id);
+        }
+        resumableUploads.delete(uploadId);
+        return NextResponse.json(
+          {
+            status: 402,
+            message: "Plan expired. Storage exceeds free limit.",
+          },
+          { status: 402 },
+        );
+      }
+
+      if (
+        storage.limitBytes > 0 &&
+        uploadedSize > 0 &&
+        storage.usedBytes + uploadedSize > storage.limitBytes
+      ) {
+        if (uploaded?.id) {
+          await driveServices.deleteFile(uploaded.id);
+        }
+        resumableUploads.delete(uploadId);
+        return NextResponse.json(
+          {
+            status: 413,
+            message: "Storage limit exceeded",
+          },
+          { status: 413 },
+        );
+      }
+
+      if (uploadedSize > 0) {
+        await userServices.incrementStorageUsage(
+          storage.ownerUsername,
+          uploadedSize,
+        );
+      }
+
+      resumableUploads.delete(uploadId);
+
+      return NextResponse.json({
+        status: 200,
+        message: "success upload file",
+        id: uploaded?.id,
+      });
+    } catch (error: any) {
+      return NextResponse.json(
+        {
+          status: 500,
+          message: "error",
+          error: error.message,
+        },
+        { status: 500 },
+      );
+    }
   }
 
   if (type === "folder") {

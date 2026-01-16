@@ -1,4 +1,5 @@
-import { auth, drive } from "@googleapis/drive";
+import { drive } from "@googleapis/drive";
+import { JWT } from "googleapis-common";
 import type { JWTInput } from "google-auth-library";
 import { Buffer } from "buffer";
 import { Readable } from "stream";
@@ -6,6 +7,7 @@ import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
 let parsedCredentials: JWTInput | undefined;
+let jwtClient: JWT | undefined;
 
 const getCredentials = (): JWTInput => {
   if (parsedCredentials) return parsedCredentials;
@@ -30,14 +32,42 @@ export async function getDriveClient() {
   if (!dClient) {
     dClient = drive({
       version: "v3",
-      auth: new auth.GoogleAuth({
-        credentials: getCredentials(),
-        scopes: "https://www.googleapis.com/auth/drive",
-      }),
+      auth: getDriveAuthClient(),
     });
   }
 
   return dClient;
+}
+
+const getDriveAuthClient = () => {
+  if (!jwtClient) {
+    const credentials = getCredentials();
+    const clientEmail = credentials.client_email;
+    const privateKey = credentials.private_key;
+
+    if (!clientEmail || !privateKey) {
+      throw new Error("GOOGLE_SERVICE_ACCOUNT is missing client_email or private_key");
+    }
+
+    jwtClient = new JWT({
+      email: clientEmail,
+      key: privateKey,
+      scopes: "https://www.googleapis.com/auth/drive",
+    });
+  }
+
+  return jwtClient;
+};
+
+export async function getDriveAccessToken() {
+  const token = await getDriveAuthClient().getAccessToken();
+  const accessToken = typeof token === "string" ? token : token?.token;
+
+  if (!accessToken) {
+    throw new Error("Failed to get Google Drive access token");
+  }
+
+  return accessToken;
 }
 
 type FileGD = {
