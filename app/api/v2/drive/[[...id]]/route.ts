@@ -324,11 +324,14 @@ export async function GET(
         parents,
       });
     } catch (error: any) {
-      return NextResponse.json({
-        status: 500,
-        message: "error",
-        error: error.message,
-      });
+      return NextResponse.json(
+        {
+          status: 500,
+          message: "error",
+          error: error.message,
+        },
+        { status: 500 },
+      );
     }
   }
 
@@ -441,7 +444,7 @@ export async function POST(
         status: 500,
         message: "error",
         error: error.message,
-      });
+      }, { status: 500 });
     }
   }
 
@@ -579,11 +582,14 @@ export async function POST(
         message: "success upload file from url",
       });
     } catch (error: any) {
-      return NextResponse.json({
-        status: 500,
-        message: "error",
-        error: error.message,
-      });
+      return NextResponse.json(
+        {
+          status: 500,
+          message: "error",
+          error: error.message,
+        },
+        { status: 500 },
+      );
     }
   }
 
@@ -690,7 +696,7 @@ export async function POST(
         status: 500,
         message: "error",
         error: error.message,
-      });
+      }, { status: 500 });
     }
   }
 

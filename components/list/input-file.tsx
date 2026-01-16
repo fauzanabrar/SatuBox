@@ -75,18 +75,23 @@ export default function InputFile({}: InputFileProps) {
           setProgress(percent);
         },
       });
-      if (response.status === 200) {
+      const apiStatus = response.data?.status ?? response.status;
+      if (apiStatus === 200) {
         setProgress(100);
         setFiles([]);
         if (inputFileRef.current) {
           inputFileRef.current.value = "";
         }
       } else {
-        setErrorMessage("Failed to upload file.");
+        const message =
+          response.data?.error || response.data?.message || "Failed to upload file.";
+        setErrorMessage(message);
       }
     } catch (error) {
       const message = axios.isAxiosError(error)
-        ? (error.response?.data?.message as string) || "Failed to upload file."
+        ? (error.response?.data?.error as string) ||
+          (error.response?.data?.message as string) ||
+          "Failed to upload file."
         : "Failed to upload file.";
       console.error("Failed to upload file", error);
       setErrorMessage(message);
@@ -131,11 +136,13 @@ export default function InputFile({}: InputFileProps) {
         body: JSON.stringify({ url: trimmedUrl }),
       });
 
-      if (response.ok) {
+      const data = await response.json().catch(() => null);
+
+      if (response.ok && data?.status === 200) {
         setFileUrl("");
       } else {
-        const data = await response.json().catch(() => null);
-        const message = data?.message || "Failed to upload file from URL.";
+        const message =
+          data?.error || data?.message || "Failed to upload file from URL.";
         console.error("Failed to upload file from url");
         setErrorMessage(message);
       }
