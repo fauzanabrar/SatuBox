@@ -80,14 +80,23 @@ export async function GET(
     headers.set("Content-Type", mimeType);
     headers.set("Accept-Ranges", "bytes");
 
-    const contentLength = mediaResponse.headers?.["content-length"];
+    type HeaderLike = {
+      get?: (name: string) => string | null;
+    } & Record<string, string | undefined>;
+    const responseHeaders = mediaResponse.headers as unknown as HeaderLike;
+    const getHeader = (name: string) =>
+      typeof responseHeaders.get === "function"
+        ? responseHeaders.get(name)
+        : responseHeaders[name];
+
+    const contentLength = getHeader("content-length");
     if (contentLength) {
       headers.set("Content-Length", contentLength);
     } else if (metadata.data.size) {
       headers.set("Content-Length", metadata.data.size);
     }
 
-    const contentRange = mediaResponse.headers?.["content-range"];
+    const contentRange = getHeader("content-range");
     if (contentRange) {
       headers.set("Content-Range", contentRange);
     }
