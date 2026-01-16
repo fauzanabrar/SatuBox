@@ -1,5 +1,5 @@
 import { drive } from "@googleapis/drive";
-import { JWT } from "googleapis-common";
+import { JWT, OAuth2Client } from "googleapis-common";
 import type { JWTInput } from "google-auth-library";
 import { Buffer } from "buffer";
 import { Readable } from "stream";
@@ -7,7 +7,7 @@ import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
 let parsedCredentials: JWTInput | undefined;
-let jwtClient: JWT | undefined;
+let jwtClient: OAuth2Client | undefined;
 
 const getCredentials = (): JWTInput => {
   if (parsedCredentials) return parsedCredentials;
@@ -39,7 +39,7 @@ export async function getDriveClient() {
   return dClient;
 }
 
-const getDriveAuthClient = () => {
+const getDriveAuthClient = (): OAuth2Client => {
   if (!jwtClient) {
     const credentials = getCredentials();
     const clientEmail = credentials.client_email;
@@ -49,11 +49,12 @@ const getDriveAuthClient = () => {
       throw new Error("GOOGLE_SERVICE_ACCOUNT is missing client_email or private_key");
     }
 
-    jwtClient = new JWT({
+    const client = new JWT({
       email: clientEmail,
       key: privateKey,
       scopes: "https://www.googleapis.com/auth/drive",
     });
+    jwtClient = client as unknown as OAuth2Client;
   }
 
   return jwtClient;
