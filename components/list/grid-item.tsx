@@ -142,7 +142,6 @@ export default function GridItemSWR({
   };
 
   const handleRename = async () => {
-    console.log("rename");
     setRenameLoading(true);
     const body = {
       newName,
@@ -158,7 +157,6 @@ export default function GridItemSWR({
       const data = await response.json();
 
       if (data.status === 200) {
-        console.log("rename berhasil");
 
         toast({
           variant: "success",
@@ -177,14 +175,12 @@ export default function GridItemSWR({
         description: error.message,
         duration: 5000,
       });
-      console.log(error);
     } finally {
       setRenameLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    console.log("delete");
     try {
       setDeleteLoading(true);
 
@@ -195,7 +191,6 @@ export default function GridItemSWR({
       const data = await response.json();
 
       if (data.status === 200) {
-        console.log("delete berhasil");
 
         toast({
           variant: "success",
@@ -214,14 +209,12 @@ export default function GridItemSWR({
         description: error.message,
         duration: 5000,
       });
-      console.log(error);
     } finally {
       setDeleteLoading(false);
     }
   };
 
   const handleAddWhitelist = async () => {
-    console.log("add whitelist");
     try {
       const body = {
         fileId: item.id,
@@ -237,7 +230,6 @@ export default function GridItemSWR({
       const data = await response.json();
 
       if (data.status === 200 || data.status === 201) {
-        console.log("add whitelist berhasil");
         mutateList(folderId);
         setInputWhitelist("");
       }
@@ -248,12 +240,10 @@ export default function GridItemSWR({
         description: error.message,
         duration: 5000,
       });
-      console.log(error);
     }
   };
 
   const handleRemoveWhitelist = (username: string) => async () => {
-    console.log("remove whitelist");
     try {
       const body = {
         fileId: item.id,
@@ -269,7 +259,6 @@ export default function GridItemSWR({
       const data = await response.json();
 
       if (data.status === 200 || data.status === 201) {
-        console.log("remove whitelist berhasil");
         mutateList(folderId);
       }
     } catch (error: any) {
@@ -279,7 +268,6 @@ export default function GridItemSWR({
         description: error.message,
         duration: 5000,
       });
-      console.log(error);
     }
   };
 
@@ -315,7 +303,6 @@ export default function GridItemSWR({
         description: error.message,
         duration: 5000,
       });
-      console.log(error);
     } finally {
       handleDialogItemOpenChange(false);
       setDropdownOpen(false);

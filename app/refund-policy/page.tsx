@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import MarketingPage from "@/components/marketing/marketing-page";
 import MarketingSection from "@/components/marketing/marketing-section";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { siteInfo } from "@/lib/marketing/site-info";
+import { siteConfig } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Refund Policy",
-  description: "How refunds and cancellations are handled for Satubox.",
+  description: `How refunds and cancellations are handled for ${siteConfig.productName}.`,
 };
 
 export default async function RefundPolicyPage() {
@@ -42,8 +42,8 @@ export default async function RefundPolicyPage() {
       <MarketingSection title="4. How to request a refund">
         <p>
           Contact{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>{" "}
           with your account email, order ID, and a brief description of the
           issue. We typically respond within 2 business days.

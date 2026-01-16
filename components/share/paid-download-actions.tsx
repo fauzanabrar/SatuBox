@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
+import { formatCurrency } from "@/lib/formatters/currency";
+import { siteConfig } from "@/lib/config/site";
 
 type Props = {
   fileId: string;
@@ -13,8 +15,8 @@ type Props = {
   isOwner?: boolean;
 };
 
-const STORAGE_KEY = "satubox_download_tokens";
-const TOKEN_CHANGE_EVENT = "satubox:download-token-change";
+const STORAGE_KEY = `${siteConfig.appKey}_download_tokens`;
+const TOKEN_CHANGE_EVENT = `${siteConfig.appKey}:download-token-change`;
 
 type TokenChangeDetail = {
   fileId: string;
@@ -123,10 +125,7 @@ export default function PaidDownloadActions(props: Props) {
 
   const priceLabel = useMemo(() => {
     if (!price || price <= 0) return "Free";
-    if (currency.toUpperCase() === "IDR") {
-      return `Rp ${price.toLocaleString("id-ID")}`;
-    }
-    return `${currency} ${price.toLocaleString("id-ID")}`;
+    return formatCurrency(price, { currency });
   }, [price, currency]);
 
   const handleDownload = () => {

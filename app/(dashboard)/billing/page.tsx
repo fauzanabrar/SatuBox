@@ -32,79 +32,10 @@ import {
   type PlanId,
 } from "@/lib/billing/plans";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/formatters/currency";
+import { formatDate, formatDateTime } from "@/lib/formatters/date";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const formatDate = (value?: unknown) => {
-  if (!value) return "—";
-  if (value instanceof Date) {
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(value);
-  }
-  if (typeof value === "string" || typeof value === "number") {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }).format(parsed);
-    }
-  }
-  if (typeof value === "object") {
-    const asAny = value as { toDate?: () => Date; seconds?: number };
-    if (typeof asAny.toDate === "function") {
-      return formatDate(asAny.toDate());
-    }
-    if (typeof asAny.seconds === "number") {
-      return formatDate(new Date(asAny.seconds * 1000));
-    }
-  }
-  return "—";
-};
-
-const formatDateTime = (value?: unknown) => {
-  if (!value) return "—";
-  if (value instanceof Date) {
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(value);
-  }
-  if (typeof value === "string" || typeof value === "number") {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(parsed);
-    }
-  }
-  if (typeof value === "object") {
-    const asAny = value as { toDate?: () => Date; seconds?: number };
-    if (typeof asAny.toDate === "function") {
-      return formatDateTime(asAny.toDate());
-    }
-    if (typeof asAny.seconds === "number") {
-      return formatDateTime(new Date(asAny.seconds * 1000));
-    }
-  }
-  return "—";
-};
-
-const formatCurrency = (value?: number | null) => {
-  if (!Number.isFinite(value ?? NaN)) return "—";
-  return `Rp ${(value ?? 0).toLocaleString("id-ID")}`;
-};
 
 declare global {
   interface Window {
@@ -173,17 +104,20 @@ export default function BillingPage() {
       ? "Annual"
       : billing?.billingCycle === "monthly"
         ? "Monthly"
-        : "—";
+        : "Not set";
   const currentPriceLabel =
     currentPlanId === "free"
       ? "Free"
       : billing?.billingCycle === "annual"
-        ? `Rp ${currentPlan.annualPrice.toLocaleString("id-ID")}/yr`
-        : `Rp ${currentPlan.monthlyPrice.toLocaleString("id-ID")}/mo`;
-  const lastPaymentLabel = formatCurrency(billing?.lastPaymentAmount);
+        ? `${formatCurrency(currentPlan.annualPrice)}/yr`
+        : `${formatCurrency(currentPlan.monthlyPrice)}/mo`;
+  const lastPaymentLabel =
+    typeof billing?.lastPaymentAmount === "number"
+      ? formatCurrency(billing.lastPaymentAmount)
+      : "Not available";
   const lastPaymentDate = formatDateTime(billing?.lastPaymentAt);
   const nextBillingLabel =
-    currentPlanId === "free" ? "—" : formatDate(billing?.nextBillingAt);
+    currentPlanId === "free" ? "Not applicable" : formatDate(billing?.nextBillingAt);
 
   const handlePlanChange = async (planId: PlanId) => {
     try {
@@ -500,12 +434,10 @@ export default function BillingPage() {
                 planId === "free"
                   ? "Free"
                   : displayUpgrade
-                    ? `Upgrade Rp ${upgradeAmount?.toLocaleString(
-                        "id-ID",
-                      )}/${cycle === "annual" ? "yr" : "mo"}`
+                    ? `Upgrade ${formatCurrency(upgradeAmount)}/${cycle === "annual" ? "yr" : "mo"}`
                     : cycle === "monthly"
-                      ? `Rp ${plan.monthlyPrice.toLocaleString("id-ID")}/mo`
-                      : `Rp ${plan.annualPrice.toLocaleString("id-ID")}/yr`;
+                      ? `${formatCurrency(plan.monthlyPrice)}/mo`
+                      : `${formatCurrency(plan.annualPrice)}/yr`;
 
               const isCurrent = currentPlanId === planId;
               const currentRank = PLAN_ORDER.indexOf(currentPlanId);

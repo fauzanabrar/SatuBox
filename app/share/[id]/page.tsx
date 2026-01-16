@@ -5,103 +5,26 @@ import { notFound } from "next/navigation";
 import Script from "next/script";
 import Link from "next/link";
 import type { Metadata } from "next";
-import Image from "next/image";
 import PaidDownloadActionsWrapper from "@/components/share/paid-download-actions-wrapper";
 import PaidDownloadSettings from "@/components/share/paid-download-settings";
 import ShareLinkCard from "@/components/share/share-link-card";
-import TextPreview from "@/components/share/text-preview";
+import FilePreview from "@/components/share/file-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { getDownloadToken } from "@/lib/supabase/db/paid-download";
 import userServices from "@/services/userServices";
+import { formatBytes } from "@/lib/formatters/bytes";
+import { formatDateTime } from "@/lib/formatters/date";
+import { siteConfig } from "@/lib/config/site";
+import { DRIVE_FOLDER_MIME_TYPE } from "@/lib/constants/drive";
 
 export const metadata: Metadata = {
   title: "Shared file",
-  description: "Download a shared file from Satubox.",
+  description: `Download a shared file from ${siteConfig.productName}.`,
   robots: {
     index: false,
     follow: false,
   },
-};
-
-const folderMimeType = "application/vnd.google-apps.folder";
-
-const formatBytes = (size?: number | null) => {
-  if (size === null || size === undefined || Number.isNaN(size)) {
-    return "Size unavailable";
-  }
-  if (size === 0) {
-    return "0 B";
-  }
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  const power = Math.min(
-    Math.floor(Math.log(size) / Math.log(1024)),
-    units.length - 1,
-  );
-  const value = size / Math.pow(1024, power);
-  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
-};
-
-const isTextLike = (mimeType: string) => mimeType.startsWith("text/");
-
-const buildPreview = (id: string, mimeType: string, fileName: string) => {
-  const mediaUrl = `/api/v2/share/media/${id}`;
-
-  if (mimeType.startsWith("image/")) {
-    return (
-      <Image
-        src={mediaUrl}
-        alt={`Preview of ${fileName}`}
-        width={1200}
-        height={1200}
-        sizes="(min-width: 1024px) 60vw, 100vw"
-        className="h-auto w-full rounded-xl border border-border object-contain"
-      />
-    );
-  }
-
-  if (mimeType.startsWith("video/")) {
-    return (
-      <video
-        controls
-        preload="metadata"
-        className="w-full rounded-xl border border-border"
-        src={mediaUrl}
-      />
-    );
-  }
-
-  if (mimeType.startsWith("audio/")) {
-    return (
-      <audio
-        controls
-        preload="metadata"
-        className="w-full rounded-xl border border-border"
-        src={mediaUrl}
-      />
-    );
-  }
-
-  if (mimeType === "application/pdf") {
-    return (
-      <iframe
-        title={`PDF preview for ${fileName}`}
-        src={mediaUrl}
-        className="h-[70vh] w-full rounded-xl border border-border"
-      />
-    );
-  }
-
-  if (isTextLike(mimeType)) {
-    return <TextPreview fileId={id} mimeType={mimeType} />;
-  }
-
-  return (
-    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/40 text-sm text-muted-foreground">
-      Preview is not available for this file type.
-    </div>
-  );
 };
 
 export default async function ShareFilePage({
@@ -154,7 +77,7 @@ export default async function ShareFilePage({
     notFound();
   }
 
-  if (!file || file.mimeType === folderMimeType) {
+  if (!file || file.mimeType === DRIVE_FOLDER_MIME_TYPE) {
     notFound();
   }
 
@@ -167,27 +90,22 @@ export default async function ShareFilePage({
   let isOwner = false;
   if (userSession) {
     const user = await userServices.getByUsername(userSession.username);
-    isOwner = user?.email && file.owners?.some(owner =>
-      owner.emailAddress?.toLowerCase() === user.email?.toLowerCase()
-    ) || false;
+    isOwner = Boolean(
+      user?.email &&
+        file.owners?.some(
+          (owner) =>
+            owner.emailAddress?.toLowerCase() === user.email?.toLowerCase(),
+        ),
+    );
   }
 
   const paidDownload = await getPaidDownload(id);
-  const paidPrice = (paidDownload && paidDownload.enabled ? paidDownload.price : 0) ?? 0;
-  const paidCurrency = paidDownload?.currency ?? "IDR";
-  const paidBadgeLabel = paidPrice > 0 ? "Paid" : "Free";
-  const paidBadgeVariant = paidPrice > 0 ? "default" : "outline";
-  const previewEnabled = paidDownload?.previewEnabled ?? true; // Default to true if not set
-
-  // Check if user has already purchased this file
-  let hasPurchased = false;
-  if (userSession && paidDownload && paidDownload.enabled && paidPrice > 0) {
-    // Check if there's a download token for this file and user
-    // This would require checking if the user has a valid download token
-    // For now, we'll check if there's any download order for this file that was paid by this user
-    // This would require additional database queries to check user's purchase history
-    // For now, we'll skip this check and just show the preview if it's the owner
-  }
+  const paidPrice = paidDownload?.enabled ? paidDownload.price ?? 0 : 0;
+  const isPaidDownload = paidPrice > 0;
+  const paidCurrency = paidDownload?.currency ?? siteConfig.currency;
+  const paidBadgeLabel = isPaidDownload ? "Paid" : "Free";
+  const paidBadgeVariant = isPaidDownload ? "default" : "outline";
+  const previewEnabled = paidDownload?.previewEnabled ?? true;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-teal-50 text-foreground">
@@ -205,14 +123,14 @@ export default async function ShareFilePage({
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold uppercase tracking-[0.35em] text-white">
-              S
+              {siteConfig.brandMark}
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Satubox
+                {siteConfig.productName}
               </p>
               <p className="text-lg font-semibold text-foreground">
-                Halaman unduhan
+                Download page
               </p>
             </div>
           </div>
@@ -221,16 +139,16 @@ export default async function ShareFilePage({
               <div className="flex items-center gap-2">
                 <span className="text-sm">Welcome, {userSession.name || userSession.username}</span>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/list">Dashboard</Link>
                 </Button>
               </div>
             ) : (
               <>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/login">Masuk</Link>
+                  <Link href="/login">Sign in</Link>
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/register">Buat akun</Link>
+                  <Link href="/register">Create account</Link>
                 </Button>
               </>
             )}
@@ -242,7 +160,7 @@ export default async function ShareFilePage({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  File dibagikan
+                  Shared file
                 </p>
                 <h1 className="break-all text-2xl font-semibold text-foreground sm:text-3xl">
                   {fileName}
@@ -257,48 +175,45 @@ export default async function ShareFilePage({
               </div>
             </div>
             <div className="mt-5">
-              {/* Show preview or download based on conditions */}
               {isOwner ? (
-                // Owner can always download without paying
                 <div className="text-center py-8">
-                  <p className="text-lg mb-4">You are the owner of this file</p>
+                  <p className="mb-4 text-lg">You are the owner of this file</p>
                   <Button asChild>
-                    <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
+                    <Link
+                      href={`/api/v2/share/download/${id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Download File
                     </Link>
                   </Button>
                 </div>
-              ) : paidPrice > 0 ? (
-                // For paid files, check preview setting but always allow owner access
+              ) : isPaidDownload ? (
                 <div>
-                  {isOwner ? (
-                    // Owner can always see preview/download regardless of preview setting
-                    <div className="text-center py-8">
-                      <p className="text-lg mb-4">You are the owner of this file</p>
-                      <Button asChild>
-                        <Link href={`/api/v2/share/download/${id}`} target="_blank" rel="noopener noreferrer">
-                          Download File (Owner)
-                        </Link>
-                      </Button>
-                    </div>
-                  ) : previewEnabled ? (
-                    // For non-owners, check preview setting
+                  {previewEnabled ? (
                     <>
-                      {buildPreview(id, mimeType, fileName)}
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <FilePreview
+                        fileId={id}
+                        mimeType={mimeType}
+                        fileName={fileName}
+                      />
+                      <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
                         <p className="text-sm text-blue-800">
-                          This file requires payment to download. Sign in to link your purchase to your account.
+                          This file requires payment to download. Sign in to
+                          link your purchase to your account.
                         </p>
                       </div>
                     </>
                   ) : (
-                    // For non-owners with preview disabled
                     <div className="text-center py-8">
-                      <p className="text-lg mb-4">This file has preview disabled</p>
-                      <p className="text-sm text-muted-foreground mb-6">
-                        The owner has disabled previews for this file. Pay to access it.
+                      <p className="mb-4 text-lg">
+                        This file has preview disabled
                       </p>
-                      <div className="max-w-md mx-auto">
+                      <p className="mb-6 text-sm text-muted-foreground">
+                        The owner has disabled previews for this file. Pay to
+                        access it.
+                      </p>
+                      <div className="mx-auto max-w-md">
                         <PaidDownloadActionsWrapper
                           fileId={id}
                           price={paidPrice}
@@ -311,9 +226,12 @@ export default async function ShareFilePage({
                   )}
                 </div>
               ) : (
-                // For free files, show preview
                 <div>
-                  {buildPreview(id, mimeType, fileName)}
+                  <FilePreview
+                    fileId={id}
+                    mimeType={mimeType}
+                    fileName={fileName}
+                  />
                 </div>
               )}
             </div>
@@ -322,32 +240,26 @@ export default async function ShareFilePage({
           <div className="flex flex-col gap-5">
             <div className="rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Detail File
+                File details
               </p>
               <div className="mt-4 space-y-3">
                 <div className="flex justify-between border-b border-border/50 pb-3">
-                  <span className="text-sm text-muted-foreground">Nama File</span>
+                  <span className="text-sm text-muted-foreground">File name</span>
                   <span className="text-sm font-medium text-foreground">{fileName}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
-                  <span className="text-sm text-muted-foreground">Tipe File</span>
+                  <span className="text-sm text-muted-foreground">File type</span>
                   <span className="text-sm font-medium text-foreground">{mimeType}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
-                  <span className="text-sm text-muted-foreground">Ukuran</span>
+                  <span className="text-sm text-muted-foreground">Size</span>
                   <span className="text-sm font-medium text-foreground">{sizeLabel}</span>
                 </div>
                 {file?.createdTime && (
                   <div className="flex justify-between pb-3">
-                    <span className="text-sm text-muted-foreground">Tanggal Upload</span>
+                    <span className="text-sm text-muted-foreground">Upload date</span>
                     <span className="text-sm font-medium text-foreground">
-                      {new Date(file.createdTime).toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatDateTime(file.createdTime)}
                     </span>
                   </div>
                 )}
@@ -363,21 +275,20 @@ export default async function ShareFilePage({
 
             <div className="rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Akses unduhan
+                Download access
               </p>
-              {paidPrice > 0 && !isOwner && (
+              {isPaidDownload && !isOwner && (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Bayar sekali untuk membuka unduhan tanpa batas di perangkat
-                  ini.
+                  Pay once to unlock unlimited downloads on this device.
                 </p>
               )}
-              {paidPrice > 0 && isOwner && (
+              {isPaidDownload && isOwner && (
                 <p className="mt-2 text-sm text-muted-foreground">
                   You are the owner of this file. You can download it without paying.
                 </p>
               )}
               <div className="mt-5">
-                {paidPrice > 0 ? (
+                {isPaidDownload ? (
                   <>
                     {!isOwner ? (
                       <PaidDownloadActionsWrapper
@@ -442,11 +353,11 @@ export default async function ShareFilePage({
             ) : (
               <div className="rounded-3xl border border-dashed border-border/70 bg-white/70 p-5 text-xs text-muted-foreground">
                 <p className="text-sm font-semibold text-foreground">
-                  Masuk agar akses tersimpan
+                  Sign in to save access
                 </p>
                 <p className="mt-2">
-                  Masuk untuk menyinkronkan pembelian antar perangkat dan
-                  menghindari hilangnya akses saat data browser dibersihkan.
+                  Sign in to sync purchases across devices and avoid losing
+                  access when browser data is cleared.
                 </p>
               </div>
             )}

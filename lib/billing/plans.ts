@@ -40,18 +40,4 @@ export const PLANS = {
 export const DEFAULT_PLAN_ID: PlanId = "free";
 export const PLAN_ORDER: PlanId[] = ["free", "starter", "pro"];
 
-export const formatBytes = (size?: number | null) => {
-  if (size === null || size === undefined || Number.isNaN(size)) {
-    return "Size unavailable";
-  }
-  if (size === 0) {
-    return "0 B";
-  }
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  const power = Math.min(
-    Math.floor(Math.log(size) / Math.log(1024)),
-    units.length - 1,
-  );
-  const value = size / Math.pow(1024, power);
-  return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
-};
+export { formatBytes } from "../formatters/bytes";

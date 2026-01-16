@@ -4,11 +4,11 @@ import MarketingSection from "@/components/marketing/marketing-section";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { siteInfo } from "@/lib/marketing/site-info";
+import { siteConfig } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Common questions about Satubox billing and file sharing.",
+  description: `Common questions about ${siteConfig.productName} billing and file sharing.`,
 };
 
 export default async function FaqPage() {
@@ -46,8 +46,8 @@ export default async function FaqPage() {
       answer: (
         <>
           Email us at{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>
           .
         </>
@@ -81,8 +81,8 @@ export default async function FaqPage() {
       <MarketingSection title="Still need help?">
         <p>
           Reach the team via{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>{" "}
           or visit the{" "}
           <a className="text-foreground underline" href="/contact">

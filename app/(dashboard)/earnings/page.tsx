@@ -33,13 +33,10 @@ import type {
   DownloadEarning,
   WithdrawRequest,
 } from "@/lib/supabase/db/earnings";
+import { formatCurrency } from "@/lib/formatters/currency";
+import { formatDateTime } from "@/lib/formatters/date";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const formatCurrency = (value?: number | null) => {
-  if (!Number.isFinite(value ?? NaN)) return "Rp 0";
-  return `Rp ${(value ?? 0).toLocaleString("id-ID")}`;
-};
 
 const getDateFromValue = (value?: unknown) => {
   if (!value) return null;
@@ -58,18 +55,6 @@ const getDateFromValue = (value?: unknown) => {
     }
   }
   return null;
-};
-
-const formatDateTime = (value?: unknown) => {
-  const parsed = getDateFromValue(value);
-  if (!parsed) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(parsed);
 };
 
 export default function EarningsPage() {
@@ -183,9 +168,7 @@ export default function EarningsPage() {
       toast({
         variant: "destructive",
         title: "Nominal terlalu kecil",
-        description: `Minimal penarikan Rp ${minWithdrawAmount.toLocaleString(
-          "id-ID",
-        )}.`,
+        description: `Minimal penarikan ${formatCurrency(minWithdrawAmount)}.`,
         duration: 4000,
       });
       return;
@@ -351,7 +334,7 @@ export default function EarningsPage() {
             <CardHeader>
               <CardTitle>Ajukan penarikan</CardTitle>
               <CardDescription>
-                Minimum penarikan Rp {minWithdrawAmount.toLocaleString("id-ID")}
+                Minimum penarikan {formatCurrency(minWithdrawAmount)}
                 .
               </CardDescription>
             </CardHeader>

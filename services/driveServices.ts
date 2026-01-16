@@ -2,31 +2,7 @@ import { FileDrive, ParentsFolder } from "@/types/api/file";
 import gdrive from "@/lib/gdrive";
 import restrictServices from "./restrictServices";
 import { Readable } from "node:stream";
-
-const fileTypes: Record<string, string> = {
-  "application/vnd.google-apps.folder": "folder",
-  "application/pdf": "pdf",
-  "application/msword": "doc",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-    "doc",
-  "application/vnd.google-apps.document": "doc",
-  "application/vnd.ms-excel": "sheet",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "sheet",
-  "application/vnd.google-apps.spreadsheet": "sheet",
-  "application/vnd.ms-powerpoint": "slide",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-    "slide",
-  "application/vnd.google-apps.presentation": "slide",
-  "application/zip": "archive",
-  "application/x-zip-compressed": "archive",
-  "application/x-7z-compressed": "archive",
-  "application/x-rar-compressed": "archive",
-  "application/x-tar": "archive",
-  "application/gzip": "archive",
-  "image/jpeg": "image",
-  "image/gif": "image",
-  "image/png": "image",
-};
+import { resolveDriveFileType } from "@/lib/constants/drive";
 
 type UserContext = {
   username: string;
@@ -55,18 +31,7 @@ async function list(
         };
 
         // set the filetype
-        const mimeType = (file.mimeType as string) || "";
-        newfile.fileType =
-          fileTypes[mimeType] ??
-          (mimeType.startsWith("image/")
-            ? "image"
-            : mimeType.startsWith("video/")
-              ? "video"
-              : mimeType.startsWith("audio/")
-                ? "audio"
-                : mimeType.startsWith("text/")
-                  ? "text"
-                  : "file");
+        newfile.fileType = resolveDriveFileType(file.mimeType as string);
 
         // set the media (deprecated)
         // if (newfile.fileType === "image") {
@@ -152,7 +117,6 @@ async function addFile(file: FileUpload, folderId?: string) {
       folderId ? folderId : (process.env.SHARED_FOLDER_ID_DRIVE as string),
     ]);
   } catch (error: any) {
-    console.log(error);
     throw new Error(error);
   }
 }

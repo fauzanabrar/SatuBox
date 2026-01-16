@@ -2,7 +2,11 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import MarketingHeader from "@/components/marketing/marketing-header";
 import MarketingFooter from "@/components/marketing/marketing-footer";
-import { siteInfo } from "@/lib/marketing/site-info";
+import {
+  legalHighlights,
+  policyLinks,
+  siteConfig,
+} from "@/lib/config/site";
 
 interface MarketingPageProps {
   title: string;
@@ -17,29 +21,6 @@ export default function MarketingPage({
   isSignedIn,
   children,
 }: MarketingPageProps) {
-  const policyLinks = [
-    { href: "/terms", label: "Terms of Service" },
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/refund-policy", label: "Refund Policy" },
-    { href: "/faq", label: "FAQ" },
-    { href: "/contact", label: "Contact" },
-  ];
-
-  const highlights = [
-    {
-      title: "Payments",
-      description: "Payments are processed by Midtrans.",
-    },
-    {
-      title: "Support",
-      description: `Reach us at ${siteInfo.supportEmail}.`,
-    },
-    {
-      title: "Policies",
-      description: "Terms, privacy, and refund policy in one place.",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="relative overflow-hidden border-b">
@@ -60,7 +41,7 @@ export default function MarketingPage({
             </p>
           </div>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {highlights.map((item) => (
+            {legalHighlights.map((item) => (
               <div
                 key={item.title}
                 className="rounded-2xl border bg-background/80 p-4 shadow-sm"
@@ -102,14 +83,14 @@ export default function MarketingPage({
                 Email{" "}
                 <a
                   className="text-foreground underline"
-                  href={`mailto:${siteInfo.supportEmail}`}
+                  href={`mailto:${siteConfig.supportEmail}`}
                 >
-                  {siteInfo.supportEmail}
+                  {siteConfig.supportEmail}
                 </a>{" "}
-                or call {siteInfo.supportPhone}.
+                or call {siteConfig.supportPhone}.
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                Support hours: {siteInfo.supportHours}
+                Support hours: {siteConfig.supportHours}
               </p>
             </div>
             <div className="rounded-2xl border bg-muted/40 p-5">

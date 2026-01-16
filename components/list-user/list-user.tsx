@@ -18,83 +18,14 @@ import {
   TableRow,
 } from "../ui/table";
 import { PLANS, type PlanId } from "@/lib/billing/plans";
+import { formatCurrency } from "@/lib/formatters/currency";
+import { formatDate, formatDateTime } from "@/lib/formatters/date";
 
 const DialogDeleteUser = dynamic(() => import("./dialog-delete"), {
   ssr: false,
 });
 
 const DialogEditUser = dynamic(() => import("./dialog-edit"), { ssr: false });
-
-const formatDate = (value?: unknown) => {
-  if (!value) return "—";
-  if (value instanceof Date) {
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(value);
-  }
-  if (typeof value === "string" || typeof value === "number") {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }).format(parsed);
-    }
-  }
-  if (typeof value === "object") {
-    const asAny = value as { toDate?: () => Date; seconds?: number };
-    if (typeof asAny.toDate === "function") {
-      return formatDate(asAny.toDate());
-    }
-    if (typeof asAny.seconds === "number") {
-      return formatDate(new Date(asAny.seconds * 1000));
-    }
-  }
-  return "—";
-};
-
-const formatDateTime = (value?: unknown) => {
-  if (!value) return "—";
-  if (value instanceof Date) {
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(value);
-  }
-  if (typeof value === "string" || typeof value === "number") {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(parsed);
-    }
-  }
-  if (typeof value === "object") {
-    const asAny = value as { toDate?: () => Date; seconds?: number };
-    if (typeof asAny.toDate === "function") {
-      return formatDateTime(asAny.toDate());
-    }
-    if (typeof asAny.seconds === "number") {
-      return formatDateTime(new Date(asAny.seconds * 1000));
-    }
-  }
-  return "—";
-};
-
-const formatCurrency = (value?: number | null) => {
-  if (!Number.isFinite(value ?? NaN)) return "—";
-  return `Rp ${(value ?? 0).toLocaleString("id-ID")}`;
-};
 
 const getInitials = (name?: string) => {
   if (!name) return "?";
@@ -198,10 +129,13 @@ export default function ListUser({
                   ? "Annual"
                   : user.billingCycle === "monthly"
                     ? "Monthly"
-                    : "—";
+                    : "Not set";
               const nextBillingLabel =
-                planId === "free" ? "—" : formatDate(user.nextBillingAt);
-              const lastPaymentLabel = formatCurrency(user.lastPaymentAmount);
+                planId === "free" ? "Not applicable" : formatDate(user.nextBillingAt);
+              const lastPaymentLabel =
+                typeof user.lastPaymentAmount === "number"
+                  ? formatCurrency(user.lastPaymentAmount)
+                  : "Not available";
               const lastPaymentDate = formatDateTime(user.lastPaymentAt);
               const hasPaymentHistory = Boolean(
                 user.lastPaymentAt ||
@@ -250,7 +184,7 @@ export default function ListUser({
                         Last payment:{" "}
                         {hasPaymentHistory
                           ? `${lastPaymentLabel} - ${lastPaymentDate}`
-                          : "—"}
+                          : "Not available"}
                       </p>
                       {user.lastPaymentOrderId && (
                         <p>Order: {user.lastPaymentOrderId}</p>

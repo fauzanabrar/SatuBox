@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { FileDrive } from "@/types/api/file";
 import { Eye } from "lucide-react";
+import { formatBytes } from "@/lib/formatters/bytes";
+import { formatDateTime } from "@/lib/formatters/date";
 
 type Props = {
   file: FileDrive;
@@ -48,40 +50,6 @@ const DialogItemDetails = ({
     };
     load();
   }, [isOpen, file, toast]);
-
-  const formatBytes = (size?: number | string | null) => {
-    if (size === null || size === undefined || size === "") {
-      return "Size unavailable";
-    }
-
-    const numSize = typeof size === 'string' ? Number(size) : size;
-
-    if (Number.isNaN(numSize)) {
-      return "Size unavailable";
-    }
-    if (numSize === 0) {
-      return "0 B";
-    }
-    const units = ["B", "KB", "MB", "GB", "TB"];
-    const power = Math.min(
-      Math.floor(Math.log(numSize) / Math.log(1024)),
-      units.length - 1,
-    );
-    const value = numSize / Math.pow(1024, power);
-    return `${value.toFixed(value >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Unknown";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   return (
     <DialogItem
@@ -125,7 +93,7 @@ const DialogItemDetails = ({
                 <div className="flex justify-between border-b border-border/50 pb-3">
                   <span className="text-sm text-muted-foreground">Dibuat</span>
                   <span className="text-sm font-medium text-foreground">
-                    {formatDate(fileDetails.createdTime)}
+                    {formatDateTime(fileDetails.createdTime)}
                   </span>
                 </div>
               )}
@@ -133,7 +101,7 @@ const DialogItemDetails = ({
                 <div className="flex justify-between pb-3">
                   <span className="text-sm text-muted-foreground">Diubah</span>
                   <span className="text-sm font-medium text-foreground">
-                    {formatDate(fileDetails.modifiedTime)}
+                    {formatDateTime(fileDetails.modifiedTime)}
                   </span>
                 </div>
               )}

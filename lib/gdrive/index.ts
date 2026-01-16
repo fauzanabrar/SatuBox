@@ -5,9 +5,9 @@ import { Readable } from "stream";
 import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
-let parsedCredentials: JWTInput | null = null;
+let parsedCredentials: JWTInput | undefined;
 
-const getCredentials = () => {
+const getCredentials = (): JWTInput => {
   if (parsedCredentials) return parsedCredentials;
 
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT;
@@ -16,7 +16,7 @@ const getCredentials = () => {
   }
 
   try {
-    parsedCredentials = JSON.parse(raw);
+    parsedCredentials = JSON.parse(raw) as JWTInput;
   } catch (error: any) {
     throw new Error(
       `Failed to parse GOOGLE_SERVICE_ACCOUNT: ${error?.message ?? error}`,

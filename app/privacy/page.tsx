@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import MarketingPage from "@/components/marketing/marketing-page";
 import MarketingSection from "@/components/marketing/marketing-section";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { siteInfo } from "@/lib/marketing/site-info";
+import { siteConfig } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How Satubox collects, uses, and protects personal data.",
+  description: `How ${siteConfig.productName} collects, uses, and protects personal data.`,
 };
 
 export default async function PrivacyPage() {
@@ -67,8 +67,8 @@ export default async function PrivacyPage() {
       <MarketingSection title="7. Your rights">
         <p>
           You may access, correct, or delete your personal data by contacting{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>
           .
         </p>
@@ -76,8 +76,8 @@ export default async function PrivacyPage() {
       <MarketingSection title="8. Contact">
         <p>
           Privacy questions can be sent to{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>
           .
         </p>

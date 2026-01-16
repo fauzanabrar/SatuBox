@@ -134,8 +134,6 @@ async function ensureRootFolder(username: string) {
 
       if (currentParent && currentParent.id !== parentId) {
         // The user's folder is under the wrong root, so update it to the new root
-        console.log(`Moving user ${username}'s folder from ${currentParent.id} to ${parentId}`);
-
         // Update the user's root folder ID to the new one
         // Note: This doesn't physically move the folder in Google Drive,
         // but updates the reference in our database
@@ -374,14 +372,10 @@ async function add(registerUser: RegisterUser) {
 
 async function update(registerUser: ChangedUser) {
   try {
-    console.log('Updating user:', registerUser); // Debug log
-
     // check if the user exist
     const user = await getUserByUsername(registerUser.username);
 
     if (!user) throw new Error("User not found");
-
-    console.log('Found user to update:', user); // Debug log
 
     const changedUser = {
       name: registerUser.name ?? user.name,
@@ -390,15 +384,10 @@ async function update(registerUser: ChangedUser) {
       role: registerUser.role,
     };
 
-    console.log('Calling database updateUser with:', changedUser); // Debug log
-
     const updatedUser = await updateUser(changedUser);
-
-    console.log('User updated successfully:', updatedUser); // Debug log
 
     return updatedUser;
   } catch (error: any) {
-    console.error('Error updating user in service:', error); // Debug log
     throw new Error(error);
   }
 }

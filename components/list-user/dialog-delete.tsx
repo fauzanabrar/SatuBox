@@ -50,7 +50,6 @@ export default function DialogDeleteUser({
         description: error.message,
         duration: 5000,
       });
-      console.log(error.message);
     } finally {
       setLoading(false);
       setOpen(false);

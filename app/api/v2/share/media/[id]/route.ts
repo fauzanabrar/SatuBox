@@ -2,8 +2,8 @@ import { getRestrictByFileId } from "@/lib/supabase/db/restrict";
 import { getDriveClient } from "@/lib/gdrive";
 import { NextResponse } from "next/server";
 import { Readable } from "node:stream";
+import { DRIVE_FOLDER_MIME_TYPE } from "@/lib/constants/drive";
 
-const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
 
 type ParamsType = {
@@ -47,7 +47,7 @@ export async function GET(
 
     const mimeType = metadata.data.mimeType || "application/octet-stream";
 
-    if (mimeType === folderMimeType) {
+    if (mimeType === DRIVE_FOLDER_MIME_TYPE) {
       return NextResponse.json(
         {
           status: 400,

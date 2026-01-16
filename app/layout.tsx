@@ -3,17 +3,19 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "@/components/jotai/providers";
 import Toaster from "@/components/ui/toaster";
+import { siteConfig } from "@/lib/config/site";
 
 const inter = Inter({ subsets: ["latin"] });
-const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
+const baseUrl =
+  process.env.BASE_URL ?? siteConfig.website ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Satubox",
-    template: "%s | Satubox",
+    default: siteConfig.productName,
+    template: `%s | ${siteConfig.productName}`,
   },
-  description: "Share files fast, control access, and manage storage.",
+  description: siteConfig.description,
 };
 
 const themeScript = `

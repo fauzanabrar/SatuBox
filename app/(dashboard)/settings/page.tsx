@@ -12,7 +12,7 @@ import FormChangePassword from "./form-change-password";
 import FormEditUser from "./form-edit-user";
 import FolderShare from "./folder-share";
 import ThemeToggle from "@/components/theme-toggle";
-import { siteInfo } from "@/lib/marketing/site-info";
+import { policyLinks, siteConfig } from "@/lib/config/site";
 
 export const metadata = {
   title: "Settings",
@@ -130,31 +130,21 @@ export default async function SettingsPage() {
             </p>
           </div>
           <div className="mt-4 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
-            <Link className="hover:text-foreground" href="/terms">
-              Terms of Service
-            </Link>
-            <Link className="hover:text-foreground" href="/privacy">
-              Privacy Policy
-            </Link>
-            <Link className="hover:text-foreground" href="/refund-policy">
-              Refund Policy
-            </Link>
-            <Link className="hover:text-foreground" href="/faq">
-              FAQ
-            </Link>
-            <Link className="hover:text-foreground" href="/contact">
-              Contact
-            </Link>
+            {policyLinks.map((link) => (
+              <Link key={link.href} className="hover:text-foreground" href={link.href}>
+                {link.label}
+              </Link>
+            ))}
           </div>
           <div className="mt-4 rounded-xl border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
             Support:{" "}
             <a
               className="text-foreground underline"
-              href={`mailto:${siteInfo.supportEmail}`}
+              href={`mailto:${siteConfig.supportEmail}`}
             >
-              {siteInfo.supportEmail}
+              {siteConfig.supportEmail}
             </a>{" "}
-            | {siteInfo.supportPhone}
+            | {siteConfig.supportPhone}
           </div>
         </div>
       </div>

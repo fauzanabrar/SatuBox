@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { PLANS, type BillingCycle, type PlanId } from "@/lib/billing/plans";
+import { formatCurrency } from "@/lib/formatters/currency";
 
 const formSchema = z.object({
   name: z.string().min(4, {
@@ -111,9 +112,7 @@ export default function FormEditProfile({
       : PLANS.pro.monthlyPrice - PLANS.starter.monthlyPrice;
   const proUpgradeLabel =
     currentPlanId === "starter"
-      ? `Pro (upgrade +Rp ${Math.max(0, upgradePrice).toLocaleString(
-          "id-ID",
-        )}/${selectedCycle === "annual" ? "yr" : "mo"})`
+      ? `Pro (upgrade +${formatCurrency(Math.max(0, upgradePrice))}/${selectedCycle === "annual" ? "yr" : "mo"})`
       : "Pro";
   const planOptions =
     currentPlanId === "pro"

@@ -33,10 +33,10 @@ const getClientKey = (request: NextRequest) => {
 
 export default withAuth(
   // This callback is only invoked if the `authorized` callback below returns `true`.
-  function middleware(request: NextRequest) {
+  function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Apply rate limiting to all API routes that pass through the middleware.
+    // Apply rate limiting to all API routes that pass through the proxy.
     if (pathname.startsWith(API_PREFIX) && request.method !== "OPTIONS") {
       const key = getClientKey(request);
       const result = rateLimit(key, {

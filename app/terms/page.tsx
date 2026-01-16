@@ -3,11 +3,11 @@ import Link from "next/link";
 import MarketingPage from "@/components/marketing/marketing-page";
 import MarketingSection from "@/components/marketing/marketing-section";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { siteInfo } from "@/lib/marketing/site-info";
+import { siteConfig } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The terms that govern use of the Satubox platform.",
+  description: `The terms that govern use of the ${siteConfig.productName} platform.`,
 };
 
 export default async function TermsPage() {
@@ -22,7 +22,7 @@ export default async function TermsPage() {
     >
       <MarketingSection title="1. Agreement to these terms">
         <p>
-          By accessing or using {siteInfo.productName}, you agree to these Terms
+          By accessing or using {siteConfig.productName}, you agree to these Terms
           of Service and our{" "}
           <Link className="text-foreground underline" href="/privacy">
             Privacy Policy
@@ -84,15 +84,15 @@ export default async function TermsPage() {
       <MarketingSection title="9. Disclaimers and limitation of liability">
         <p>
           The service is provided on an as-is basis. To the maximum extent
-          permitted by law, {siteInfo.legalName} is not liable for indirect,
+          permitted by law, {siteConfig.legalName} is not liable for indirect,
           incidental, or consequential damages arising from use of the service.
         </p>
       </MarketingSection>
       <MarketingSection title="10. Contact">
         <p>
           Questions about these terms can be sent to{" "}
-          <a className="text-foreground underline" href={`mailto:${siteInfo.supportEmail}`}>
-            {siteInfo.supportEmail}
+          <a className="text-foreground underline" href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
           </a>
           .
         </p>

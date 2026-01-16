@@ -5,8 +5,8 @@ import { getDriveClient } from "@/lib/gdrive";
 import { Readable } from "node:stream";
 import driveServices from "@/services/driveServices";
 import userServices from "@/services/userServices";
+import { DRIVE_FOLDER_MIME_TYPE } from "@/lib/constants/drive";
 
-const folderMimeType = "application/vnd.google-apps.folder";
 const googleAppsPrefix = "application/vnd.google-apps.";
 const googleExportMime = "application/pdf";
 
@@ -125,7 +125,7 @@ export async function GET(
 
     const mimeType = metadata.data.mimeType || "application/octet-stream";
 
-    if (mimeType === folderMimeType) {
+    if (mimeType === DRIVE_FOLDER_MIME_TYPE) {
       return NextResponse.json({
         status: 400,
         message: "Folder cannot be downloaded",
