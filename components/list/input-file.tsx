@@ -70,7 +70,8 @@ export default function InputFile({}: InputFileProps) {
         },
         onUploadProgress: (progressEvent) => {
           const { loaded, total } = progressEvent;
-          let percent = Math.floor((loaded * 80) / (total as number));
+          if (!total) return;
+          const percent = Math.min(100, Math.round((loaded / total) * 100));
           setProgress(percent);
         },
       });

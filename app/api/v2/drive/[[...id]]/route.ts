@@ -3,9 +3,13 @@ import driveServices from "@/services/driveServices";
 import { FileResponse } from "@/types/api/file";
 import { UserSession } from "@/types/api/auth";
 import { getUserSession } from "@/lib/next-auth/user-session";
-import { Readable } from "node:stream";
+import { Readable, Transform } from "node:stream";
+import Busboy from "busboy";
 import { deleteCache } from "@/lib/node-cache";
 import userServices from "@/services/userServices";
+
+export const runtime = "nodejs";
+export const maxDuration = 300;
 
 type RouteParams = {
   id?: string[];
@@ -13,6 +17,108 @@ type RouteParams = {
 
 type ParamsType = {
   params: Promise<RouteParams>;
+};
+
+type UploadResult = {
+  id?: string;
+  size: number;
+};
+
+const createByteCounter = () => {
+  let bytes = 0;
+  const counter = new Transform({
+    transform(chunk, _encoding, callback) {
+      bytes += chunk.length;
+      callback(null, chunk);
+    },
+  });
+
+  return { counter, getBytes: () => bytes };
+};
+
+const streamUploadFiles = async (
+  request: NextRequest,
+  targetFolderId: string,
+  uploadedIds: string[],
+) => {
+  const contentType = request.headers.get("content-type") ?? "";
+
+  if (!contentType.includes("multipart/form-data")) {
+    throw new Error("Invalid content type");
+  }
+
+  if (!request.body) {
+    throw new Error("Missing request body");
+  }
+
+  const uploads: Promise<UploadResult>[] = [];
+  let fileCount = 0;
+
+  const busboy = Busboy({
+    headers: {
+      "content-type": contentType,
+    },
+  });
+
+  busboy.on(
+    "file",
+    (_fieldname, file, info: { filename: string; mimeType: string }) => {
+      const filename = info.filename?.trim();
+      if (!filename) {
+        file.resume();
+        return;
+      }
+
+      fileCount += 1;
+
+      const { counter, getBytes } = createByteCounter();
+      file.pipe(counter);
+
+      const uploadPromise = driveServices
+        .addFile(
+          {
+            name: filename,
+            mimeType: info.mimeType || "application/octet-stream",
+            content: counter,
+          },
+          targetFolderId,
+        )
+        .then((uploaded) => {
+          const sizeFromDrive = uploaded?.size ? Number(uploaded.size) : NaN;
+          const size = Number.isFinite(sizeFromDrive)
+            ? sizeFromDrive
+            : getBytes();
+
+          if (uploaded?.id) {
+            uploadedIds.push(uploaded.id);
+          }
+
+          return {
+            id: uploaded?.id,
+            size,
+          };
+        });
+
+      uploads.push(uploadPromise);
+    },
+  );
+
+  const bodyStream = Readable.fromWeb(request.body as any);
+  const finished = new Promise<void>((resolve, reject) => {
+    busboy.once("close", resolve);
+    busboy.once("finish", resolve);
+    busboy.once("error", reject);
+    bodyStream.once("error", reject);
+  });
+
+  bodyStream.pipe(busboy);
+  await finished;
+
+  return {
+    fileCount,
+    uploadedIds,
+    results: uploads.length > 0 ? await Promise.all(uploads) : [],
+  };
 };
 
 const getFilenameFromContentDisposition = (
@@ -482,16 +588,7 @@ export async function POST(
   }
 
   if (type === "file") {
-    const data = await request.formData();
-
-    const files: File[] = data.getAll("files") as File[];
-
-    if (files.length < 1) {
-      return NextResponse.json({
-        status: 400,
-        message: "Your files not found",
-      });
-    }
+    const uploadedIds: string[] = [];
 
     try {
       const storage = await getStorageStatus(targetFolderId, context);
@@ -514,11 +611,34 @@ export async function POST(
         );
       }
 
-      const totalBytes = files.reduce((sum, file) => sum + (file.size || 0), 0);
+      const { fileCount, results } = await streamUploadFiles(
+        request,
+        targetFolderId,
+        uploadedIds,
+      );
+
+      if (fileCount < 1) {
+        return NextResponse.json({
+          status: 400,
+          message: "Your files not found",
+        });
+      }
+
+      const totalBytes = results.reduce((sum, result) => {
+        const size = Number.isFinite(result.size) ? result.size : 0;
+        return sum + size;
+      }, 0);
+
       if (
         storage.limitBytes > 0 &&
+        totalBytes > 0 &&
         storage.usedBytes + totalBytes > storage.limitBytes
       ) {
+        if (uploadedIds.length > 0) {
+          await Promise.all(
+            uploadedIds.map((id) => driveServices.deleteFile(id)),
+          );
+        }
         return NextResponse.json(
           {
             status: 413,
@@ -526,16 +646,6 @@ export async function POST(
           },
           { status: 413 },
         );
-      }
-
-      for (const file of files) {
-        const newFile = {
-          name: file.name,
-          mimeType: file.type,
-          content: Readable.fromWeb(file.stream() as any),
-        };
-
-        await driveServices.addFile(newFile, targetFolderId);
       }
 
       if (totalBytes > 0) {
@@ -550,6 +660,32 @@ export async function POST(
         message: "success upload all files",
       });
     } catch (error: any) {
+      if (uploadedIds.length > 0) {
+        await Promise.all(
+          uploadedIds.map((id) => driveServices.deleteFile(id)),
+        );
+      }
+
+      if (error?.message === "Invalid content type") {
+        return NextResponse.json(
+          {
+            status: 400,
+            message: "Invalid content type",
+          },
+          { status: 400 },
+        );
+      }
+
+      if (error?.message === "Missing request body") {
+        return NextResponse.json(
+          {
+            status: 400,
+            message: "Missing request body",
+          },
+          { status: 400 },
+        );
+      }
+
       return NextResponse.json({
         status: 500,
         message: "error",

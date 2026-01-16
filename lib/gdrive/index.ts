@@ -226,6 +226,7 @@ async function uploadFile(
   const response = await driveClient.files.create({
     requestBody: fileMetadata,
     media,
+    uploadType: "resumable",
     fields: "id, size",
   });
 

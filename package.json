@@ -45,6 +45,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.6.5",
     "bcryptjs": "^2.4.3",
+    "busboy": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
@@ -70,6 +71,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/busboy": "^1.5.4",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
