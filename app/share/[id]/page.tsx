@@ -13,10 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getUserSession } from "@/lib/next-auth/user-session";
 import userServices from "@/services/userServices";
-import { formatBytes } from "@/lib/formatters/bytes";
-import { formatDateTime } from "@/lib/formatters/date";
-import { siteConfig } from "@/lib/config/site";
-import { DRIVE_FOLDER_MIME_TYPE } from "@/lib/constants/drive";
 
 export const metadata: Metadata = {
   title: "Shared file",
@@ -248,7 +244,7 @@ export default async function ShareFilePage({
                   <span className="text-sm font-medium text-foreground">{fileName}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
-                  <span className="text-sm text-muted-foreground">File type</span>
+                  <span className="text-sm text-muted-foreground">Tipe File</span>
                   <span className="text-sm font-medium text-foreground">{mimeType}</span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-3">
