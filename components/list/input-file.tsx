@@ -65,9 +65,6 @@ export default function InputFile({}: InputFileProps) {
         ? `/api/v2/drive/file/${folderId}`
         : "/api/v2/drive/file";
       const response = await axios.post(uploadUrl, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
         onUploadProgress: (progressEvent) => {
           const { loaded, total } = progressEvent;
           if (!total) return;

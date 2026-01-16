@@ -21,6 +21,10 @@ const API_RATE_LIMIT_MAX = parseEnvNumber(
   300,
 );
 
+const isUploadRoute = (pathname: string) =>
+  pathname === "/api/v2/drive/file" ||
+  pathname.startsWith("/api/v2/drive/file/");
+
 const getClientKey = (request: NextRequest) => {
   const forwardedFor = request.headers.get("x-forwarded-for");
   const ip =
@@ -38,6 +42,9 @@ export default withAuth(
 
     // Apply rate limiting to all API routes that pass through the proxy.
     if (pathname.startsWith(API_PREFIX) && request.method !== "OPTIONS") {
+      if (isUploadRoute(pathname)) {
+        return NextResponse.next();
+      }
       const key = getClientKey(request);
       const result = rateLimit(key, {
         windowMs: API_RATE_LIMIT_WINDOW_MS,
