@@ -7,7 +7,8 @@ import { cache, cacheKey, deleteCache, deleteCaches } from "../node-cache";
 
 let dClient: ReturnType<typeof drive> | undefined;
 let parsedCredentials: JWTInput | undefined;
-let jwtClient: OAuth2Client | undefined;
+let authClient: OAuth2Client | undefined;
+let authMode: "oauth" | "service" | undefined;
 
 const getCredentials = (): JWTInput => {
   if (parsedCredentials) return parsedCredentials;
@@ -28,11 +29,41 @@ const getCredentials = (): JWTInput => {
   return parsedCredentials;
 };
 
+type OAuthEnvConfig = {
+  clientId: string;
+  clientSecret: string;
+  refreshToken: string;
+};
+
+const getOAuthConfig = (): OAuthEnvConfig | null => {
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID?.trim() ?? "";
+  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET?.trim() ?? "";
+  const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN?.trim() ?? "";
+
+  const hasAny = clientId || clientSecret || refreshToken;
+  if (!hasAny) return null;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error(
+      "GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, and GOOGLE_OAUTH_REFRESH_TOKEN must be set together",
+    );
+  }
+
+  return { clientId, clientSecret, refreshToken };
+};
+
+const createOAuthClient = (config: OAuthEnvConfig) => {
+  const client = new OAuth2Client(config.clientId, config.clientSecret);
+  client.setCredentials({ refresh_token: config.refreshToken });
+  return client;
+};
+
 export async function getDriveClient() {
+  const auth = getDriveAuthClient();
   if (!dClient) {
     dClient = drive({
       version: "v3",
-      auth: getDriveAuthClient(),
+      auth,
     });
   }
 
@@ -40,24 +71,37 @@ export async function getDriveClient() {
 }
 
 const getDriveAuthClient = (): OAuth2Client => {
-  if (!jwtClient) {
-    const credentials = getCredentials();
-    const clientEmail = credentials.client_email;
-    const privateKey = credentials.private_key;
+  const oauthConfig = getOAuthConfig();
+  const desiredMode = oauthConfig ? "oauth" : "service";
 
-    if (!clientEmail || !privateKey) {
-      throw new Error("GOOGLE_SERVICE_ACCOUNT is missing client_email or private_key");
-    }
-
-    const client = new JWT({
-      email: clientEmail,
-      key: privateKey,
-      scopes: "https://www.googleapis.com/auth/drive",
-    });
-    jwtClient = client as unknown as OAuth2Client;
+  if (authClient && authMode === desiredMode) {
+    return authClient;
   }
 
-  return jwtClient;
+  if (oauthConfig) {
+    authClient = createOAuthClient(oauthConfig);
+    authMode = "oauth";
+    dClient = undefined;
+    return authClient;
+  }
+
+  const credentials = getCredentials();
+  const clientEmail = credentials.client_email;
+  const privateKey = credentials.private_key;
+
+  if (!clientEmail || !privateKey) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT is missing client_email or private_key");
+  }
+
+  const client = new JWT({
+    email: clientEmail,
+    key: privateKey,
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
+  authClient = client as unknown as OAuth2Client;
+  authMode = "service";
+  dClient = undefined;
+  return authClient;
 };
 
 export async function getDriveAccessToken() {
