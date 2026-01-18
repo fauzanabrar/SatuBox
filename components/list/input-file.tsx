@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Loading from "../loading";
 import { mutateList } from "@/hooks/useSWRList";
 import { Progress } from "../ui/progress";
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { formatBytes } from "@/lib/formatters/bytes";
 
 interface InputFileProps extends React.HTMLAttributes<HTMLInputElement> {}
 
@@ -26,9 +27,12 @@ export default function InputFile({}: InputFileProps) {
   const [loading, setLoading] = useState(false);
   const [urlLoading, setUrlLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [urlProgress, setUrlProgress] = useState(0);
+  const [urlProgressLabel, setUrlProgressLabel] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const urlPollTimeoutRef = useRef<number | null>(null);
 
   const pathnames = usePathname();
   const lastPath = pathnames.split("/").pop();
@@ -45,12 +49,87 @@ export default function InputFile({}: InputFileProps) {
     setErrorMessage("");
   };
 
+  const stopUrlPolling = () => {
+    if (urlPollTimeoutRef.current !== null) {
+      window.clearTimeout(urlPollTimeoutRef.current);
+      urlPollTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopUrlPolling();
+    };
+  }, []);
+
   const parseRangeEnd = (range: string | null | undefined) => {
     if (!range) return null;
     const match = /bytes(?:=| )0-(\d+)/i.exec(range);
     if (!match) return null;
     const parsed = Number(match[1]);
     return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const pollUrlStatus = async (uploadId: string) => {
+    const statusUrl = `/api/v2/drive/url/status/${uploadId}`;
+
+    try {
+      const response = await fetch(statusUrl);
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || data?.status !== 200) {
+        const message =
+          data?.error || data?.message || "Failed to check upload progress.";
+        setErrorMessage(message);
+        setUrlLoading(false);
+        stopUrlPolling();
+        return;
+      }
+
+      const uploadedBytes =
+        typeof data?.uploadedBytes === "number" ? data.uploadedBytes : 0;
+      const totalBytes =
+        typeof data?.totalBytes === "number" ? data.totalBytes : 0;
+
+      if (totalBytes > 0) {
+        const percent = Math.min(
+          100,
+          Math.round((uploadedBytes / totalBytes) * 100),
+        );
+        setUrlProgress(percent);
+        setUrlProgressLabel(
+          `${formatBytes(uploadedBytes)} of ${formatBytes(totalBytes)}`,
+        );
+      } else {
+        setUrlProgress(0);
+        setUrlProgressLabel(`${formatBytes(uploadedBytes)} uploaded`);
+      }
+
+      if (data?.state === "completed") {
+        setUrlProgress(100);
+        setUrlLoading(false);
+        setFileUrl("");
+        stopUrlPolling();
+        mutateList(folderId);
+        return;
+      }
+
+      if (data?.state === "error") {
+        setUrlLoading(false);
+        setErrorMessage(data?.error || "Failed to upload file from URL.");
+        stopUrlPolling();
+        return;
+      }
+
+      urlPollTimeoutRef.current = window.setTimeout(
+        () => pollUrlStatus(uploadId),
+        1000,
+      );
+    } catch (error) {
+      setUrlLoading(false);
+      setErrorMessage("Failed to check upload progress.");
+      stopUrlPolling();
+    }
   };
 
   const startResumableUpload = async (file: File) => {
@@ -185,6 +264,9 @@ export default function InputFile({}: InputFileProps) {
     setFiles([]);
     setFileUrl("");
     setErrorMessage("");
+    setUrlProgress(0);
+    setUrlProgressLabel("");
+    stopUrlPolling();
     if (inputFileRef.current) {
       inputFileRef.current.value = "";
     }
@@ -201,13 +283,17 @@ export default function InputFile({}: InputFileProps) {
 
     setErrorMessage("");
     setUrlLoading(true);
+    setUrlProgress(0);
+    setUrlProgressLabel("");
+    stopUrlPolling();
 
     const urlPath = folderId
       ? `/api/v2/drive/url/${folderId}`
       : "/api/v2/drive/url";
+    const progressUrl = `${urlPath}?progress=1`;
 
     try {
-      const response = await fetch(urlPath, {
+      const response = await fetch(progressUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -217,20 +303,25 @@ export default function InputFile({}: InputFileProps) {
 
       const data = await response.json().catch(() => null);
 
-      if (response.ok && data?.status === 200) {
+      if (response.ok && data?.uploadId) {
+        await pollUrlStatus(data.uploadId);
+      } else if (response.ok && data?.status === 200) {
         setFileUrl("");
+        setUrlLoading(false);
+        mutateList(folderId);
       } else {
         const message =
           data?.error || data?.message || "Failed to upload file from URL.";
         console.error("Failed to upload file from url");
         setErrorMessage(message);
+        setUrlLoading(false);
+        stopUrlPolling();
       }
     } catch (error) {
       console.error("Failed to upload file from url", error);
       setErrorMessage("Failed to upload file from URL.");
-    } finally {
       setUrlLoading(false);
-      mutateList(folderId);
+      stopUrlPolling();
     }
   };
 
@@ -291,6 +382,16 @@ export default function InputFile({}: InputFileProps) {
             </div>
           </div>
           {uploadMode === "file" && loading && <Progress value={progress} />}
+          {uploadMode === "url" && urlLoading && (
+            <div className="space-y-1">
+              <Progress value={urlProgress} />
+              {urlProgressLabel ? (
+                <p className="text-xs text-muted-foreground">
+                  {urlProgressLabel}
+                </p>
+              ) : null}
+            </div>
+          )}
           {errorMessage && (
             <p className="text-sm font-medium text-destructive">
               {errorMessage}

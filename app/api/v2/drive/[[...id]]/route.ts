@@ -36,8 +36,25 @@ type ResumableUploadSession = {
   createdAt: number;
 };
 
+type UrlUploadSession = {
+  uploadId: string;
+  uploaderUsername: string;
+  targetFolderId: string;
+  fileName: string;
+  mimeType: string;
+  totalBytes: number | null;
+  uploadedBytes: number;
+  status: "queued" | "uploading" | "completed" | "error";
+  error?: string;
+  fileId?: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
 const RESUMABLE_UPLOAD_TTL_MS = 6 * 60 * 60 * 1000;
 const resumableUploads = new Map<string, ResumableUploadSession>();
+const URL_UPLOAD_TTL_MS = 6 * 60 * 60 * 1000;
+const urlUploads = new Map<string, UrlUploadSession>();
 
 const createByteCounter = () => {
   let bytes = 0;
@@ -51,6 +68,20 @@ const createByteCounter = () => {
   return { counter, getBytes: () => bytes };
 };
 
+const createUrlProgressStream = (session: UrlUploadSession) => {
+  let uploaded = 0;
+  const progress = new Transform({
+    transform(chunk, _encoding, callback) {
+      uploaded += chunk.length;
+      session.uploadedBytes = uploaded;
+      session.updatedAt = Date.now();
+      callback(null, chunk);
+    },
+  });
+
+  return { progress, getBytes: () => uploaded };
+};
+
 const cleanupResumableUploads = () => {
   const now = Date.now();
   for (const [key, session] of resumableUploads) {
@@ -60,10 +91,25 @@ const cleanupResumableUploads = () => {
   }
 };
 
+const cleanupUrlUploads = () => {
+  const now = Date.now();
+  for (const [key, session] of urlUploads) {
+    if (now - session.createdAt > URL_UPLOAD_TTL_MS) {
+      urlUploads.delete(key);
+    }
+  }
+};
+
 const parseUploadHeaderNumber = (value: string | null) => {
   if (!value) return NaN;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : NaN;
+};
+
+const parseContentLength = (value: string | null) => {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 };
 
 const streamUploadFiles = async (
@@ -281,6 +327,163 @@ const getStorageStatus = async (
   };
 };
 
+const finalizeUrlUploadError = (
+  session: UrlUploadSession,
+  error: unknown,
+) => {
+  session.status = "error";
+  session.error =
+    error instanceof Error ? error.message : "Failed to upload file from URL.";
+  session.updatedAt = Date.now();
+};
+
+const runUrlUpload = async (
+  uploadId: string,
+  url: string,
+  fileName: string | undefined,
+  targetFolderId: string,
+  context: UserAccessContext,
+) => {
+  const session = urlUploads.get(uploadId);
+  if (!session) return;
+
+  session.status = "uploading";
+  session.updatedAt = Date.now();
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(
+        response.statusText || "Failed to download file from URL.",
+      );
+    }
+
+    if (!response.body) {
+      throw new Error("Failed to read file body");
+    }
+
+    const contentType =
+      response.headers.get("content-type") || "application/octet-stream";
+    const headerName = getFilenameFromContentDisposition(
+      response.headers.get("content-disposition"),
+    );
+    const urlName = getFilenameFromUrl(url);
+    const resolvedName = fileName || headerName || urlName || "download";
+
+    session.fileName = resolvedName;
+    session.mimeType = contentType;
+    session.totalBytes = parseContentLength(
+      response.headers.get("content-length"),
+    );
+    session.updatedAt = Date.now();
+
+    const storage = await getStorageStatus(targetFolderId, context);
+    if (!storage) {
+      throw new Error("Forbidden");
+    }
+    if (storage.blocked) {
+      throw new Error("Plan expired. Storage exceeds free limit.");
+    }
+
+    if (
+      storage.limitBytes > 0 &&
+      session.totalBytes !== null &&
+      storage.usedBytes + session.totalBytes > storage.limitBytes
+    ) {
+      throw new Error("Storage limit exceeded");
+    }
+
+    const bodyStream = Readable.fromWeb(response.body as any);
+    const { progress, getBytes } = createUrlProgressStream(session);
+    const uploadStream = bodyStream.pipe(progress);
+
+    const uploaded = await driveServices.addFile(
+      {
+        name: resolvedName,
+        mimeType: contentType,
+        content: uploadStream,
+      },
+      targetFolderId,
+    );
+
+    const sizeFromDrive = uploaded?.size ? Number(uploaded.size) : NaN;
+    const uploadedSize = Number.isFinite(sizeFromDrive)
+      ? sizeFromDrive
+      : session.totalBytes ?? getBytes();
+
+    session.uploadedBytes = Number.isFinite(uploadedSize)
+      ? uploadedSize
+      : session.uploadedBytes;
+    session.fileId = uploaded?.id;
+    session.updatedAt = Date.now();
+
+    const finalStorage = await getStorageStatus(targetFolderId, context);
+    if (!finalStorage) {
+      if (uploaded?.id) {
+        await driveServices.deleteFile(uploaded.id);
+      }
+      throw new Error("Forbidden");
+    }
+    if (finalStorage.blocked) {
+      if (uploaded?.id) {
+        await driveServices.deleteFile(uploaded.id);
+      }
+      throw new Error("Plan expired. Storage exceeds free limit.");
+    }
+
+    if (
+      finalStorage.limitBytes > 0 &&
+      uploadedSize > 0 &&
+      finalStorage.usedBytes + uploadedSize > finalStorage.limitBytes
+    ) {
+      if (uploaded?.id) {
+        await driveServices.deleteFile(uploaded.id);
+      }
+      throw new Error("Storage limit exceeded");
+    }
+
+    if (uploadedSize > 0) {
+      await userServices.incrementStorageUsage(
+        finalStorage.ownerUsername,
+        uploadedSize,
+      );
+    }
+
+    session.status = "completed";
+    session.updatedAt = Date.now();
+  } catch (error) {
+    finalizeUrlUploadError(session, error);
+  }
+};
+
+const startUrlUpload = async (
+  url: string,
+  fileName: string | undefined,
+  targetFolderId: string,
+  context: UserAccessContext,
+) => {
+  cleanupUrlUploads();
+  const uploadId = randomUUID();
+  const session: UrlUploadSession = {
+    uploadId,
+    uploaderUsername: context.userSession.username,
+    targetFolderId,
+    fileName: fileName ?? "",
+    mimeType: "application/octet-stream",
+    totalBytes: null,
+    uploadedBytes: 0,
+    status: "queued",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  urlUploads.set(uploadId, session);
+  void runUrlUpload(uploadId, url, fileName, targetFolderId, context);
+
+  return uploadId;
+};
+
 const createResumableSession = async (
   name: string,
   mimeType: string,
@@ -351,6 +554,56 @@ export async function GET(
     return NextResponse.json({
       status: 401,
       message: "Unauthorized",
+    });
+  }
+
+  if (idParam?.[0] === "url" && idParam?.[1] === "status") {
+    const uploadId = idParam?.[2]?.trim();
+    if (!uploadId) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Upload id is required!",
+        },
+        { status: 400 },
+      );
+    }
+
+    cleanupUrlUploads();
+    const session = urlUploads.get(uploadId);
+    if (!session) {
+      return NextResponse.json(
+        {
+          status: 404,
+          message: "Upload session not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    if (
+      session.uploaderUsername !== context.userSession.username &&
+      context.userSession.role !== "admin"
+    ) {
+      return NextResponse.json(
+        {
+          status: 403,
+          message: "Forbidden",
+        },
+        { status: 403 },
+      );
+    }
+
+    return NextResponse.json({
+      status: 200,
+      message: "success",
+      uploadId: session.uploadId,
+      state: session.status,
+      uploadedBytes: session.uploadedBytes,
+      totalBytes: session.totalBytes,
+      fileName: session.fileName,
+      fileId: session.fileId,
+      error: session.error,
     });
   }
 
@@ -833,6 +1086,8 @@ export async function POST(
 
   if (type === "url") {
     const { url, fileName } = await request.json();
+    const useProgress =
+      request.nextUrl.searchParams.get("progress") === "1";
 
     if (!url) {
       return NextResponse.json({
@@ -856,6 +1111,33 @@ export async function POST(
         status: 400,
         message: "Bad Request! Url protocol is invalid!",
       });
+    }
+
+    if (useProgress) {
+      try {
+        const trimmedName =
+          typeof fileName === "string" ? fileName.trim() : undefined;
+        const uploadId = await startUrlUpload(
+          urlObj.toString(),
+          trimmedName,
+          targetFolderId,
+          context,
+        );
+        return NextResponse.json({
+          status: 200,
+          message: "url upload started",
+          uploadId,
+        });
+      } catch (error: any) {
+        return NextResponse.json(
+          {
+            status: 500,
+            message: "error",
+            error: error?.message ?? "Failed to start upload",
+          },
+          { status: 500 },
+        );
+      }
     }
 
     try {

@@ -9,6 +9,22 @@ type UserContext = {
   role: string;
 };
 
+const sortDriveItems = (items: FileDrive[]) => {
+  return [...items].sort((a, b) => {
+    const aIsFolder = a.fileType === "folder";
+    const bIsFolder = b.fileType === "folder";
+
+    if (aIsFolder !== bIsFolder) {
+      return aIsFolder ? -1 : 1;
+    }
+
+    const aName = a.name?.toLowerCase() ?? "";
+    const bName = b.name?.toLowerCase() ?? "";
+    if (aName === bName) return 0;
+    return aName < bName ? -1 : 1;
+  });
+};
+
 async function list(
   user: UserContext,
   folderId?: string,
@@ -21,7 +37,7 @@ async function list(
       restrictServices.list(),
     ]);
 
-    const listFiles: Promise<FileDrive[]> = Promise.all(
+    const mappedFiles = await Promise.all(
       driveFiles.map(async (file: any) => {
         const newfile: FileDrive = {
           id: file.id,
@@ -60,13 +76,13 @@ async function list(
     );
 
     // skip the restrict if the user is user
-    const files = (await listFiles).filter(
+    const files = mappedFiles.filter(
       (file) => !(file.isRestrict && !file.whitelist?.includes(user.username)),
     );
 
-    if (user.role === "user") return files;
+    if (user.role === "user") return sortDriveItems(files);
 
-    return listFiles;
+    return sortDriveItems(mappedFiles);
   } catch (error: any) {
     throw new Error(error);
   }
