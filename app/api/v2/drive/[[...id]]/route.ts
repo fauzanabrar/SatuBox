@@ -680,29 +680,30 @@ export async function POST(
       );
     }
 
-    try {
-      const chunkBuffer = Buffer.from(await request.arrayBuffer());
-      if (chunkBuffer.length !== chunkLength) {
-        return NextResponse.json(
-          {
-            status: 400,
-            message: "Bad Request! Chunk payload is incomplete!",
-          },
-          { status: 400 },
-        );
-      }
+    const bodyStream = request.body;
+    if (!bodyStream) {
+      return NextResponse.json(
+        {
+          status: 400,
+          message: "Bad Request! Missing upload body!",
+        },
+        { status: 400 },
+      );
+    }
 
+    try {
       const accessToken = await getDriveAccessToken();
       const driveResponse = await fetch(session.uploadUrl, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Length": chunkBuffer.length.toString(),
+          "Content-Length": chunkLength.toString(),
           "Content-Range": `bytes ${start}-${end}/${total}`,
           "Content-Type": session.mimeType || "application/octet-stream",
         },
-        body: chunkBuffer,
-      });
+        body: bodyStream,
+        duplex: "half",
+      } as RequestInit & { duplex: "half" });
 
       if (driveResponse.status === 308) {
         const range = driveResponse.headers.get("range");
